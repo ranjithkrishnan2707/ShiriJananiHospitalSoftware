@@ -1,0 +1,146 @@
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--color-primary);
+  color: white;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  padding-top: var(--header-height);
+  overflow-y: auto;
+  transition: all var(--transition-speed);
+  z-index: 900;
+  box-shadow: var(--shadow-md);
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+}
+
+.sidebar-nav {
+  padding: 20px 0;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  padding: 14px 24px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  transition: all var(--transition-speed);
+  font-weight: 600;
+  position: relative;
+  border-left: 4px solid transparent;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.sidebar-link.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  border-left-color: white;
+}
+
+.sidebar-icon {
+  margin-right: 16px;
+  display: flex;
+}
+
+.sidebar-text {
+  font-size: 15px;
+  flex: 1;
+}
+
+/* Accordion Specific */
+.sidebar-accordion-header {
+  display: flex;
+  align-items: center;
+  padding: 14px 24px;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  font-weight: 600;
+  border-left: 4px solid transparent;
+  user-select: none;
+}
+
+.sidebar-accordion-header:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.accordion-arrow {
+  transition: transform 0.3s ease;
+}
+
+.accordion-arrow.open {
+  transform: rotate(180deg);
+}
+
+.sidebar-submenu {
+  background-color: rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.sidebar-submenu.open {
+  max-height: 200px;
+}
+
+.submenu-link {
+  display: flex;
+  align-items: center;
+  padding: 10px 24px 10px 60px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 13px;
+  transition: all var(--transition-speed);
+}
+
+.submenu-link:hover {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.notification-badge {
+  background-color: var(--color-error);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  animation: pulse-badge 2s infinite;
+}
+
+.submenu-badge {
+  background-color: var(--color-error);
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: auto;
+}
+
+@keyframes pulse-badge {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 6px rgba(244, 67, 54, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+}

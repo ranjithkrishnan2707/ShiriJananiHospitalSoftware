@@ -1,0 +1,258 @@
+.opd-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.opd-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #486899 100%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.opd-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.opd-header .opd-id {
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.opd-main-content {
+  display: grid;
+  grid-template-columns: 450px 1fr;
+  gap: 16px;
+}
+
+.opd-form-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.form-group label {
+  width: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-top: 8px;
+}
+
+.input-container {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-main);
+  font-size: 13px;
+  color: var(--color-text);
+  outline: none;
+  transition: border-color var(--transition-speed);
+}
+
+.form-control:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(96, 130, 182, 0.2);
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.search-btn {
+  background-color: #E0E0E0;
+  color: var(--color-text);
+  padding: 0 16px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.search-btn:hover {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.opd-table-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  justify-content: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.btn-view {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 8px 24px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+.btn-view:hover {
+  background-color: #486899;
+}
+
+/* Modern Table Styles */
+.table-container {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table th, .data-table td {
+  padding: 10px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.data-table th {
+  background-color: #F8F9FA;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.data-table tbody tr:hover {
+  background-color: rgba(96, 130, 182, 0.08);
+}
+
+.data-table tbody tr.active-row {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.data-table tbody tr.active-row:hover {
+  background-color: var(--color-primary);
+}
+
+/* Vitals & Complaints Section */
+.opd-bottom-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 16px;
+}
+
+.section-card {
+  padding: 16px;
+}
+
+.section-header {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1A237E; /* Deep blue from original design */
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 8px;
+}
+
+.vital-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.vital-group label {
+  width: 90px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.vital-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vital-unit {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-error);
+  width: 40px;
+}
+
+.complaints-textarea {
+  width: 100%;
+  height: calc(100% - 40px);
+  min-height: 100px;
+}
+
+/* Action Buttons */
+.opd-action-bar {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+  background-color: #E3F2FD;
+  padding: 12px;
+  border-radius: var(--radius-md);
+}
+
+.action-btn {
+  padding: 8px 24px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 13px;
+  background-color: white;
+  border: 1px solid #90CAF9;
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.action-btn:hover {
+  background-color: #BBDEFB;
+}
+
+.btn-close {
+  color: var(--color-error);
+}

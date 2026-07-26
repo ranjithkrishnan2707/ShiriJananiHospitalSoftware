@@ -1,0 +1,229 @@
+.medical-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+  height: calc(100vh - 120px);
+}
+
+.medical-header {
+  background: linear-gradient(135deg, #9C27B0 0%, #6A1B9A 100%);
+  color: white;
+  padding: 16px 24px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.medical-header h2 {
+  font-size: 24px;
+  margin-bottom: 4px;
+  margin-top: 0;
+}
+
+.medical-header p {
+  opacity: 0.9;
+  font-size: 14px;
+  margin: 0;
+}
+
+.medical-content {
+  display: flex;
+  gap: 20px;
+  flex: 1;
+  min-height: 0; /* for flex child scrolling */
+}
+
+/* Left Pane (List) */
+.prescription-list-pane {
+  flex: 1;
+  max-width: 450px;
+  background: var(--color-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pane-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-background);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.list-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prescription-list-item {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+}
+
+.prescription-list-item:hover {
+  border-color: #9C27B0;
+  box-shadow: var(--shadow-sm);
+}
+
+.prescription-list-item.selected {
+  border-color: #9C27B0;
+  background-color: #F3E5F5;
+  border-left: 4px solid #9C27B0;
+}
+
+.list-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.list-item-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--color-text);
+}
+
+.list-item-time {
+  font-size: 12px;
+  color: var(--color-text-light);
+}
+
+.list-item-doctor {
+  font-size: 13px;
+  color: var(--color-text-light);
+}
+
+/* Right Pane (Detail) */
+.prescription-detail-pane {
+  flex: 2;
+  background: white;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.detail-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.detail-box {
+  background-color: var(--color-background);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.detail-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-light);
+  margin-bottom: 4px;
+}
+
+.detail-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.medicines-box {
+  background-color: #F3E5F5;
+  border: 1px solid #CE93D8;
+  padding: 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+}
+
+.medicines-box .detail-label {
+  color: #6A1B9A;
+  font-size: 14px;
+}
+
+.medicines-content {
+  font-size: 16px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--color-text);
+}
+
+.notes-box {
+  background-color: #FFF3E0;
+  border: 1px solid #FFCC80;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+}
+
+.detail-footer {
+  padding: 20px 24px;
+  background-color: var(--color-background);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-dispense {
+  background-color: var(--color-success);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-dispense:hover {
+  background-color: #388E3C;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--color-text-light);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.empty-state-icon {
+  color: #E0E0E0;
+  margin-bottom: 16px;
+}

@@ -1,0 +1,123 @@
+:root {
+  --color-primary: #6082b6;
+  --color-secondary: #FFFFFF;
+  --color-background: #F4F7FA;
+  --color-border: #D5E0EE;
+  --color-hover: #E4ECF7;
+  --color-text: #222222;
+  --color-text-light: #666666;
+  --color-success: #43A047;
+  --color-warning: #FB8C00;
+  --color-error: #E53935;
+  
+  --font-main: 'Poppins', 'Inter', sans-serif;
+  
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(96, 130, 182, 0.15), 0 2px 4px -1px rgba(96, 130, 182, 0.08);
+  --shadow-lg: 0 10px 15px -3px rgba(96, 130, 182, 0.18), 0 4px 6px -2px rgba(96, 130, 182, 0.1);
+  
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  
+  --transition-speed: 0.3s;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-transition {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Base Styles */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: var(--font-main);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all var(--transition-speed) ease;
+}
+
+/* Shared Card Style */
+.card {
+  background-color: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-speed) ease, transform var(--transition-speed) ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.clickable-card {
+  cursor: pointer;
+}
+
+.clickable-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary);
+}
+
+/* Placeholder Page Styles */
+.placeholder-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 120px);
+  text-align: center;
+}
+
+.placeholder-icon {
+  font-size: 64px;
+  margin-bottom: 24px;
+  background-color: var(--color-hover);
+  color: var(--color-primary);
+  padding: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 12px;
+}
+
+.placeholder-description {
+  font-size: 18px;
+  color: var(--color-text-light);
+  max-width: 500px;
+  line-height: 1.6;
+}

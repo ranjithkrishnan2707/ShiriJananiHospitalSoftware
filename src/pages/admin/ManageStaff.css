@@ -1,0 +1,206 @@
+.manage-staff-container {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* Form Section (Left) */
+.staff-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.staff-form-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #486899 100%);
+  color: white;
+  padding: 16px;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.staff-form-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.staff-form-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.staff-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.staff-form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.staff-form-group input,
+.staff-form-group select {
+  width: 100%;
+}
+
+.staff-form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.btn-save {
+  flex: 1;
+  background-color: var(--color-success);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition-speed);
+}
+
+.btn-save:hover {
+  background-color: #388E3C;
+}
+
+.btn-clear {
+  flex: 1;
+  background-color: #9E9E9E;
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition-speed);
+}
+
+.btn-clear:hover {
+  background-color: #757575;
+}
+
+/* Table Section (Right) */
+.staff-list-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.staff-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.staff-list-header h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 18px;
+}
+
+.search-bar {
+  padding: 8px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  width: 250px;
+  outline: none;
+  transition: border-color var(--transition-speed);
+}
+
+.search-bar:focus {
+  border-color: var(--color-primary);
+}
+
+.table-container {
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.staff-table th,
+.staff-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.staff-table th {
+  background-color: var(--color-background);
+  font-weight: 600;
+  color: var(--color-text-light);
+  font-size: 13px;
+  position: sticky;
+  top: 0;
+}
+
+.staff-table td {
+  font-size: 14px;
+}
+
+.staff-table tr:hover {
+  background-color: var(--color-hover);
+}
+
+.role-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.role-doctor {
+  background-color: #E3F2FD;
+  color: #1976D2;
+}
+
+.role-nurse {
+  background-color: #F3E5F5;
+  color: #7B1FA2;
+}
+
+.role-reception {
+  background-color: #E8F5E9;
+  color: #388E3C;
+}
+
+.role-other {
+  background-color: #FFF3E0;
+  color: #F57C00;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-light);
+  transition: color var(--transition-speed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.btn-icon:hover {
+  color: var(--color-primary);
+}
