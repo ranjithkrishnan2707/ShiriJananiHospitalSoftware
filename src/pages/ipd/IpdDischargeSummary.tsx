@@ -371,7 +371,7 @@ const IpdDischargeSummary: React.FC = () => {
       <div className="discharge-header">
         <h2>Discharge Summary - Shri Janani Hospitals</h2>
         <div>
-          <button className="btn-secondary" onClick={() => navigate('/ipd')} style={{ marginRight: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          <button className="btn-secondary" onClick={() => navigate(-1)} style={{ marginRight: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
             <ArrowLeft size={16} /> Back
           </button>
         </div>

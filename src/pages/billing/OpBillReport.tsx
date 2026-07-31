@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Download } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Download, ArrowLeft } from 'lucide-react';
 import './OpBillReport.css';
 
 interface BillItem {
@@ -24,6 +25,7 @@ const INITIAL_BILLS: BillItem[] = [
 ];
 
 const OpBillReport: React.FC = () => {
+  const navigate = useNavigate();
   const [reportType, setReportType] = useState('ALL');
   const [fromDate, setFromDate] = useState('2026-05-21');
   const [toDate, setToDate] = useState('2026-05-21');
@@ -90,8 +92,28 @@ const OpBillReport: React.FC = () => {
 
   return (
     <div className="bill-report-container page-transition">
-      <div className="bill-report-header">
-        <h2>OP BILL REPORT</h2>
+      <div className="bill-report-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <h2 style={{ margin: 0 }}>OP BILL REPORT</h2>
+        <button 
+          type="button"
+          className="btn-back-page" 
+          onClick={() => navigate(-1)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            backgroundColor: '#1e293b',
+            color: 'white',
+            border: 'none',
+            padding: '6px 14px',
+            borderRadius: '6px',
+            fontWeight: 600,
+            fontSize: '13px',
+            cursor: 'pointer'
+          }}
+        >
+          <ArrowLeft size={16} /> Back
+        </button>
       </div>
 
       <div className="card filter-bar-card">

@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Building2, 
-  Database, 
-  FileEdit, 
-  Search as SearchIcon, 
-  LogOut, 
-  UserPlus, 
-  TestTube2, 
-  ClipboardCheck, 
-  Printer, 
+import {
+  Building2,
+  Database,
+  FileEdit,
+  Search as SearchIcon,
+  LogOut,
+  UserPlus,
+  TestTube2,
+  ClipboardCheck,
+  Printer,
   Receipt,
   Plus,
   Eye,
@@ -179,11 +179,7 @@ const DEFAULT_MASTER_TESTS: MasterTest[] = [
   { id: 'T10', name: 'HbA1c (Glycated Hemoglobin)', category: 'Biochemistry', price: 550, normalRange: '4.0 - 5.6', unit: '%', ttype: 'Single', defaultSpecimen: 'Whole Blood' }
 ];
 
-const DEFAULT_DOCTORS: DoctorRecord[] = [
-  { id: 'DOC-1', name: 'Dr. Sarah Jenkins', qualification: 'M.D. (Internal Med)', hospital: 'Shri Janani Hospital', phone: '9876543210' },
-  { id: 'DOC-2', name: 'Dr. Rajiv Menon', qualification: 'M.B.B.S, D.N.B', hospital: 'City Clinic', phone: '9876512345' },
-  { id: 'DOC-3', name: 'Dr. Aris Thorne', qualification: 'M.D. (Pathology)', hospital: 'Apex Diagnostics', phone: '9443311220' }
-];
+
 
 const DEFAULT_GROUP_RECORDS: TestGroupRecord[] = [
   { id: '70', name: 'HAEMATOLOGY', onlyBill: false, totalCost: 0.00, remarks: '' },
@@ -339,7 +335,7 @@ const DEFAULT_TEST_NAME_RECORDS: TestNameEntryRecord[] = [
 
 const LabDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { labRequests, markLabComplete } = useHospital();
+  const { labRequests, markLabComplete, doctors, openDoctorListModal } = useHospital();
 
   // Navigation Sub-Bar & Active Views State
   const [activeTab, setActiveTab] = useState<'patient-entry' | 'test-entry' | 'test-result' | 'print-result' | 'bill-print' | 'test-group'>('patient-entry');
@@ -356,7 +352,6 @@ const LabDashboard: React.FC = () => {
   // --- MASTER DROPDOWN STATE ---
   const [showMasterDropdown, setShowMasterDropdown] = useState(false);
   const [showTestNameModal, setShowTestNameModal] = useState(false);
-  const [showDoctorListModal, setShowDoctorListModal] = useState(false);
   const [showPriceListModal, setShowPriceListModal] = useState(false);
 
   // Master Test Groups State (Matching Screenshot)
@@ -388,12 +383,7 @@ const LabDashboard: React.FC = () => {
   const [tnMethod, setTnMethod] = useState('');
   const [tnRemarks, setTnRemarks] = useState('');
 
-  // Master Doctor List State
-  const [doctorsList, setDoctorsList] = useState<DoctorRecord[]>(DEFAULT_DOCTORS);
-  const [newDocName, setNewDocName] = useState('');
-  const [newDocQual, setNewDocQual] = useState('');
-  const [newDocHosp, setNewDocHosp] = useState('');
-  const [newDocPhone, setNewDocPhone] = useState('');
+
 
   // Company Details Form
   const [compName, setCompName] = useState('Shri Janani Hospital Diagnostics');
@@ -657,23 +647,7 @@ const LabDashboard: React.FC = () => {
     }
   };
 
-  const handleAddDoctor = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newDocName) return;
-    const newDoc: DoctorRecord = {
-      id: `DOC-${doctorsList.length + 1}`,
-      name: newDocName,
-      qualification: newDocQual || 'M.B.B.S',
-      hospital: newDocHosp || 'SELF',
-      phone: newDocPhone || '-'
-    };
-    setDoctorsList([...doctorsList, newDoc]);
-    setNewDocName('');
-    setNewDocQual('');
-    setNewDocHosp('');
-    setNewDocPhone('');
-    alert(`Doctor '${newDocName}' added to Master list successfully!`);
-  };
+
 
   // Backup Action Handler
   const handleTriggerBackup = () => {
@@ -846,7 +820,7 @@ const LabDashboard: React.FC = () => {
       p.email
     ]);
 
-    const csvContent = 'data:text/csv;charset=utf-8,' 
+    const csvContent = 'data:text/csv;charset=utf-8,'
       + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
 
     const encodedUri = encodeURI(csvContent);
@@ -972,7 +946,7 @@ const LabDashboard: React.FC = () => {
     };
 
     setLabRecords([newEntry, ...labRecords]);
-    
+
     const matchingReq = labRequests.find(l => l.patientName.toLowerCase() === formPname.toLowerCase());
     if (matchingReq) {
       markLabComplete(matchingReq.id);
@@ -989,19 +963,15 @@ const LabDashboard: React.FC = () => {
 
   return (
     <div className="lab-module-container">
-      {/* --- DESKTOP SOFTWARE TOP WINDOW BAR --- */}
-      <div className="lab-software-titlebar">
-        <span className="titlebar-text">Kumaran Soft Solution - Gobichettipalayam - Contact - 9715425302</span>
-        <button className="titlebar-close-btn" title="Close Application" onClick={() => navigate('/')}>X</button>
-      </div>
+
 
       {/* --- TOP NAV BAR WITH COMPANY & MASTER DROPDOWNS --- */}
       <header className="lab-navbar">
         <nav className="lab-nav-links">
           {/* Company Dropdown Menu Button */}
           <div className="dropdown-container">
-            <button 
-              className={`nav-item-btn ${showCompanyDropdown ? 'active' : ''}`} 
+            <button
+              className={`nav-item-btn ${showCompanyDropdown ? 'active' : ''}`}
               onClick={() => {
                 setShowCompanyDropdown(!showCompanyDropdown);
                 setShowMasterDropdown(false);
@@ -1014,7 +984,7 @@ const LabDashboard: React.FC = () => {
 
             {showCompanyDropdown && (
               <div className="company-dropdown-menu">
-                <button 
+                <button
                   className="dropdown-menu-item"
                   onClick={() => {
                     setShowCompanyDropdown(false);
@@ -1025,7 +995,7 @@ const LabDashboard: React.FC = () => {
                   <span>Create Company</span>
                 </button>
 
-                <button 
+                <button
                   className="dropdown-menu-item"
                   onClick={() => {
                     setShowCompanyDropdown(false);
@@ -1036,7 +1006,7 @@ const LabDashboard: React.FC = () => {
                   <span>Create User</span>
                 </button>
 
-                <button 
+                <button
                   className="dropdown-menu-item"
                   onClick={handleTriggerBackup}
                 >
@@ -1044,7 +1014,7 @@ const LabDashboard: React.FC = () => {
                   <span>Backup</span>
                 </button>
 
-                <button 
+                <button
                   className="dropdown-menu-item"
                   onClick={() => {
                     setShowCompanyDropdown(false);
@@ -1055,7 +1025,7 @@ const LabDashboard: React.FC = () => {
                   <span>Restore</span>
                 </button>
 
-                <button 
+                <button
                   className="dropdown-menu-item"
                   onClick={() => {
                     setShowCompanyDropdown(false);
@@ -1066,7 +1036,7 @@ const LabDashboard: React.FC = () => {
                   <span>Report Margin</span>
                 </button>
 
-                <button 
+                <button
                   className="dropdown-menu-item"
                   onClick={() => {
                     setShowCompanyDropdown(false);
@@ -1079,7 +1049,7 @@ const LabDashboard: React.FC = () => {
 
                 <div className="dropdown-divider"></div>
 
-                <button 
+                <button
                   className="dropdown-menu-item logout-item"
                   onClick={() => {
                     setShowCompanyDropdown(false);
@@ -1095,7 +1065,7 @@ const LabDashboard: React.FC = () => {
 
           {/* Master Dropdown Menu Button */}
           <div className="dropdown-container">
-            <button 
+            <button
               className={`nav-item-btn ${showMasterDropdown ? 'active' : ''}`}
               onClick={() => {
                 setShowMasterDropdown(!showMasterDropdown);
@@ -1109,7 +1079,7 @@ const LabDashboard: React.FC = () => {
 
             {showMasterDropdown && (
               <div className="company-dropdown-menu">
-                <button 
+                <button
                   className="dropdown-menu-item"
                   onClick={() => {
                     setShowMasterDropdown(false);
@@ -1120,7 +1090,7 @@ const LabDashboard: React.FC = () => {
                   <span>Test Group</span>
                 </button>
 
-                <button 
+                <button
                   className="dropdown-menu-item"
                   onClick={() => {
                     setShowMasterDropdown(false);
@@ -1131,18 +1101,18 @@ const LabDashboard: React.FC = () => {
                   <span>Test Name</span>
                 </button>
 
-                <button 
+                <button
                   className="dropdown-menu-item"
                   onClick={() => {
                     setShowMasterDropdown(false);
-                    setShowDoctorListModal(true);
+                    openDoctorListModal();
                   }}
                 >
                   <Stethoscope size={16} />
                   <span>Doctor List</span>
                 </button>
 
-                <button 
+                <button
                   className="dropdown-menu-item"
                   onClick={() => {
                     setShowMasterDropdown(false);
@@ -1166,6 +1136,11 @@ const LabDashboard: React.FC = () => {
             <span>Search</span>
           </button>
 
+          <button className="nav-item-btn" onClick={() => navigate(-1)} style={{ backgroundColor: '#1e293b', color: 'white' }}>
+            <ChevronLeft size={16} />
+            <span>Back</span>
+          </button>
+
           <button className="nav-item-btn exit-btn" onClick={() => navigate('/')}>
             <LogOut size={16} />
             <span>Exit</span>
@@ -1175,7 +1150,7 @@ const LabDashboard: React.FC = () => {
 
       {/* --- SUB ACTION TABS BAR --- */}
       <div className="lab-subtabs-row">
-        <button 
+        <button
           className={`subtab-btn ${activeTab === 'patient-entry' ? 'active' : ''}`}
           onClick={() => setActiveTab('patient-entry')}
         >
@@ -1183,7 +1158,7 @@ const LabDashboard: React.FC = () => {
           <span>Patient Entry</span>
         </button>
 
-        <button 
+        <button
           className={`subtab-btn ${activeTab === 'test-entry' ? 'active' : ''}`}
           onClick={() => setActiveTab('test-entry')}
         >
@@ -1191,7 +1166,7 @@ const LabDashboard: React.FC = () => {
           <span>Test Entry</span>
         </button>
 
-        <button 
+        <button
           className={`subtab-btn ${activeTab === 'test-result' ? 'active' : ''}`}
           onClick={() => setActiveTab('test-result')}
         >
@@ -1199,7 +1174,7 @@ const LabDashboard: React.FC = () => {
           <span>Test Result</span>
         </button>
 
-        <button 
+        <button
           className={`subtab-btn ${activeTab === 'print-result' ? 'active' : ''}`}
           onClick={() => setActiveTab('print-result')}
         >
@@ -1207,7 +1182,7 @@ const LabDashboard: React.FC = () => {
           <span>Print Result</span>
         </button>
 
-        <button 
+        <button
           className={`subtab-btn ${activeTab === 'bill-print' ? 'active' : ''}`}
           onClick={() => setActiveTab('bill-print')}
         >
@@ -1239,15 +1214,15 @@ const LabDashboard: React.FC = () => {
                   <div className="form-row">
                     <label className="field-label">Patient ID</label>
                     <div className="field-inline-group">
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         className="form-control-desktop pid-input"
                         value={formPid}
                         onChange={e => setFormPid(e.target.value)}
                       />
                       <button className="btn-search-red" onClick={handleSearchByPid}>Search</button>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         className="form-control-desktop path-input"
                         value={formPhotoPath}
                         onChange={e => setFormPhotoPath(e.target.value)}
@@ -1258,7 +1233,7 @@ const LabDashboard: React.FC = () => {
                   <div className="form-row">
                     <label className="field-label">Patient Name</label>
                     <div className="field-inline-group">
-                      <select 
+                      <select
                         className="form-control-desktop name-select"
                         value={formPname}
                         onChange={e => {
@@ -1272,9 +1247,9 @@ const LabDashboard: React.FC = () => {
                           <option key={p.pid} value={p.pname}>{p.pname}</option>
                         ))}
                       </select>
-                      <input 
-                        type="text" 
-                        className="form-control-desktop name-text-input" 
+                      <input
+                        type="text"
+                        className="form-control-desktop name-text-input"
                         placeholder="Type Patient Name"
                         value={formPname}
                         onChange={e => setFormPname(e.target.value)}
@@ -1286,7 +1261,7 @@ const LabDashboard: React.FC = () => {
                   <div className="form-row">
                     <label className="field-label">Gender</label>
                     <div className="field-inline-group">
-                      <select 
+                      <select
                         className="form-control-desktop gender-select"
                         value={formGender}
                         onChange={e => setFormGender(e.target.value)}
@@ -1297,8 +1272,8 @@ const LabDashboard: React.FC = () => {
                       </select>
 
                       <label className="field-label-inline">Age</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         className="form-control-desktop age-input"
                         value={formAge}
                         onChange={e => setFormAge(e.target.value)}
@@ -1310,14 +1285,14 @@ const LabDashboard: React.FC = () => {
                   <div className="form-row">
                     <label className="field-label">Contact No</label>
                     <div className="field-inline-group">
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         className="form-control-desktop contact-input"
                         value={formContact1}
                         onChange={e => setFormContact1(e.target.value)}
                       />
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         className="form-control-desktop contact2-input"
                         placeholder="Secondary Contact"
                         value={formContact2}
@@ -1329,8 +1304,8 @@ const LabDashboard: React.FC = () => {
 
                   <div className="form-row">
                     <label className="field-label">E-Mail</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       className="form-control-desktop full-width-input"
                       value={formEmail}
                       onChange={e => setFormEmail(e.target.value)}
@@ -1340,8 +1315,8 @@ const LabDashboard: React.FC = () => {
 
                   <div className="form-row">
                     <label className="field-label">Address</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       className="form-control-desktop full-width-input"
                       value={formAddress}
                       onChange={e => setFormAddress(e.target.value)}
@@ -1351,8 +1326,8 @@ const LabDashboard: React.FC = () => {
 
                   <div className="form-row">
                     <label className="field-label">City</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       className="form-control-desktop full-width-input"
                       value={formCity}
                       onChange={e => setFormCity(e.target.value)}
@@ -1375,10 +1350,10 @@ const LabDashboard: React.FC = () => {
                   <label htmlFor="photo-upload-input" className="btn-add-photo">
                     <Upload size={14} /> Add Photo
                   </label>
-                  <input 
-                    id="photo-upload-input" 
-                    type="file" 
-                    accept="image/*" 
+                  <input
+                    id="photo-upload-input"
+                    type="file"
+                    accept="image/*"
                     style={{ display: 'none' }}
                     onChange={handlePhotoUpload}
                   />
@@ -1402,8 +1377,8 @@ const LabDashboard: React.FC = () => {
                   </thead>
                   <tbody>
                     {patientGrid.map(patient => (
-                      <tr 
-                        key={patient.pid} 
+                      <tr
+                        key={patient.pid}
                         className={selectedPid === patient.pid ? 'selected-row' : ''}
                         onClick={() => handleSelectPatientRow(patient)}
                       >
@@ -1464,9 +1439,9 @@ const LabDashboard: React.FC = () => {
 
             <div className="test-group-dialog-body">
               <div className="test-group-banner-row">
-                <input 
-                  type="text" 
-                  className="tg-id-box" 
+                <input
+                  type="text"
+                  className="tg-id-box"
                   value={formGroupId}
                   onChange={e => setFormGroupId(e.target.value)}
                 />
@@ -1477,8 +1452,8 @@ const LabDashboard: React.FC = () => {
               <div className="tg-form-container">
                 <div className="tg-field-row">
                   <label className="tg-label">Test Group Name</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     className="tg-input-wide"
                     value={formGroupName}
                     onChange={e => setFormGroupName(e.target.value)}
@@ -1487,8 +1462,8 @@ const LabDashboard: React.FC = () => {
 
                 <div className="tg-field-row flex-items-center">
                   <div className="only-bill-group">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       id="only-bill-cb"
                       checked={formOnlyBill}
                       onChange={e => setFormOnlyBill(e.target.checked)}
@@ -1498,8 +1473,8 @@ const LabDashboard: React.FC = () => {
 
                   <div className="total-cost-group">
                     <label className="tg-label-sm">Total Cost</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       className="tg-input-cost"
                       value={formTotalCost}
                       onChange={e => setFormTotalCost(e.target.value)}
@@ -1509,8 +1484,8 @@ const LabDashboard: React.FC = () => {
 
                 <div className="tg-field-row">
                   <label className="tg-label">Remarks</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     className="tg-input-wide"
                     value={formRemarks}
                     onChange={e => setFormRemarks(e.target.value)}
@@ -1531,8 +1506,8 @@ const LabDashboard: React.FC = () => {
                     {testGroupsGrid.map(grp => {
                       const isSelected = selectedGroupId === grp.id;
                       return (
-                        <tr 
-                          key={grp.id} 
+                        <tr
+                          key={grp.id}
                           className={isSelected ? 'tg-selected-row' : ''}
                           onClick={() => handleSelectGroupRow(grp)}
                         >
@@ -1590,17 +1565,17 @@ const LabDashboard: React.FC = () => {
               <div className="test-bill-header-row">
                 <div className="test-no-group">
                   <label className="field-label-sm">Test No</label>
-                  <input 
-                    type="text" 
-                    className="form-control-desktop testno-input" 
-                    value={testNo} 
+                  <input
+                    type="text"
+                    className="form-control-desktop testno-input"
+                    value={testNo}
                     onChange={e => setTestNo(e.target.value)}
                   />
                   <label className="field-label-sm">Date</label>
-                  <input 
-                    type="date" 
-                    className="form-control-desktop testdate-input" 
-                    value={testBillDate} 
+                  <input
+                    type="date"
+                    className="form-control-desktop testdate-input"
+                    value={testBillDate}
                     onChange={e => setTestBillDate(e.target.value)}
                   />
                 </div>
@@ -1610,9 +1585,9 @@ const LabDashboard: React.FC = () => {
               <div className="patient-demographics-bar">
                 <div className="demo-field">
                   <label>Title</label>
-                  <select 
-                    className="form-control-desktop title-select" 
-                    value={patientTitle} 
+                  <select
+                    className="form-control-desktop title-select"
+                    value={patientTitle}
                     onChange={e => setPatientTitle(e.target.value)}
                   >
                     <option value="Mr.">Mr.</option>
@@ -1627,15 +1602,15 @@ const LabDashboard: React.FC = () => {
                 <div className="demo-field flex-grow">
                   <label>Patient Name</label>
                   <div className="patient-browse-group">
-                    <input 
-                      type="text" 
-                      className="form-control-desktop full-width" 
-                      value={formPname} 
+                    <input
+                      type="text"
+                      className="form-control-desktop full-width"
+                      value={formPname}
                       onChange={e => setFormPname(e.target.value)}
                       placeholder="Enter Patient Name"
                     />
-                    <button 
-                      className="btn-browse" 
+                    <button
+                      className="btn-browse"
                       title="Browse Registered Patients"
                       onClick={() => setActiveTab('patient-entry')}
                     >
@@ -1646,19 +1621,19 @@ const LabDashboard: React.FC = () => {
 
                 <div className="demo-field">
                   <label>Age</label>
-                  <input 
-                    type="text" 
-                    className="form-control-desktop age-mini" 
-                    value={formAge} 
+                  <input
+                    type="text"
+                    className="form-control-desktop age-mini"
+                    value={formAge}
                     onChange={e => setFormAge(e.target.value)}
                   />
                 </div>
 
                 <div className="demo-field">
                   <label>Gender</label>
-                  <select 
-                    className="form-control-desktop gender-mini" 
-                    value={formGender} 
+                  <select
+                    className="form-control-desktop gender-mini"
+                    value={formGender}
                     onChange={e => setFormGender(e.target.value)}
                   >
                     <option value="Male">Male</option>
@@ -1668,33 +1643,33 @@ const LabDashboard: React.FC = () => {
 
                 <div className="demo-field">
                   <label>Ref.By</label>
-                  <select 
-                    className="form-control-desktop refby-select" 
-                    value={refBy} 
+                  <select
+                    className="form-control-desktop refby-select"
+                    value={refBy}
                     onChange={e => setRefBy(e.target.value)}
                   >
                     <option value="SELF">SELF</option>
-                    {doctorsList.map(doc => (
-                      <option key={doc.id} value={doc.name}>{doc.name}</option>
+                    {doctors.map(doc => (
+                      <option key={doc.id} value={doc.dname}>{doc.dname}</option>
                     ))}
                   </select>
                 </div>
 
                 <div className="demo-field">
                   <label>Mobile No</label>
-                  <input 
-                    type="text" 
-                    className="form-control-desktop mobile-mini" 
-                    value={formContact1} 
+                  <input
+                    type="text"
+                    className="form-control-desktop mobile-mini"
+                    value={formContact1}
                     onChange={e => setFormContact1(e.target.value)}
                   />
                 </div>
 
                 <div className="demo-field">
                   <label>Lab / Hospital</label>
-                  <select 
-                    className="form-control-desktop labhospital-select" 
-                    value={labHospital} 
+                  <select
+                    className="form-control-desktop labhospital-select"
+                    value={labHospital}
                     onChange={e => setLabHospital(e.target.value)}
                   >
                     <option value="SELF">SELF</option>
@@ -1707,9 +1682,9 @@ const LabDashboard: React.FC = () => {
               <div className="test-bill-workspace-grid">
                 <div className="group-selection-pane">
                   <h3 className="group-header-title">TEST GROUP NAME</h3>
-                  <select 
-                    className="form-control-desktop group-select" 
-                    value={selectedGroup} 
+                  <select
+                    className="form-control-desktop group-select"
+                    value={selectedGroup}
                     onChange={e => setSelectedGroup(e.target.value)}
                   >
                     <option value="ALL GROUPS">ALL GROUPS</option>
@@ -1719,10 +1694,10 @@ const LabDashboard: React.FC = () => {
                   </select>
 
                   <div className="select-all-row">
-                    <input 
-                      type="checkbox" 
-                      id="select-all-cb" 
-                      checked={selectAllGroupTests} 
+                    <input
+                      type="checkbox"
+                      id="select-all-cb"
+                      checked={selectAllGroupTests}
                       onChange={e => handleToggleGroupSelectAll(e.target.checked)}
                     />
                     <label htmlFor="select-all-cb">Select All</label>
@@ -1732,15 +1707,15 @@ const LabDashboard: React.FC = () => {
                     {filteredTestsByGroup.map(test => {
                       const isChecked = selectedTestIds.includes(test.id);
                       return (
-                        <div 
-                          key={test.id} 
+                        <div
+                          key={test.id}
                           className={`test-check-row ${isChecked ? 'active' : ''}`}
                           onClick={() => toggleTestSelection(test.id)}
                         >
-                          <input 
-                            type="checkbox" 
-                            checked={isChecked} 
-                            onChange={() => {}}
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => { }}
                           />
                           <span className="test-name-span">{test.name}</span>
                         </div>
@@ -1773,8 +1748,8 @@ const LabDashboard: React.FC = () => {
                             <td><strong>{test.name}</strong></td>
                             <td>₹{test.price.toFixed(2)}</td>
                             <td>
-                              <button 
-                                className="btn-delete-test-row" 
+                              <button
+                                className="btn-delete-test-row"
                                 title="Remove test"
                                 onClick={() => handleRemoveTestFromBill(test.id)}
                               >
@@ -1811,10 +1786,10 @@ const LabDashboard: React.FC = () => {
 
                   <div className="summary-field-row">
                     <label>Discount</label>
-                    <input 
-                      type="number" 
-                      className="summary-input" 
-                      value={discount} 
+                    <input
+                      type="number"
+                      className="summary-input"
+                      value={discount}
                       onChange={e => setDiscount(parseFloat(e.target.value) || 0)}
                     />
                   </div>
@@ -1826,10 +1801,10 @@ const LabDashboard: React.FC = () => {
 
                   <div className="summary-field-row">
                     <label>Amount Paid</label>
-                    <input 
-                      type="number" 
-                      className="summary-input" 
-                      value={paidAmount} 
+                    <input
+                      type="number"
+                      className="summary-input"
+                      value={paidAmount}
                       onChange={e => setPaidAmount(parseFloat(e.target.value) || 0)}
                     />
                   </div>
@@ -1841,10 +1816,10 @@ const LabDashboard: React.FC = () => {
 
                   <div className="summary-field-row">
                     <label>Balance Paid</label>
-                    <input 
-                      type="number" 
-                      className="summary-input" 
-                      value={balancePaid} 
+                    <input
+                      type="number"
+                      className="summary-input"
+                      value={balancePaid}
                       onChange={e => setBalancePaid(parseFloat(e.target.value) || 0)}
                     />
                   </div>
@@ -1853,10 +1828,10 @@ const LabDashboard: React.FC = () => {
 
                   <div className="summary-field-row">
                     <label>Expenses</label>
-                    <input 
-                      type="number" 
-                      className="summary-input" 
-                      value={expenses} 
+                    <input
+                      type="number"
+                      className="summary-input"
+                      value={expenses}
                       onChange={e => setExpenses(parseFloat(e.target.value) || 0)}
                     />
                   </div>
@@ -1919,10 +1894,10 @@ const LabDashboard: React.FC = () => {
 
                 <div className="testno-view-group">
                   <label className="field-label-sm">Test No</label>
-                  <input 
-                    type="text" 
-                    className="form-control-desktop result-testno-input" 
-                    value={resultTestNo} 
+                  <input
+                    type="text"
+                    className="form-control-desktop result-testno-input"
+                    value={resultTestNo}
                     onChange={e => setResultTestNo(e.target.value)}
                   />
                   <button className="btn-view-blue" onClick={() => alert(`Loaded Record for Test No ${resultTestNo}`)}>
@@ -1940,39 +1915,39 @@ const LabDashboard: React.FC = () => {
               <div className="patient-demographics-bar">
                 <div className="demo-field">
                   <label>Date</label>
-                  <input 
-                    type="date" 
-                    className="form-control-desktop" 
-                    value={testBillDate} 
+                  <input
+                    type="date"
+                    className="form-control-desktop"
+                    value={testBillDate}
                     onChange={e => setTestBillDate(e.target.value)}
                   />
                 </div>
 
                 <div className="demo-field flex-grow">
                   <label>Patient Name</label>
-                  <input 
-                    type="text" 
-                    className="form-control-desktop full-width" 
-                    value={`${patientTitle} ${formPname}`} 
+                  <input
+                    type="text"
+                    className="form-control-desktop full-width"
+                    value={`${patientTitle} ${formPname}`}
                     onChange={e => setFormPname(e.target.value)}
                   />
                 </div>
 
                 <div className="demo-field">
                   <label>Age</label>
-                  <input 
-                    type="text" 
-                    className="form-control-desktop age-mini" 
-                    value={formAge} 
+                  <input
+                    type="text"
+                    className="form-control-desktop age-mini"
+                    value={formAge}
                     onChange={e => setFormAge(e.target.value)}
                   />
                 </div>
 
                 <div className="demo-field">
                   <label>Gender</label>
-                  <select 
-                    className="form-control-desktop gender-mini" 
-                    value={formGender} 
+                  <select
+                    className="form-control-desktop gender-mini"
+                    value={formGender}
                     onChange={e => setFormGender(e.target.value)}
                   >
                     <option value="Male">Male</option>
@@ -1982,23 +1957,23 @@ const LabDashboard: React.FC = () => {
 
                 <div className="demo-field">
                   <label>Ref.By</label>
-                  <select 
-                    className="form-control-desktop refby-select" 
-                    value={refBy} 
+                  <select
+                    className="form-control-desktop refby-select"
+                    value={refBy}
                     onChange={e => setRefBy(e.target.value)}
                   >
                     <option value="SELF">SELF</option>
-                    {doctorsList.map(doc => (
-                      <option key={doc.id} value={doc.name}>{doc.name}</option>
+                    {doctors.map(doc => (
+                      <option key={doc.id} value={doc.dname}>{doc.dname}</option>
                     ))}
                   </select>
                 </div>
 
                 <div className="demo-field">
                   <label>Lab / Hospital</label>
-                  <select 
-                    className="form-control-desktop labhospital-select" 
-                    value={labHospital} 
+                  <select
+                    className="form-control-desktop labhospital-select"
+                    value={labHospital}
                     onChange={e => setLabHospital(e.target.value)}
                   >
                     <option value="SELF">SELF</option>
@@ -2008,10 +1983,10 @@ const LabDashboard: React.FC = () => {
 
                 <div className="demo-field">
                   <label>Report Date</label>
-                  <input 
-                    type="date" 
-                    className="form-control-desktop" 
-                    value={resultReportDate} 
+                  <input
+                    type="date"
+                    className="form-control-desktop"
+                    value={resultReportDate}
                     onChange={e => setResultReportDate(e.target.value)}
                   />
                 </div>
@@ -2020,10 +1995,10 @@ const LabDashboard: React.FC = () => {
               <div className="result-entry-workspace-grid">
                 <div className="result-left-list-pane">
                   <div className="purple-select-all-row">
-                    <input 
-                      type="checkbox" 
-                      id="result-select-all-cb" 
-                      checked={resultSelectAll} 
+                    <input
+                      type="checkbox"
+                      id="result-select-all-cb"
+                      checked={resultSelectAll}
                       onChange={e => handleToggleResultSelectAll(e.target.checked)}
                     />
                     <label htmlFor="result-select-all-cb" className="purple-label">Select All</label>
@@ -2032,10 +2007,10 @@ const LabDashboard: React.FC = () => {
                   <div className="result-test-scroll-box">
                     {selectedTestsObj.map(test => (
                       <div key={test.id} className="result-test-checkbox-item">
-                        <input 
-                          type="checkbox" 
-                          checked={true} 
-                          onChange={() => {}} 
+                        <input
+                          type="checkbox"
+                          checked={true}
+                          onChange={() => { }}
                         />
                         <span>{test.name}</span>
                       </div>
@@ -2043,10 +2018,10 @@ const LabDashboard: React.FC = () => {
                   </div>
 
                   <div className="left-counter-bottom">
-                    <input 
-                      type="text" 
-                      className="form-control-desktop mini-counter-box" 
-                      readOnly 
+                    <input
+                      type="text"
+                      className="form-control-desktop mini-counter-box"
+                      readOnly
                       value={selectedTestsObj.length}
                     />
                   </div>
@@ -2072,8 +2047,8 @@ const LabDashboard: React.FC = () => {
                             <td>{test.category}</td>
                             <td><strong>{test.name}</strong></td>
                             <td>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 className="form-control-desktop table-result-input"
                                 value={resultValues[test.id] || ''}
                                 placeholder="Value"
@@ -2083,16 +2058,16 @@ const LabDashboard: React.FC = () => {
                             <td>{test.unit}</td>
                             <td>{test.normalRange}</td>
                             <td>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 className="form-control-desktop table-specimen-input"
                                 value={specimenValues[test.id] || ''}
                                 onChange={e => setSpecimenValues({ ...specimenValues, [test.id]: e.target.value })}
                               />
                             </td>
                             <td>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 className="form-control-desktop table-remarks-input"
                                 value={remarksValues[test.id] || ''}
                                 placeholder="Remarks"
@@ -2241,8 +2216,8 @@ const LabDashboard: React.FC = () => {
                   <div className="dialog-field-row">
                     <label className="dialog-label">BILL NO</label>
                     <div className="billno-group">
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         className="form-control-desktop billno-input"
                         value={billPrintNo}
                         onChange={e => setBillPrintNo(e.target.value)}
@@ -2255,7 +2230,7 @@ const LabDashboard: React.FC = () => {
 
                   <div className="dialog-field-row">
                     <label className="dialog-label">PRINT DESIGN</label>
-                    <select 
+                    <select
                       className="form-control-desktop print-design-select"
                       value={printDesign}
                       onChange={e => setPrintDesign(e.target.value)}
@@ -2288,9 +2263,9 @@ const LabDashboard: React.FC = () => {
                 <div className="dialog-options-row">
                   <div className="letterhead-checkbox-group">
                     <span className="green-option-label">WITH LETTER HEAD</span>
-                    <input 
-                      type="checkbox" 
-                      checked={withLetterHead} 
+                    <input
+                      type="checkbox"
+                      checked={withLetterHead}
                       onChange={e => {
                         setWithLetterHead(e.target.checked);
                         if (e.target.checked) setLetterheadCounter(prev => prev + 1);
@@ -2399,7 +2374,7 @@ const LabDashboard: React.FC = () => {
                 <div className="tn-row">
                   <div className="tn-col">
                     <label className="tn-label">Test Group</label>
-                    <select 
+                    <select
                       className="tn-select"
                       value={tnTestGroup}
                       onChange={e => setTnTestGroup(e.target.value)}
@@ -2412,14 +2387,14 @@ const LabDashboard: React.FC = () => {
 
                   <div className="tn-col flex-items-center gap-1">
                     <label className="tn-label-inline">SubHead</label>
-                    <input 
-                      type="checkbox" 
-                      checked={tnSubHeadChecked} 
-                      onChange={e => setTnSubHeadChecked(e.target.checked)} 
+                    <input
+                      type="checkbox"
+                      checked={tnSubHeadChecked}
+                      onChange={e => setTnSubHeadChecked(e.target.checked)}
                     />
-                    <input 
-                      type="text" 
-                      className="tn-mini-input" 
+                    <input
+                      type="text"
+                      className="tn-mini-input"
                       value={tnSubHeadVal}
                       onChange={e => setTnSubHeadVal(e.target.value)}
                     />
@@ -2427,7 +2402,7 @@ const LabDashboard: React.FC = () => {
 
                   <div className="tn-col">
                     <label className="tn-label">Specimen</label>
-                    <select 
+                    <select
                       className="tn-select"
                       value={tnSpecimen}
                       onChange={e => setTnSpecimen(e.target.value)}
@@ -2445,8 +2420,8 @@ const LabDashboard: React.FC = () => {
                 <div className="tn-row">
                   <div className="tn-col-wide flex gap-2 items-center">
                     <label className="tn-label">Test Name</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       className="tn-input-flex"
                       value={tnTestName}
                       onChange={e => setTnTestName(e.target.value)}
@@ -2456,7 +2431,7 @@ const LabDashboard: React.FC = () => {
 
                   <div className="tn-col">
                     <label className="tn-label">Unit</label>
-                    <select 
+                    <select
                       className="tn-select"
                       value={tnUnit}
                       onChange={e => setTnUnit(e.target.value)}
@@ -2476,8 +2451,8 @@ const LabDashboard: React.FC = () => {
                   <div className="tn-mid-left">
                     <div className="tn-field-item">
                       <label className="tn-label">Cost</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         className="tn-input-cost"
                         value={tnCost}
                         onChange={e => setTnCost(e.target.value)}
@@ -2486,7 +2461,7 @@ const LabDashboard: React.FC = () => {
 
                     <div className="tn-field-item flex-col align-start">
                       <label className="tn-label">Ref.Value</label>
-                      <textarea 
+                      <textarea
                         className="tn-textarea-ref"
                         rows={2}
                         value={tnRefValue}
@@ -2500,8 +2475,8 @@ const LabDashboard: React.FC = () => {
                     <div className="minmax-row">
                       <div className="minmax-group">
                         <label className="tn-label-sm">Male Min</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           className="tn-input-small"
                           value={tnMaleMin}
                           onChange={e => setTnMaleMin(e.target.value)}
@@ -2509,8 +2484,8 @@ const LabDashboard: React.FC = () => {
                       </div>
                       <div className="minmax-group">
                         <label className="tn-label-sm">Male Max</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           className="tn-input-small"
                           value={tnMaleMax}
                           onChange={e => setTnMaleMax(e.target.value)}
@@ -2521,8 +2496,8 @@ const LabDashboard: React.FC = () => {
                     <div className="minmax-row">
                       <div className="minmax-group">
                         <label className="tn-label-sm">Female Min</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           className="tn-input-small"
                           value={tnFemaleMin}
                           onChange={e => setTnFemaleMin(e.target.value)}
@@ -2530,8 +2505,8 @@ const LabDashboard: React.FC = () => {
                       </div>
                       <div className="minmax-group">
                         <label className="tn-label-sm">Female Max</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           className="tn-input-small"
                           value={tnFemaleMax}
                           onChange={e => setTnFemaleMax(e.target.value)}
@@ -2541,8 +2516,8 @@ const LabDashboard: React.FC = () => {
 
                     <div className="tn-mid-field-row">
                       <label className="tn-label">Method</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         className="tn-input-wide"
                         value={tnMethod}
                         onChange={e => setTnMethod(e.target.value)}
@@ -2552,8 +2527,8 @@ const LabDashboard: React.FC = () => {
                     <div className="tn-mid-field-row">
                       <label className="tn-label">Remarks</label>
                       <div className="flex gap-1 items-center flex-1">
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           className="tn-input-wide"
                           value={tnRemarks}
                           onChange={e => setTnRemarks(e.target.value)}
@@ -2585,7 +2560,7 @@ const LabDashboard: React.FC = () => {
                     {testNameGrid.map(tn => {
                       const isSelected = selectedTestNameId === tn.id;
                       return (
-                        <tr 
+                        <tr
                           key={tn.id}
                           className={isSelected ? 'tn-selected-row' : ''}
                           onClick={() => handleSelectTestNameRow(tn)}
@@ -2635,79 +2610,7 @@ const LabDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* --- MASTER DROPDOWN SUB-MODAL 3: DOCTOR LIST --- */}
-      {showDoctorListModal && (
-        <div className="lab-modal-overlay">
-          <div className="lab-modal-card card large">
-            <div className="modal-header">
-              <h3><Stethoscope size={20} /> Referring Doctor Master List</h3>
-              <button className="close-btn" onClick={() => setShowDoctorListModal(false)}><X size={18} /></button>
-            </div>
-            <div className="modal-body">
-              <form className="add-master-form" onSubmit={handleAddDoctor}>
-                <h4>Add New Referring Doctor</h4>
-                <div className="form-grid-3col">
-                  <input 
-                    type="text" 
-                    placeholder="Doctor Name (e.g. Dr. A. Kumar)" 
-                    className="form-control" 
-                    value={newDocName} 
-                    onChange={e => setNewDocName(e.target.value)}
-                    required
-                  />
-                  <input 
-                    type="text" 
-                    placeholder="Qualification (e.g. M.D. Pathology)" 
-                    className="form-control" 
-                    value={newDocQual} 
-                    onChange={e => setNewDocQual(e.target.value)}
-                  />
-                  <input 
-                    type="text" 
-                    placeholder="Hospital / Clinic Name" 
-                    className="form-control" 
-                    value={newDocHosp} 
-                    onChange={e => setNewDocHosp(e.target.value)}
-                  />
-                  <input 
-                    type="text" 
-                    placeholder="Mobile / Contact No" 
-                    className="form-control" 
-                    value={newDocPhone} 
-                    onChange={e => setNewDocPhone(e.target.value)}
-                  />
-                  <button type="submit" className="btn-add-test">
-                    <Plus size={16} /> Add Doctor
-                  </button>
-                </div>
-              </form>
 
-              <table className="master-catalog-table">
-                <thead>
-                  <tr>
-                    <th>Doc ID</th>
-                    <th>Doctor Name</th>
-                    <th>Qualification</th>
-                    <th>Hospital / Clinic</th>
-                    <th>Phone</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {doctorsList.map(doc => (
-                    <tr key={doc.id}>
-                      <td>{doc.id}</td>
-                      <td><strong>{doc.name}</strong></td>
-                      <td>{doc.qualification}</td>
-                      <td>{doc.hospital}</td>
-                      <td>{doc.phone}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* --- MASTER DROPDOWN SUB-MODAL 4: PRICE LIST --- */}
       {showPriceListModal && (
@@ -2851,12 +2754,12 @@ const LabDashboard: React.FC = () => {
               <label htmlFor="restore-file-input" className="btn-add-test text-center cursor-pointer block p-3">
                 <Upload size={16} /> Choose Backup File (.json)
               </label>
-              <input 
-                id="restore-file-input" 
-                type="file" 
-                accept=".json" 
-                style={{ display: 'none' }} 
-                onChange={handleRestoreFile} 
+              <input
+                id="restore-file-input"
+                type="file"
+                accept=".json"
+                style={{ display: 'none' }}
+                onChange={handleRestoreFile}
               />
             </div>
           </div>
@@ -2940,9 +2843,9 @@ const LabDashboard: React.FC = () => {
               <button className="close-btn" onClick={() => setShowSearchModal(false)}><X size={18} /></button>
             </div>
             <div className="modal-body">
-              <input 
-                type="text" 
-                className="form-control search-large-input" 
+              <input
+                type="text"
+                className="form-control search-large-input"
                 placeholder="Search by UHID, Patient Name, Lab ID..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
@@ -2963,8 +2866,8 @@ const LabDashboard: React.FC = () => {
                 </thead>
                 <tbody>
                   {labRecords
-                    .filter(r => 
-                      r.patientName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                    .filter(r =>
+                      r.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                       r.uhid.toLowerCase().includes(searchQuery.toLowerCase()) ||
                       r.labId.toLowerCase().includes(searchQuery.toLowerCase())
                     )
@@ -2978,7 +2881,7 @@ const LabDashboard: React.FC = () => {
                         <td>₹{r.totalAmount}</td>
                         <td><span className="badge-status normal">{r.status}</span></td>
                         <td>
-                          <button 
+                          <button
                             className="btn-icon-action"
                             onClick={() => {
                               setFormPname(r.patientName);

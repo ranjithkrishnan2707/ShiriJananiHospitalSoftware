@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Clock, Calendar, Users, ShieldAlert, CheckCircle, 
   Search, Filter, ArrowUpDown, Plus, Download, Printer, 
-  RotateCcw, AlertCircle, Briefcase, FileText
+  RotateCcw, AlertCircle, Briefcase, FileText, ArrowLeft
 } from 'lucide-react';
 import './ShiftAllocation.css';
 
@@ -141,6 +142,7 @@ const INITIAL_ROSTER: ShiftRosterItem[] = [
 ];
 
 const ShiftAllocation: React.FC = () => {
+  const navigate = useNavigate();
   const [rosterList, setRosterList] = useState<ShiftRosterItem[]>(INITIAL_ROSTER);
   const [search, setSearch] = useState('');
   const [filterShift, setFilterShift] = useState('All');
@@ -275,8 +277,8 @@ const ShiftAllocation: React.FC = () => {
       {/* Header */}
       <div className="shift-header">
         <div>
-          <h2><Clock color="#2563eb" size={28} /> Staff Shift Allocation & Roster</h2>
-          <p>Assign, reschedule, and manage duty shifts for doctors, nurses, and hospital personnel</p>
+          <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}><Clock color="#2563eb" size={28} /> Staff Shift Allocation & Roster</h2>
+          <p style={{ margin: '4px 0 0 0' }}>Assign, reschedule, and manage duty shifts for doctors, nurses, and hospital personnel</p>
         </div>
 
         <div className="shift-header-actions">
@@ -285,6 +287,26 @@ const ShiftAllocation: React.FC = () => {
           </button>
           <button className="action-btn-mini" onClick={() => window.print()}>
             <Printer size={14} /> Print Roster
+          </button>
+          <button 
+            type="button"
+            className="action-btn-mini" 
+            onClick={() => navigate(-1)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#1e293b',
+              color: 'white',
+              border: 'none',
+              padding: '6px 14px',
+              borderRadius: '6px',
+              fontWeight: 600,
+              fontSize: '13px',
+              cursor: 'pointer'
+            }}
+          >
+            <ArrowLeft size={16} /> Back
           </button>
         </div>
       </div>

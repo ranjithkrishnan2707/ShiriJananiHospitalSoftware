@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Edit, Trash2, ExternalLink } from 'lucide-react';
+import { useHospital } from '../../context/HospitalContext';
 import './ManageStaff.css';
 
 interface Staff {
@@ -21,6 +22,7 @@ const initialStaff: Staff[] = [
 ];
 
 const ManageStaff: React.FC = () => {
+  const { openDoctorListModal } = useHospital();
   const [staffList, setStaffList] = useState<Staff[]>(initialStaff);
   const [search, setSearch] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -220,15 +222,26 @@ const ManageStaff: React.FC = () => {
 
       {/* Right: Data Table */}
       <div className="card staff-list-section" style={{ padding: 0 }}>
-        <div className="staff-list-header">
-          <h3>Staff Directory</h3>
-          <input 
-            type="text" 
-            className="search-bar" 
-            placeholder="Search by name, ID, or role..." 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        <div className="staff-list-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', gap: '12px' }}>
+          <h3 style={{ margin: 0 }}>Staff Directory</h3>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <input 
+              type="text" 
+              className="search-bar" 
+              placeholder="Search by name, ID, or role..." 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <button 
+              type="button"
+              className="btn-save"
+              onClick={openDoctorListModal}
+              style={{ backgroundColor: '#0284c7', padding: '8px 14px', fontSize: '13px', whiteSpace: 'nowrap', width: 'auto' }}
+              title="Open Doctor Master List"
+            >
+              📋 Doctor Master List
+            </button>
+          </div>
         </div>
         
         <div className="table-container">

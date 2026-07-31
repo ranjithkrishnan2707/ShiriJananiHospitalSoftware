@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHospital } from '../../context/HospitalContext';
-import { Upload, Printer, X, FileText, CheckCircle } from 'lucide-react';
+import { Upload, Printer, X, FileText, CheckCircle, ArrowLeft } from 'lucide-react';
 import './OpdRegistration.css';
 
 export interface OpdRecord {
@@ -38,7 +38,7 @@ const INITIAL_OPD_RECORDS: OpdRecord[] = [
 
 const OpdRegistration: React.FC = () => {
   const navigate = useNavigate();
-  const { patients, addOrUpdatePatient, deletePatient, doctors, openDoctorListModal } = useHospital();
+  const { patients, addOrUpdatePatient, deletePatient, doctors } = useHospital();
 
   const [isNewPatient, setIsNewPatient] = useState(false);
   const [opdList, setOpdList] = useState<OpdRecord[]>(INITIAL_OPD_RECORDS);
@@ -285,6 +285,26 @@ const OpdRegistration: React.FC = () => {
             New Patient Detailed Assessment
           </label>
           <span className="opd-id">OPUHID: {uhid}</span>
+          <button 
+            type="button"
+            className="btn-back-page" 
+            onClick={() => navigate(-1)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#1e293b',
+              color: 'white',
+              border: 'none',
+              padding: '6px 14px',
+              borderRadius: '6px',
+              fontWeight: 600,
+              fontSize: '13px',
+              cursor: 'pointer'
+            }}
+          >
+            <ArrowLeft size={16} /> Back
+          </button>
         </div>
       </div>
 
@@ -375,15 +395,6 @@ const OpdRegistration: React.FC = () => {
                   <option key={doc.id} value={doc.dname}>{doc.dname}</option>
                 ))}
               </select>
-              <button 
-                className="search-btn" 
-                type="button" 
-                onClick={openDoctorListModal}
-                style={{ backgroundColor: '#0284c7', whiteSpace: 'nowrap' }}
-                title="Manage Doctor List"
-              >
-                📋 Doctor List
-              </button>
             </div>
           </div>
         </div>

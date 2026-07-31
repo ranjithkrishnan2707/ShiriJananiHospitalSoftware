@@ -536,6 +536,9 @@ const StaffDetail: React.FC = () => {
         </div>
 
         <div className="staff-header-actions">
+          <button className="btn-header-action" onClick={() => navigate(-1)} style={{ backgroundColor: '#1e293b', color: 'white' }}>
+            <ArrowLeft size={16} /> Back
+          </button>
           <button className="btn-header-action btn-header-print" onClick={handlePrint}>
             <Printer size={16} /> Print Profile
           </button>

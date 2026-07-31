@@ -94,6 +94,7 @@ const App: React.FC = () => {
             <Route index element={<AdminDashboard />} />
             <Route path="monitor-billing" element={<MonitorBilling />} />
             <Route path="manage-staff" element={<ManageStaff />} />
+            <Route path="attendance" element={<StaffAttendance />} />
             <Route path="shift-allocation" element={<ShiftAllocation />} />
             <Route path="security" element={<SecurityPasswords />} />
           </Route>

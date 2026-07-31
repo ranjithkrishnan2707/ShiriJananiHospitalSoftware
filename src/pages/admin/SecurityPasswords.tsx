@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ShieldAlert, Pill, TestTube2, Activity, Settings, Eye, EyeOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ShieldAlert, Pill, TestTube2, Activity, Settings, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import './SecurityPasswords.css';
 
 interface PasswordCardProps {
@@ -134,6 +135,7 @@ const PasswordCard: React.FC<PasswordCardProps> = ({ moduleKey, name, descriptio
 };
 
 const SecurityPasswords: React.FC = () => {
+  const navigate = useNavigate();
   const modules = [
     { moduleKey: 'admin', name: 'Admin Module', icon: <Settings size={24} />, description: 'Master control access' },
     { moduleKey: 'medical', name: 'Medical Module', icon: <Pill size={24} />, description: 'Pharmacy & Stock access' },
@@ -143,12 +145,34 @@ const SecurityPasswords: React.FC = () => {
 
   return (
     <div className="security-container page-transition">
-      <div className="security-header">
-        <ShieldAlert size={40} />
-        <div>
-          <h2>Security & Passwords</h2>
-          <p>Set and manage access credentials for hospital modules</p>
+      <div className="security-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <ShieldAlert size={40} />
+          <div>
+            <h2 style={{ margin: 0 }}>Security & Passwords</h2>
+            <p style={{ margin: '4px 0 0 0' }}>Set and manage access credentials for hospital modules</p>
+          </div>
         </div>
+        <button 
+          type="button"
+          className="btn-back-page" 
+          onClick={() => navigate(-1)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            backgroundColor: '#1e293b',
+            color: 'white',
+            border: 'none',
+            padding: '6px 14px',
+            borderRadius: '6px',
+            fontWeight: 600,
+            fontSize: '13px',
+            cursor: 'pointer'
+          }}
+        >
+          <ArrowLeft size={16} /> Back
+        </button>
       </div>
 
       <div className="security-grid">

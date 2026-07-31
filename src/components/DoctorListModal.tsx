@@ -7,7 +7,7 @@ const DoctorListModal: React.FC = () => {
   const { doctors, isDoctorListOpen, closeDoctorListModal, addOrUpdateDoctor, deleteDoctor } = useHospital();
 
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>('1');
-  const [dname, setDname] = useState('SELF');
+  const [dname, setDname] = useState(' ');
   const [contact, setContact] = useState('');
   const [email, setEmail] = useState('');
   const [city, setCity] = useState('');

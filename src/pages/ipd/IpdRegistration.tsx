@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHospital } from '../../context/HospitalContext';
-import { Search, X, UserCheck } from 'lucide-react';
+import { Search, X, UserCheck, ArrowLeft } from 'lucide-react';
 import './IpdRegistration.css';
 
 const IpdRegistration: React.FC = () => {
@@ -113,8 +113,28 @@ const IpdRegistration: React.FC = () => {
 
   return (
     <div className="ipd-container page-transition">
-      <div className="ipd-header">
-        <h2>IP REGISTRATION</h2>
+      <div className="ipd-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <h2 style={{ margin: 0 }}>IP REGISTRATION</h2>
+        <button 
+          type="button"
+          className="btn-back-page" 
+          onClick={() => navigate(-1)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            backgroundColor: '#1e293b',
+            color: 'white',
+            border: 'none',
+            padding: '6px 14px',
+            borderRadius: '6px',
+            fontWeight: 600,
+            fontSize: '13px',
+            cursor: 'pointer'
+          }}
+        >
+          <ArrowLeft size={16} /> Back
+        </button>
       </div>
 
       <div className="card ipd-form-card">

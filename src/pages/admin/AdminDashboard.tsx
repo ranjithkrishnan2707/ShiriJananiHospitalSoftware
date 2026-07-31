@@ -1,10 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Users, ShieldAlert, Clock } from 'lucide-react';
+import { LineChart, Users, ShieldAlert, Clock, Stethoscope, ArrowLeft, UserCheck } from 'lucide-react';
+import { useHospital } from '../../context/HospitalContext';
 import './AdminDashboard.css';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { openDoctorListModal } = useHospital();
 
   const options = [
     { 
@@ -14,10 +16,22 @@ const AdminDashboard: React.FC = () => {
       icon: <LineChart size={36} /> 
     },
     { 
-      title: 'Manage Staff & Doctors', 
-      desc: 'Add, edit, or remove hospital staff and doctor profiles',
+      title: 'Manage Staff', 
+      desc: 'Add, edit, or remove hospital staff profiles',
       path: '/admin/manage-staff', 
       icon: <Users size={36} /> 
+    },
+    { 
+      title: 'Staff Attendance', 
+      desc: 'Track daily attendance, mark present/absent/leave status, and review history',
+      path: '/attendance', 
+      icon: <UserCheck size={36} /> 
+    },
+    { 
+      title: 'Doctor Master List', 
+      desc: 'Manage referring and consulting doctor directory',
+      onClick: openDoctorListModal,
+      icon: <Stethoscope size={36} /> 
     },
     { 
       title: 'Staff Shift Allocation', 
@@ -36,8 +50,32 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="admin-dashboard-container page-transition">
       <div className="admin-dashboard-header">
-        <h2>Admin Panel</h2>
-        <p>Manage hospital settings, personnel, and security</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <div>
+            <h2 style={{ margin: 0 }}>Admin Panel</h2>
+            <p style={{ margin: '4px 0 0 0' }}>Manage hospital settings, personnel, and security</p>
+          </div>
+          <button 
+            type="button"
+            className="btn-back-page" 
+            onClick={() => navigate(-1)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#1e293b',
+              color: 'white',
+              border: 'none',
+              padding: '6px 14px',
+              borderRadius: '6px',
+              fontWeight: 600,
+              fontSize: '13px',
+              cursor: 'pointer'
+            }}
+          >
+            <ArrowLeft size={16} /> Back
+          </button>
+        </div>
       </div>
 
       <div className="admin-options-grid">
@@ -45,7 +83,7 @@ const AdminDashboard: React.FC = () => {
           <div 
             key={index} 
             className="admin-option-card"
-            onClick={() => navigate(option.path)}
+            onClick={() => option.onClick ? option.onClick() : option.path && navigate(option.path)}
           >
             <div className="admin-option-icon">
               {option.icon}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { LineChart, DollarSign, AlertCircle, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { LineChart, DollarSign, AlertCircle, Calendar, ArrowLeft } from 'lucide-react';
 import './MonitorBilling.css';
 
 interface BillingRecord {
@@ -22,6 +23,7 @@ const MOCK_BILLING_DATA: BillingRecord[] = [
 ];
 
 const MonitorBilling: React.FC = () => {
+  const navigate = useNavigate();
   const [filterType, setFilterType] = useState<string>('All');
   const [filterStatus, setFilterStatus] = useState<string>('All');
 
@@ -37,8 +39,30 @@ const MonitorBilling: React.FC = () => {
 
   return (
     <div className="billing-dashboard page-transition">
-      <div className="billing-header">
-        <h2><LineChart size={28} /> Monitor Billing Details</h2>
+      <div className="billing-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <h2><LineChart size={28} /> Monitor Billing Details</h2>
+        </div>
+        <button 
+          type="button"
+          className="btn-back-page" 
+          onClick={() => navigate(-1)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            backgroundColor: '#1e293b',
+            color: 'white',
+            border: 'none',
+            padding: '6px 14px',
+            borderRadius: '6px',
+            fontWeight: 600,
+            fontSize: '13px',
+            cursor: 'pointer'
+          }}
+        >
+          <ArrowLeft size={16} /> Back
+        </button>
       </div>
 
       <div className="billing-summary-cards">

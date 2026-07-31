@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Search, History, Plus, Trash2, Pill } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, History, Plus, Trash2, Pill, ArrowLeft } from 'lucide-react';
 import { useHospital } from '../../context/HospitalContext';
 import type { Patient } from '../../context/HospitalContext';
 import './DoctorConsultation.css';
@@ -13,7 +14,8 @@ export interface PrescribedTabletRow {
 }
 
 const DoctorConsultation: React.FC = () => {
-  const { patients, addConsultation, openDoctorListModal } = useHospital();
+  const navigate = useNavigate();
+  const { patients, addConsultation } = useHospital();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -34,7 +36,7 @@ const DoctorConsultation: React.FC = () => {
     const nextId = medicineRows.length ? Math.max(...medicineRows.map(m => m.id)) + 1 : 1;
     setMedicineRows(prev => [
       ...prev,
-      { id: nextId, tabletName: '', mg: '500', timing: 'AF', days: '5' }
+      { id: nextId, tabletName: '', mg: ' ', timing: 'AF', days: ' ' }
     ]);
   };
 
@@ -46,7 +48,7 @@ const DoctorConsultation: React.FC = () => {
     setMedicineRows(prev => prev.map(m => m.id === id ? { ...m, [field]: value } : m));
   };
 
-  const filteredPatients = patients.filter(p => 
+  const filteredPatients = patients.filter(p =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.uhid.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.patientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -79,7 +81,7 @@ const DoctorConsultation: React.FC = () => {
     );
 
     alert('Consultation updated successfully! Prescriptions sent to Pharmacy & notifications dispatched.');
-    
+
     // Clear form
     setSelectedPatient(null);
     setSearchTerm('');
@@ -97,14 +99,14 @@ const DoctorConsultation: React.FC = () => {
     <div className="doctor-consultation-container page-transition">
       {/* Left Column */}
       <div className="consultation-form-section">
-        
-        {/* Smart Search & Quick Doctor List Trigger */}
+
+        {/* Smart Search & Back Button */}
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <div className="search-container" style={{ flex: 1 }}>
             <Search className="search-icon" size={20} />
-            <input 
-              type="text" 
-              className="smart-search-input" 
+            <input
+              type="text"
+              className="smart-search-input"
               placeholder="Smart Patient Search (Name, UHID, ID, Phone)..."
               value={searchTerm}
               onChange={(e) => {
@@ -113,7 +115,7 @@ const DoctorConsultation: React.FC = () => {
               }}
               onFocus={() => setShowDropdown(true)}
             />
-            
+
             {showDropdown && searchTerm && (
               <div className="search-dropdown">
                 {filteredPatients.length > 0 ? (
@@ -133,26 +135,26 @@ const DoctorConsultation: React.FC = () => {
               </div>
             )}
           </div>
-          
-          <button 
-            type="button" 
-            className="action-btn"
-            onClick={openDoctorListModal}
-            style={{ 
-              backgroundColor: '#0284c7', 
-              color: 'white', 
-              border: 'none', 
-              padding: '10px 16px', 
+
+          <button
+            type="button"
+            className="btn-back-page"
+            onClick={() => navigate(-1)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#1e293b',
+              color: 'white',
+              border: 'none',
+              padding: '10px 16px',
               borderRadius: '6px',
               fontWeight: 600,
               cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
+              whiteSpace: 'nowrap'
             }}
           >
-            📋 Doctor List
+            <ArrowLeft size={16} /> Back
           </button>
         </div>
 
@@ -179,7 +181,7 @@ const DoctorConsultation: React.FC = () => {
         {/* Consultation Form */}
         <div className="card consultation-form">
           <h3 style={{ color: 'var(--color-primary)' }}>Consultation</h3>
-          
+
           <div>
             <label>Diagnosis / Medical Report</label>
             <textarea className="form-control" value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} placeholder="Enter detailed diagnosis..." />
@@ -205,27 +207,25 @@ const DoctorConsultation: React.FC = () => {
                 {medicineRows.map((row) => (
                   <tr key={row.id}>
                     <td>
-                      <input 
-                        type="text" 
-                        className="form-control" 
-                        placeholder="e.g. Tab. Paracetamol" 
-                        value={row.tabletName} 
-                        onChange={(e) => updateMedicineRow(row.id, 'tabletName', e.target.value)} 
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={row.tabletName}
+                        onChange={(e) => updateMedicineRow(row.id, 'tabletName', e.target.value)}
                       />
                     </td>
                     <td>
-                      <input 
-                        type="text" 
-                        className="form-control" 
-                        placeholder="e.g. 500" 
-                        value={row.mg} 
-                        onChange={(e) => updateMedicineRow(row.id, 'mg', e.target.value)} 
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={row.mg}
+                        onChange={(e) => updateMedicineRow(row.id, 'mg', e.target.value)}
                       />
                     </td>
                     <td>
-                      <select 
-                        className="form-control" 
-                        value={row.timing} 
+                      <select
+                        className="form-control"
+                        value={row.timing}
                         onChange={(e) => updateMedicineRow(row.id, 'timing', e.target.value)}
                       >
                         <option value="AF">AF (After Food)</option>
@@ -233,19 +233,18 @@ const DoctorConsultation: React.FC = () => {
                       </select>
                     </td>
                     <td>
-                      <input 
-                        type="text" 
-                        className="form-control" 
-                        placeholder="e.g. 5" 
-                        value={row.days} 
-                        onChange={(e) => updateMedicineRow(row.id, 'days', e.target.value)} 
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={row.days}
+                        onChange={(e) => updateMedicineRow(row.id, 'days', e.target.value)}
                       />
                     </td>
                     <td>
-                      <button 
-                        type="button" 
-                        className="btn-icon btn-delete-row" 
-                        onClick={() => removeMedicineRow(row.id)} 
+                      <button
+                        type="button"
+                        className="btn-icon btn-delete-row"
+                        onClick={() => removeMedicineRow(row.id)}
                         title="Delete row"
                         disabled={medicineRows.length === 1}
                       >
@@ -308,28 +307,28 @@ const DoctorConsultation: React.FC = () => {
           selectedPatient.history.map((hist) => (
             <div key={hist.id} className="card history-card" style={{ padding: '12px 16px' }}>
               <div className="history-date">Consultation on {hist.date}</div>
-              
+
               {hist.diagnosis && (
                 <div className="history-item">
                   <strong>Diagnosis:</strong>
                   <p>{hist.diagnosis}</p>
                 </div>
               )}
-              
+
               {hist.prescription && (
                 <div className="history-item">
                   <strong>Prescriptions:</strong>
                   <p>{hist.prescription}</p>
                 </div>
               )}
-              
+
               {hist.labRequest && (
                 <div className="history-item">
                   <strong>Lab Reports/Requests:</strong>
                   <p>{hist.labRequest}</p>
                 </div>
               )}
-              
+
               {hist.scanRequest && (
                 <div className="history-item">
                   <strong>Scan/Radiology:</strong>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Header.css';
-import { Bell, User, Calendar, Clock, Check, X, Shield, Lock } from 'lucide-react';
+import { Bell, User, Calendar, Clock, Check, X, Shield, Lock, ArrowLeft } from 'lucide-react';
 import { useHospital } from '../../context/HospitalContext';
 
 interface NotificationItem {
@@ -15,7 +15,7 @@ interface NotificationItem {
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { prescriptions, openDoctorListModal } = useHospital();
+  const { prescriptions } = useHospital();
   const [currentTime, setCurrentTime] = useState(new Date());
   
   const [showNotifications, setShowNotifications] = useState(false);
@@ -111,15 +111,6 @@ const Header: React.FC = () => {
                   <div 
                     className="master-menu-option" 
                     onClick={() => {
-                      openDoctorListModal();
-                      setShowMasterMenu(false);
-                    }}
-                  >
-                    📋 Doctors List
-                  </div>
-                  <div 
-                    className="master-menu-option" 
-                    onClick={() => {
                       navigate('/admin/manage-staff');
                       setShowMasterMenu(false);
                     }}
@@ -138,14 +129,6 @@ const Header: React.FC = () => {
       </div>
 
       <div className="header-right">
-        <button 
-          className="btn-header-doc-list" 
-          onClick={openDoctorListModal} 
-          title="Click to view & manage Doctor List"
-        >
-          📋 Doctor List
-        </button>
-
         <div className="datetime-widget">
           <div className="date">
             <Calendar size={16} />
@@ -256,6 +239,17 @@ const Header: React.FC = () => {
           )}
         </div>
 
+        {/* Back Button (Right Corner) */}
+        <button 
+          type="button"
+          className="header-back-btn" 
+          onClick={() => navigate(-1)} 
+          title="Go back one page"
+          style={{ marginLeft: '8px' }}
+        >
+          <ArrowLeft size={16} />
+          <span>Back</span>
+        </button>
       </div>
     </header>
   );

@@ -114,11 +114,10 @@ export interface DoctorItem {
 }
 
 const INITIAL_DOCTORS: DoctorItem[] = [
-  { id: '1', dname: 'SELF', contact: '', email: '', city: '' },
-  { id: '2', dname: 'DR.SRI JANANI,MD.,OG.,', contact: '', email: '', city: '' },
-  { id: '3', dname: 'DR.G.PRASANNA BALAJ, MD...', contact: '', email: '', city: '' },
-  { id: '4', dname: 'DR.PRIYA DHARSHINI, MBBS...', contact: '', email: '', city: '' },
-  { id: '5', dname: 'DR. SARANYA MBBS., DCH.', contact: '9585822...', email: '', city: '' },
+  { id: '1', dname: 'DR.SRI JANANI,MD.,OG.,', contact: '', email: '', city: '' },
+  { id: '2', dname: 'DR.G.PRASANNA BALAJ, MD...', contact: '', email: '', city: '' },
+  { id: '3', dname: 'DR.PRIYA DHARSHINI, MBBS...', contact: '', email: '', city: '' },
+  { id: '4', dname: 'DR. SARANYA MBBS., DCH.', contact: '9585822...', email: '', city: '' },
 ];
 
 // --- Context Definition ---

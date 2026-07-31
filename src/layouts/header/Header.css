@@ -18,6 +18,29 @@
   width: 250px; /* aligns with sidebar */
 }
 
+.header-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #1e293b, #334155);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.header-back-btn:hover {
+  background: linear-gradient(135deg, #334155, #0f172a);
+  transform: translateX(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 .logo-placeholder {
   width: 40px;
   height: 40px;
