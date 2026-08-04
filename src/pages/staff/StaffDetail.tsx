@@ -504,7 +504,11 @@ const StaffDetail: React.FC = () => {
   };
 
   const handleClose = () => {
-    window.close();
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/admin/staff-attendance');
+    }
   };
 
   return (

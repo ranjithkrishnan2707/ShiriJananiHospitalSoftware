@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Stethoscope, 
@@ -10,13 +10,18 @@ import {
   UserCheck,
   Receipt, 
   Settings,
-  BriefcaseMedical
+  BriefcaseMedical,
+  ChevronDown
 } from 'lucide-react';
 import { useHospital } from '../../context/HospitalContext';
 import './Sidebar.css';
 
 const Sidebar: React.FC = () => {
+  const location = useLocation();
   const { prescriptions, labRequests, scanRequests } = useHospital();
+  
+  const isAdminActive = location.pathname.startsWith('/admin');
+  const [isAdminOpen, setIsAdminOpen] = useState<boolean>(isAdminActive);
 
   const pendingPrescriptions = prescriptions.filter(p => p.status === 'Pending').length;
   const pendingLabs = labRequests.filter(l => l.status === 'Pending').length;
@@ -33,9 +38,13 @@ const Sidebar: React.FC = () => {
     { path: '/attendance', name: 'Attendance', icon: <UserCheck size={20} /> },
   ];
 
-  const bottomMenuItems = [
-    { path: '/billing', name: 'Patient Billing History', icon: <Receipt size={20} /> },
-    { path: '/admin', name: 'Admin', icon: <Settings size={20} /> },
+  const adminSubItems = [
+    { path: '/admin', name: 'Admin Panel Overview', exact: true },
+    { path: '/admin/staff-attendance', name: 'Staff Attendance' },
+    { path: '/admin/manage-staff', name: 'Manage Staff' },
+    { path: '/admin/monitor-billing', name: 'Monitor Billing' },
+    { path: '/admin/shift-allocation', name: 'Shift Allocation' },
+    { path: '/admin/security', name: 'Security & Passwords' },
   ];
 
   return (
@@ -65,17 +74,47 @@ const Sidebar: React.FC = () => {
             </li>
           ))}
 
-          {bottomMenuItems.map((item) => (
-            <li key={item.path}>
-              <NavLink 
-                to={item.path} 
-                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-              >
-                <span className="sidebar-icon">{item.icon}</span>
-                <span className="sidebar-text">{item.name}</span>
-              </NavLink>
-            </li>
-          ))}
+          <li>
+            <NavLink 
+              to="/billing" 
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            >
+              <span className="sidebar-icon"><Receipt size={20} /></span>
+              <span className="sidebar-text">Patient Billing History</span>
+            </NavLink>
+          </li>
+
+          {/* Admin Accordion Menu */}
+          <li>
+            <div 
+              className={`sidebar-accordion-header ${isAdminActive ? 'active' : ''}`}
+              onClick={() => setIsAdminOpen(!isAdminOpen)}
+            >
+              <span className="sidebar-icon"><Settings size={20} /></span>
+              <span className="sidebar-text">Admin</span>
+              <ChevronDown 
+                size={18} 
+                className={`accordion-arrow ${isAdminOpen ? 'open' : ''}`} 
+              />
+            </div>
+
+            <div className={`sidebar-submenu ${isAdminOpen ? 'open' : ''}`}>
+              {adminSubItems.map((sub) => (
+                <NavLink
+                  key={sub.path}
+                  to={sub.path}
+                  end={sub.exact}
+                  className={({ isActive }) => `submenu-link ${isActive ? 'active' : ''}`}
+                  style={({ isActive }) => ({
+                    color: isActive ? '#38bdf8' : 'rgba(255, 255, 255, 0.75)',
+                    fontWeight: isActive ? 700 : 500
+                  })}
+                >
+                  {sub.name}
+                </NavLink>
+              ))}
+            </div>
+          </li>
         </ul>
       </nav>
     </aside>

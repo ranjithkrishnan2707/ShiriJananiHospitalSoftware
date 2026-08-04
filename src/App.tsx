@@ -16,6 +16,7 @@ import DoctorConsultation from './pages/doctor/DoctorConsultation';
 import MedicalDashboard from './pages/medical/MedicalDashboard';
 import LabDashboard from './pages/lab/LabDashboard';
 import StaffAttendance from './pages/attendance/StaffAttendance';
+import AdminStaffAttendance from './pages/admin/AdminStaffAttendance';
 import StaffDetail from './pages/staff/StaffDetail';
 import PlaceholderPage from './components/PlaceholderPage';
 import ProtectedModule from './components/ProtectedModule';
@@ -94,7 +95,8 @@ const App: React.FC = () => {
             <Route index element={<AdminDashboard />} />
             <Route path="monitor-billing" element={<MonitorBilling />} />
             <Route path="manage-staff" element={<ManageStaff />} />
-            <Route path="attendance" element={<StaffAttendance />} />
+            <Route path="staff-attendance" element={<AdminStaffAttendance />} />
+            <Route path="attendance" element={<AdminStaffAttendance />} />
             <Route path="shift-allocation" element={<ShiftAllocation />} />
             <Route path="security" element={<SecurityPasswords />} />
           </Route>

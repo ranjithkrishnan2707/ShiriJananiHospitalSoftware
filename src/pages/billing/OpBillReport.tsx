@@ -13,15 +13,17 @@ interface BillItem {
   gross: number;
   discount: number;
   total: number;
-  paymentMode: 'Cash' | 'Card' | 'UPI';
+  cashAmount?: number;
+  gpayAmount?: number;
+  paymentMode: 'Cash' | 'Card' | 'UPI' | 'GPay';
 }
 
 const INITIAL_BILLS: BillItem[] = [
-  { bNo: 'OPB-101', bDate: '2026-05-21', ophuid: '3490', pName: 'JAYA SUDHA', age: '29 Yrs', refDoc: 'Dr. G. Srijaya', gross: 500, discount: 0, total: 500, paymentMode: 'Cash' },
-  { bNo: 'OPB-102', bDate: '2026-05-21', ophuid: '3491', pName: 'DEEPIKA', age: '26 Yrs', refDoc: 'Dr. G. Srijaya', gross: 750, discount: 50, total: 700, paymentMode: 'Card' },
-  { bNo: 'OPB-103', bDate: '2026-05-21', ophuid: '3492', pName: 'MUNESHWARI', age: '21 Yrs', refDoc: 'Dr. Sarah Jenkins', gross: 600, discount: 0, total: 600, paymentMode: 'Cash' },
-  { bNo: 'OPB-104', bDate: '2026-05-21', ophuid: '3493', pName: 'KALAIVANI', age: '30 Yrs', refDoc: 'Dr. Rajiv Menon', gross: 1200, discount: 100, total: 1100, paymentMode: 'UPI' },
-  { bNo: 'OPB-105', bDate: '2026-05-21', ophuid: '3494', pName: 'KEERTHANA', age: '27 Yrs', refDoc: 'Dr. G. Srijaya', gross: 500, discount: 0, total: 500, paymentMode: 'Cash' },
+  { bNo: 'OPB-101', bDate: '2026-05-21', ophuid: '3490', pName: 'JAYA SUDHA', age: '29 Yrs', refDoc: 'Dr. G. Srijaya', gross: 500, discount: 0, total: 500, cashAmount: 500, gpayAmount: 0, paymentMode: 'Cash' },
+  { bNo: 'OPB-102', bDate: '2026-05-21', ophuid: '3491', pName: 'DEEPIKA', age: '26 Yrs', refDoc: 'Dr. G. Srijaya', gross: 750, discount: 50, total: 700, cashAmount: 0, gpayAmount: 700, paymentMode: 'GPay' },
+  { bNo: 'OPB-103', bDate: '2026-05-21', ophuid: '3492', pName: 'MUNESHWARI', age: '21 Yrs', refDoc: 'Dr. Sarah Jenkins', gross: 600, discount: 0, total: 600, cashAmount: 600, gpayAmount: 0, paymentMode: 'Cash' },
+  { bNo: 'OPB-104', bDate: '2026-05-21', ophuid: '3493', pName: 'KALAIVANI', age: '30 Yrs', refDoc: 'Dr. Rajiv Menon', gross: 1200, discount: 100, total: 1100, cashAmount: 0, gpayAmount: 1100, paymentMode: 'GPay' },
+  { bNo: 'OPB-105', bDate: '2026-05-21', ophuid: '3494', pName: 'KEERTHANA', age: '27 Yrs', refDoc: 'Dr. G. Srijaya', gross: 500, discount: 0, total: 500, cashAmount: 500, gpayAmount: 0, paymentMode: 'Cash' },
 ];
 
 const OpBillReport: React.FC = () => {
@@ -56,19 +58,25 @@ const OpBillReport: React.FC = () => {
   // Export CSV
   const handleExportExcel = () => {
     const csvRows = [
-      ['Bill No', 'Date', 'OP OPHUID', 'Patient Name', 'Age', 'Ref Doctor', 'Gross Amount', 'Discount', 'Total Amount', 'Payment Mode'],
-      ...filteredBills.map(b => [
-        b.bNo,
-        b.bDate,
-        b.ophuid,
-        `"${b.pName}"`,
-        b.age,
-        `"${b.refDoc}"`,
-        b.gross,
-        b.discount,
-        b.total,
-        b.paymentMode
-      ])
+      ['Bill No', 'Date', 'OP OPHUID', 'Patient Name', 'Age', 'Ref Doctor', 'Gross Amount', 'Discount', 'Cash Amount', 'GPay Amount', 'Total Amount', 'Payment Mode'],
+      ...filteredBills.map(b => {
+        const cashVal = b.cashAmount !== undefined ? b.cashAmount : (b.paymentMode === 'Cash' ? b.total : 0);
+        const gpayVal = b.gpayAmount !== undefined ? b.gpayAmount : (b.paymentMode === 'UPI' || b.paymentMode === 'Card' || b.paymentMode === 'GPay' ? b.total : 0);
+        return [
+          b.bNo,
+          b.bDate,
+          b.ophuid,
+          `"${b.pName}"`,
+          b.age,
+          `"${b.refDoc}"`,
+          b.gross,
+          b.discount,
+          cashVal,
+          gpayVal,
+          b.total,
+          b.paymentMode
+        ];
+      })
     ];
 
     const csvContent = 'data:text/csv;charset=utf-8,' + csvRows.map(e => e.join(',')).join('\n');
@@ -86,9 +94,15 @@ const OpBillReport: React.FC = () => {
   const totalDiscount = filteredBills.reduce((sum, b) => sum + b.discount, 0);
   const totalNet = filteredBills.reduce((sum, b) => sum + b.total, 0);
 
-  const cashTotal = filteredBills.filter(b => b.paymentMode === 'Cash').reduce((sum, b) => sum + b.total, 0);
-  const cardTotal = filteredBills.filter(b => b.paymentMode === 'Card' || b.paymentMode === 'UPI').reduce((sum, b) => sum + b.total, 0);
-  const doctorCommissionTotal = Math.round(totalNet * 0.15); // 15% commission estimate
+  const totalCashSum = filteredBills.reduce((sum, b) => {
+    const cashVal = b.cashAmount !== undefined ? b.cashAmount : (b.paymentMode === 'Cash' ? b.total : 0);
+    return sum + cashVal;
+  }, 0);
+
+  const totalGPaySum = filteredBills.reduce((sum, b) => {
+    const gpayVal = b.gpayAmount !== undefined ? b.gpayAmount : (b.paymentMode === 'UPI' || b.paymentMode === 'Card' || b.paymentMode === 'GPay' ? b.total : 0);
+    return sum + gpayVal;
+  }, 0);
 
   return (
     <div className="bill-report-container page-transition">
@@ -174,7 +188,7 @@ const OpBillReport: React.FC = () => {
       </div>
 
       <div className="bill-main-content">
-        {/* Left Side: Data Table */}
+        {/* Full Width Data Table */}
         <div className="card table-card">
           <div className="table-container" style={{ border: 'none', height: '100%', minHeight: '400px' }}>
             <table className="data-table">
@@ -189,82 +203,78 @@ const OpBillReport: React.FC = () => {
                   <th>Ref Doc</th>
                   <th>Gross</th>
                   <th>Discount</th>
+                  <th>Cash</th>
+                  <th>GPay</th>
                   <th>Total</th>
+                  <th>Mode</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredBills.length === 0 ? (
                   <tr>
-                    <td colSpan={10} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
+                    <td colSpan={13} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
                       No bills found matching the selected filters.
                     </td>
                   </tr>
                 ) : (
-                  filteredBills.map((b) => (
-                    <tr 
-                      key={b.bNo} 
-                      className={activeBillNo === b.bNo ? 'active-row' : ''}
-                      onClick={() => setActiveBillNo(b.bNo)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <td>{activeBillNo === b.bNo ? '▶' : ''}</td>
-                      <td>{b.bNo}</td>
-                      <td>{b.bDate}</td>
-                      <td>{b.ophuid}</td>
-                      <td>{b.pName}</td>
-                      <td>{b.age}</td>
-                      <td>{b.refDoc}</td>
-                      <td>₹{b.gross}</td>
-                      <td>₹{b.discount}</td>
-                      <td style={{ textAlign: 'right', fontWeight: 600 }}>₹{b.total.toFixed(2)}</td>
-                    </tr>
-                  ))
+                  filteredBills.map((b) => {
+                    const cashVal = b.cashAmount !== undefined ? b.cashAmount : (b.paymentMode === 'Cash' ? b.total : 0);
+                    const gpayVal = b.gpayAmount !== undefined ? b.gpayAmount : (b.paymentMode === 'UPI' || b.paymentMode === 'Card' || b.paymentMode === 'GPay' ? b.total : 0);
+
+                    return (
+                      <tr 
+                        key={b.bNo} 
+                        className={activeBillNo === b.bNo ? 'active-row' : ''}
+                        onClick={() => setActiveBillNo(b.bNo)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <td>{activeBillNo === b.bNo ? '▶' : ''}</td>
+                        <td>{b.bNo}</td>
+                        <td>{b.bDate}</td>
+                        <td>{b.ophuid}</td>
+                        <td>{b.pName}</td>
+                        <td>{b.age}</td>
+                        <td>{b.refDoc}</td>
+                        <td>₹{b.gross}</td>
+                        <td>₹{b.discount}</td>
+                        <td style={{ color: cashVal > 0 ? '#16a34a' : '#94a3b8', fontWeight: cashVal > 0 ? 600 : 400 }}>
+                          {cashVal > 0 ? `₹${cashVal.toFixed(2)}` : '-'}
+                        </td>
+                        <td style={{ color: gpayVal > 0 ? '#0284c7' : '#94a3b8', fontWeight: gpayVal > 0 ? 600 : 400 }}>
+                          {gpayVal > 0 ? `₹${gpayVal.toFixed(2)}` : '-'}
+                        </td>
+                        <td style={{ textAlign: 'right', fontWeight: 700 }}>₹{b.total.toFixed(2)}</td>
+                        <td>
+                          <span style={{
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            backgroundColor: b.paymentMode === 'Cash' ? '#dcfce7' : '#e0f2fe',
+                            color: b.paymentMode === 'Cash' ? '#166534' : '#0369a1'
+                          }}>
+                            {b.paymentMode}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
+              {filteredBills.length > 0 && (
+                <tfoot>
+                  <tr style={{ backgroundColor: '#f8fafc', fontWeight: 700, borderTop: '2px solid #cbd5e1' }}>
+                    <td colSpan={7} style={{ textAlign: 'right', padding: '12px' }}>SUMMARY TOTAL:</td>
+                    <td>₹{totalGross.toFixed(2)}</td>
+                    <td style={{ color: 'var(--color-error)' }}>-₹{totalDiscount.toFixed(2)}</td>
+                    <td style={{ color: '#16a34a' }}>₹{totalCashSum.toFixed(2)}</td>
+                    <td style={{ color: '#0284c7' }}>₹{totalGPaySum.toFixed(2)}</td>
+                    <td style={{ textAlign: 'right', color: '#0f172a', fontSize: '15px' }}>₹{totalNet.toFixed(2)}</td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              )}
             </table>
-          </div>
-        </div>
-
-        {/* Right Side: Summary Panels */}
-        <div className="summary-panels">
-          <div className="card summary-card">
-            <h3 className="summary-title">Collection Register Summary</h3>
-            
-            <div className="summary-row">
-              <span>Gross Collection</span>
-              <span className="summary-value">₹{totalGross.toFixed(2)}</span>
-            </div>
-            <div className="summary-row">
-              <span>Total Discount</span>
-              <span className="summary-value" style={{ color: 'var(--color-error)' }}>-₹{totalDiscount.toFixed(2)}</span>
-            </div>
-            <div className="summary-row" style={{ marginTop: '12px', fontWeight: 'bold', fontSize: '16px' }}>
-              <span>Net Collection</span>
-              <span className="summary-value" style={{ color: '#2e7d32' }}>₹{totalNet.toFixed(2)}</span>
-            </div>
-            
-            <div className="summary-divider"></div>
-            
-            <div className="summary-row">
-              <span style={{ color: 'var(--color-text)' }}>Cash Payment</span>
-              <span className="summary-value">₹{cashTotal.toFixed(2)}</span>
-            </div>
-            <div className="summary-row">
-              <span style={{ color: 'var(--color-text)' }}>Card / UPI Payment</span>
-              <span className="summary-value">₹{cardTotal.toFixed(2)}</span>
-            </div>
-          </div>
-
-          <div className="card summary-card">
-            <h3 className="summary-title">Doctor Wise Commission (15%)</h3>
-            <div className="summary-row">
-              <span>Doctor Selected</span>
-              <span className="summary-value" style={{ fontSize: '13px' }}>{selectedDoctor || 'All Doctors'}</span>
-            </div>
-            <div className="summary-row" style={{ marginTop: '8px' }}>
-              <span>Total Commission Amount</span>
-              <span className="summary-value" style={{ color: '#0284c7', fontSize: '16px' }}>₹{doctorCommissionTotal.toFixed(2)}</span>
-            </div>
           </div>
         </div>
       </div>

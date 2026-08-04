@@ -24,7 +24,7 @@ const AdminDashboard: React.FC = () => {
     { 
       title: 'Staff Attendance', 
       desc: 'Track daily attendance, mark present/absent/leave status, and review history',
-      path: '/attendance', 
+      path: '/admin/staff-attendance', 
       icon: <UserCheck size={36} /> 
     },
     { 

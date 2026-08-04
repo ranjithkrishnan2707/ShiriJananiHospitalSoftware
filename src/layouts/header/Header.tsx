@@ -243,8 +243,14 @@ const Header: React.FC = () => {
         <button 
           type="button"
           className="header-back-btn" 
-          onClick={() => navigate(-1)} 
-          title="Go back one page"
+          onClick={() => {
+            if (window.history.length > 1) {
+              navigate(-1);
+            } else {
+              navigate('/');
+            }
+          }} 
+          title="Go back / Close tab"
           style={{ marginLeft: '8px' }}
         >
           <ArrowLeft size={16} />
