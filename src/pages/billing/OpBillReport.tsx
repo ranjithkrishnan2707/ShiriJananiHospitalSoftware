@@ -232,7 +232,29 @@ const OpBillReport: React.FC = () => {
                         <td>{b.bNo}</td>
                         <td>{b.bDate}</td>
                         <td>{b.ophuid}</td>
-                        <td>{b.pName}</td>
+                        <td>
+                          <button
+                            type="button"
+                            className="clickable-patient-name-btn"
+                            title="Click to open Test Result page for this patient"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/lab?tab=test-result&patientId=${b.ophuid}&patientName=${encodeURIComponent(b.pName)}`);
+                            }}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              padding: 0,
+                              color: '#1d4ed8',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              textDecoration: 'underline',
+                              textAlign: 'left'
+                            }}
+                          >
+                            {b.pName}
+                          </button>
+                        </td>
                         <td>{b.age}</td>
                         <td>{b.refDoc}</td>
                         <td>₹{b.gross}</td>

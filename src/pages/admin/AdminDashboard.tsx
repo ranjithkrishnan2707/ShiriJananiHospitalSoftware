@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Users, ShieldAlert, Clock, Stethoscope, ArrowLeft, UserCheck } from 'lucide-react';
+import { LineChart, Users, ShieldAlert, Clock, Stethoscope, ArrowLeft, UserCheck, Wallet } from 'lucide-react';
 import { useHospital } from '../../context/HospitalContext';
 import './AdminDashboard.css';
 
@@ -14,6 +14,12 @@ const AdminDashboard: React.FC = () => {
       desc: 'View comprehensive billing reports and revenue analytics',
       path: '/admin/monitor-billing', 
       icon: <LineChart size={36} /> 
+    },
+    { 
+      title: 'Expense Monitor', 
+      desc: 'View complete expense history, department spending, and financial logs',
+      path: '/admin/expenses', 
+      icon: <Wallet size={36} /> 
     },
     { 
       title: 'Manage Staff', 

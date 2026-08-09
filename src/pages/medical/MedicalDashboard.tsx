@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
+import {
   Pill, CheckCircle, FileText, User, Phone, Clock, FileWarning, ArrowLeft,
   Calendar, UserCheck, Truck, Package, ShoppingCart, Receipt, ClipboardList,
   Wallet, RotateCcw, FileSpreadsheet, CreditCard, BookOpen, Bell, Building2,
@@ -15,7 +15,7 @@ const MedicalDashboard: React.FC = () => {
   const { prescriptions, markPrescriptionComplete } = useHospital();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchFilter, setSearchFilter] = useState('');
-  
+
   // State for active modal dialog
   const [activeModal, setActiveModal] = useState<string | null>(null);
 
@@ -30,12 +30,12 @@ const MedicalDashboard: React.FC = () => {
   const [expenseAmount, setExpenseAmount] = useState('');
 
   const pendingPrescriptions = prescriptions.filter(p => p.status === 'Pending');
-  const filteredPrescriptions = pendingPrescriptions.filter(p => 
+  const filteredPrescriptions = pendingPrescriptions.filter(p =>
     p.patientName.toLowerCase().includes(searchFilter.toLowerCase()) ||
     p.uhid.toLowerCase().includes(searchFilter.toLowerCase()) ||
     p.doctorName.toLowerCase().includes(searchFilter.toLowerCase())
   );
-  
+
   const selectedPrescription = pendingPrescriptions.find(p => p.id === selectedId);
 
   // If selected prescription is completed by another action, clear selection
@@ -114,7 +114,7 @@ const MedicalDashboard: React.FC = () => {
       else if (e.key === 'F10') { e.preventDefault(); setActiveModal('payment'); }
       else if (e.key === 'F11') { e.preventDefault(); setActiveModal('rc-remainder'); }
       else if (e.key === 'F12') { e.preventDefault(); setActiveModal('supplier-master'); }
-      
+
       else if (e.ctrlKey && (e.key === 'g' || e.key === 'G')) { e.preventDefault(); setActiveModal('product'); }
       else if (e.ctrlKey && (e.key === 'm' || e.key === 'M')) { e.preventDefault(); setActiveModal('prod-merge'); }
       else if (e.ctrlKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); setActiveModal('sale-company'); }
@@ -131,6 +131,8 @@ const MedicalDashboard: React.FC = () => {
   const handleOpClick = (id: string) => {
     if (id === 'quit') {
       handleQuit();
+    } else if (id === 'expenses-entry') {
+      navigate('/admin/expenses/add?dept=Medical&from=medical');
     } else {
       setActiveModal(id);
     }
@@ -154,12 +156,12 @@ const MedicalDashboard: React.FC = () => {
             </p>
             <div style={{ display: 'flex', gap: '12px' }}>
               {['2026-2027 (Current Active)', '2025-2026', '2024-2025'].map(yr => (
-                <button 
+                <button
                   key={yr}
                   className="form-control"
-                  style={{ 
-                    padding: '12px 16px', 
-                    fontWeight: 600, 
+                  style={{
+                    padding: '12px 16px',
+                    fontWeight: 600,
                     cursor: 'pointer',
                     borderColor: yr.includes(salesYear) ? '#2563EB' : '#cbd5e1',
                     backgroundColor: yr.includes(salesYear) ? '#EFF6FF' : 'white',
@@ -206,7 +208,7 @@ const MedicalDashboard: React.FC = () => {
               <input type="text" className="form-control" placeholder="Contact Phone No" value={newSupplierPhone} onChange={e => setNewSupplierPhone(e.target.value)} />
             </div>
             <button className="btn-erp-dispense" style={{ padding: '8px 18px', fontSize: '13px' }} onClick={() => {
-              if(!newSupplierName) return alert('Enter supplier name');
+              if (!newSupplierName) return alert('Enter supplier name');
               alert(`Supplier "${newSupplierName}" added successfully!`);
               setNewSupplierName('');
               setNewSupplierPhone('');
@@ -243,7 +245,7 @@ const MedicalDashboard: React.FC = () => {
               <input type="text" className="form-control" placeholder="Price (₹)" value={newProductPrice} onChange={e => setNewProductPrice(e.target.value)} />
             </div>
             <button className="btn-erp-dispense" style={{ padding: '8px 18px', fontSize: '13px', marginBottom: '20px' }} onClick={() => {
-              if(!newProductName) return alert('Enter medicine product name');
+              if (!newProductName) return alert('Enter medicine product name');
               alert(`Product "${newProductName}" added to stock master!`);
               setNewProductName('');
               setNewProductPrice('');
@@ -356,7 +358,7 @@ const MedicalDashboard: React.FC = () => {
               <input type="number" className="form-control" placeholder="Amount (₹)" value={expenseAmount} onChange={e => setExpenseAmount(e.target.value)} />
             </div>
             <button className="btn-erp-dispense" style={{ padding: '8px 18px', fontSize: '13px' }} onClick={() => {
-              if(!expenseAmount) return alert('Enter expense amount');
+              if (!expenseAmount) return alert('Enter expense amount');
               alert(`Expense of ₹${expenseAmount} (${expenseCategory}) logged!`);
               setExpenseAmount('');
               setActiveModal(null);
@@ -643,10 +645,10 @@ const MedicalDashboard: React.FC = () => {
 
   return (
     <div className="medical-erp-container page-transition">
-      
+
       {/* CENTER COLUMN (55% Layout Area) */}
       <div className="erp-center-column">
-        
+
         {/* Header Banner */}
         <div className="erp-header-banner">
           <div className="banner-title-area">
@@ -658,11 +660,21 @@ const MedicalDashboard: React.FC = () => {
               <p>Hospital ERP Master Inventory, Sales Counter & Prescription Dispensing</p>
             </div>
           </div>
-          <div className="banner-actions">
-            <button 
-              type="button" 
-              className="btn-erp-back" 
-              onClick={() => navigate(-1)} 
+          <div className="banner-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button
+              type="button"
+              className="btn-erp-back"
+              onClick={() => navigate('/admin/expenses/add?dept=Medical&from=medical')}
+              style={{ background: 'linear-gradient(135deg, #be185d 0%, #db2777 100%)', color: 'white', border: 'none', fontWeight: 700 }}
+              title="Open Add New Expense Page"
+            >
+              <Plus size={16} />
+              <span> Add Expense</span>
+            </button>
+            <button
+              type="button"
+              className="btn-erp-back"
+              onClick={() => navigate(-1)}
               title="Go to previous page"
             >
               <ArrowLeft size={16} />
@@ -681,8 +693,8 @@ const MedicalDashboard: React.FC = () => {
             </div>
             <div className="search-input-wrapper" style={{ width: '280px' }}>
               <Search size={14} />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Search patient, UHID or doctor..."
                 value={searchFilter}
                 onChange={e => setSearchFilter(e.target.value)}
@@ -700,8 +712,8 @@ const MedicalDashboard: React.FC = () => {
             ) : (
               <div className="prescription-grid-feed">
                 {filteredPrescriptions.map(p => (
-                  <div 
-                    key={p.id} 
+                  <div
+                    key={p.id}
                     className="erp-prescription-feed-card"
                     onClick={() => setSelectedId(p.id)}
                   >
@@ -709,13 +721,13 @@ const MedicalDashboard: React.FC = () => {
                       <div className="feed-patient-name">{p.patientName}</div>
                       <span className="feed-time-tag">{p.time}</span>
                     </div>
-                    
+
                     <div className="feed-card-body">
                       <div className="feed-meta-row">
                         <span>UHID: <strong>{p.uhid}</strong></span>
                         <span>Doctor: <strong>{p.doctorName}</strong></span>
                       </div>
-                      
+
                       <div className="feed-diagnosis-tag">
                         Diagnosis: {p.diagnosis || 'General Consultation'}
                       </div>
@@ -743,7 +755,7 @@ const MedicalDashboard: React.FC = () => {
 
       {/* RIGHT SIDEBAR: Pharmacy Operations Card */}
       <div className="erp-right-sidebar">
-        
+
         {/* Pharmacy Operations Card */}
         <div className="erp-sidebar-card">
           <div className="sidebar-card-title">
@@ -753,7 +765,7 @@ const MedicalDashboard: React.FC = () => {
 
           <div className="operations-vertical-list">
             {pharmacyOperationsList.map(op => (
-              <button 
+              <button
                 key={op.id}
                 type="button"
                 className={`erp-op-button ${op.id === 'quit' ? 'btn-op-exit' : ''}`}
@@ -784,7 +796,7 @@ const MedicalDashboard: React.FC = () => {
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="erp-modal-body">
               {/* Patient & Doctor Grid */}
               <div className="details-section-grid">
@@ -833,15 +845,15 @@ const MedicalDashboard: React.FC = () => {
             </div>
 
             <div className="erp-modal-footer" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-              <button 
-                type="button" 
-                className="form-control" 
+              <button
+                type="button"
+                className="form-control"
                 style={{ width: 'auto', padding: '8px 20px', fontWeight: 600, cursor: 'pointer', borderRadius: '8px' }}
                 onClick={() => setSelectedId(null)}
               >
                 Close
               </button>
-              <button 
+              <button
                 className="btn-erp-dispense"
                 onClick={() => handleDispense(selectedPrescription.id)}
               >
@@ -870,9 +882,9 @@ const MedicalDashboard: React.FC = () => {
               {renderModalContent()}
             </div>
             <div className="erp-modal-footer">
-              <button 
+              <button
                 type="button"
-                className="form-control" 
+                className="form-control"
                 style={{ width: 'auto', padding: '8px 20px', fontWeight: 600, cursor: 'pointer', borderRadius: '8px' }}
                 onClick={() => setActiveModal(null)}
               >

@@ -2319,3 +2319,898 @@
     box-shadow: none;
   }
 }
+
+/* --- Typeable Patient Name Filtered Dropdown Styling --- */
+.patient-name-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  background-color: #ffffff;
+  border: 1px solid #1E3F66;
+  border-radius: 4px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  z-index: 9999;
+  margin-top: 2px;
+}
+
+.patient-name-dropdown .dropdown-header {
+  background: linear-gradient(180deg, #1E3F66 0%, #102A43 100%);
+  color: #ffffff;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.patient-name-dropdown .dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #E2E8F0;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background-color: #ffffff;
+}
+
+.patient-name-dropdown .dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.patient-name-dropdown .dropdown-item:hover {
+  background-color: #EBF3FF;
+  border-left: 3px solid #1E3F66;
+}
+
+.patient-name-dropdown .patient-item-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: #1e293b;
+}
+
+.patient-name-dropdown .patient-item-details {
+  font-size: 11px;
+  color: #64748b;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.patient-name-dropdown .badge-uhid {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.patient-name-dropdown .badge-id {
+  background-color: #f1f5f9;
+  color: #475569;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+  font-size: 10px;
+}
+
+/* --- Master Price List Window Styling --- */
+.price-list-window {
+  background-color: #DCE7F5;
+  border: 2px solid #5C768D;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  width: 95%;
+  max-width: 1200px;
+  margin: 20px auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.price-list-header {
+  background: linear-gradient(180deg, #D0DFEE 0%, #9EB7CE 100%);
+  border-bottom: 1px solid #778899;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+}
+
+.price-list-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 15px;
+  color: #0F172A;
+}
+
+.price-list-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+
+.price-list-filters-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  background-color: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  padding: 12px 16px;
+  border-radius: 6px;
+  flex-wrap: wrap;
+}
+
+.price-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 220px;
+}
+
+.price-filter-label {
+  font-weight: 700;
+  font-size: 12px;
+  color: #1E293B;
+}
+
+.price-filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.btn-price-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.btn-show-list {
+  background-color: #2563EB;
+  color: white;
+  border-color: #1D4ED8;
+}
+
+.btn-show-list:hover {
+  background-color: #1D4ED8;
+}
+
+.btn-preview-list {
+  background-color: #059669;
+  color: white;
+  border-color: #047857;
+}
+
+.btn-preview-list:hover {
+  background-color: #047857;
+}
+
+.btn-export-list {
+  background-color: #15803D;
+  color: white;
+  border-color: #166534;
+}
+
+.btn-export-list:hover {
+  background-color: #166534;
+}
+
+.price-list-table-container {
+  background: white;
+  border: 1px solid #94A3B8;
+  border-radius: 4px;
+  overflow: auto;
+  max-height: 420px;
+}
+
+.price-list-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.price-list-data-table th {
+  background-color: #1E3F66;
+  color: white;
+  padding: 8px 12px;
+  font-weight: 700;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 2px solid #0F172A;
+}
+
+.price-list-data-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.price-list-data-table tr:nth-child(even) {
+  background-color: #F8FAFC;
+}
+
+.price-list-data-table tr:hover {
+  background-color: #E2E8F0;
+}
+
+.price-list-footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.price-count-badge {
+  font-size: 13px;
+  color: #334155;
+  background: #E2E8F0;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+/* --- Price List Preview Window & Formal Sheet --- */
+.price-list-preview-window {
+  background: #525659;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.preview-toolbar {
+  background-color: #1E293B;
+  color: white;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.preview-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.preview-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-preview-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-preview-tool.btn-print {
+  background-color: #2563EB;
+  color: white;
+}
+
+.btn-preview-tool.btn-excel {
+  background-color: #16A34A;
+  color: white;
+}
+
+.btn-preview-tool.btn-close {
+  background-color: #DC2626;
+  color: white;
+}
+
+.preview-report-sheet {
+  background: white;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 20px auto;
+  padding: 20mm;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  box-sizing: border-box;
+}
+
+.hospital-name-heading {
+  color: #1E3F66;
+  font-size: 22px;
+  font-weight: 900;
+  text-align: center;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.hospital-sub-heading {
+  text-align: center;
+  color: #475569;
+  font-size: 12px;
+  margin: 4px 0 10px 0;
+}
+
+.report-divider-line {
+  height: 2px;
+  background: linear-gradient(90deg, #1E3F66 0%, #3B82F6 50%, #1E3F66 100%);
+  margin: 10px 0;
+}
+
+.report-title-heading {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 8px 0;
+  text-transform: uppercase;
+}
+
+.report-meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #334155;
+  background: #F8FAFC;
+  padding: 8px 12px;
+  border: 1px solid #E2E8F0;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.preview-report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.preview-report-table th {
+  background-color: #1E3F66;
+  color: white;
+  padding: 8px;
+  border: 1px solid #0F172A;
+  text-align: left;
+  font-size: 11.5px;
+}
+
+.preview-report-table td {
+  padding: 6px 8px;
+  border: 1px solid #CBD5E1;
+}
+
+.preview-report-table tr:nth-child(even) {
+  background-color: #F8FAFC;
+}
+
+.report-footer-signatures {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 50px;
+  padding-top: 20px;
+}
+
+.sig-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 180px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.sig-line {
+  width: 100%;
+  border-top: 1px dashed #64748B;
+  margin-bottom: 6px;
+}
+
+/* ========================================================= */
+/* TESTWISE REPORT WINDOW STYLING (MATCHING SCREENSHOT)       */
+/* ========================================================= */
+.test-wise-report-desktop-window {
+  background-color: #DDE8FA;
+  border: 2px solid #5C768D;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+  overflow: hidden;
+  max-width: 1450px;
+  margin: 10px auto;
+  width: 100%;
+}
+
+.tw-top-controls-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: #E6F0FA;
+  border: 1px solid #90A4AE;
+  padding: 12px 16px;
+  border-radius: 4px;
+  position: relative;
+  flex-wrap: wrap;
+}
+
+.tw-reports-title-label {
+  font-size: 18px;
+  font-weight: 900;
+  color: #000080;
+  letter-spacing: 0.5px;
+  min-width: 90px;
+}
+
+.tw-filter-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 500px;
+}
+
+.tw-date-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tw-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #000;
+  min-width: 45px;
+  white-space: nowrap;
+}
+
+.tw-date-input {
+  width: 140px;
+  padding: 4px 8px;
+  border: 1px solid #7F9DB9;
+  font-size: 12px;
+  background: white;
+  border-radius: 3px;
+}
+
+.tw-select-wide {
+  flex: 1 1 220px;
+  min-width: 180px;
+  padding: 4px 8px;
+  border: 1px solid #7F9DB9;
+  font-size: 12px;
+  background: white;
+  border-radius: 3px;
+}
+
+.tw-actions-column {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 0 1 auto;
+}
+
+.tw-btn-pair {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tw-btn-action {
+  background: #D9E5F6;
+  color: #000;
+  border: 1px solid #5C768D;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 6px 14px;
+  cursor: pointer;
+  border-radius: 3px;
+  min-width: 75px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.tw-btn-action:hover {
+  background: #1E3F66;
+  color: white;
+}
+
+.tw-btn-action.tw-btn-export {
+  min-width: 130px;
+}
+
+.tw-window-red-x {
+  background: #D32F2F;
+  color: white;
+  border: 1px solid #8B0000;
+  font-weight: 900;
+  font-size: 16px;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-left: 8px;
+}
+
+.tw-workspace-layout {
+  display: flex;
+  gap: 14px;
+  margin-top: 12px;
+  align-items: stretch;
+}
+
+.tw-table-container {
+  flex: 1;
+  background: white;
+  border: 1px solid #90A4AE;
+  border-radius: 4px;
+  max-height: 480px;
+  overflow: auto;
+}
+
+.tw-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.tw-data-table th {
+  background-color: #1E3F66;
+  color: white;
+  padding: 8px 10px;
+  font-weight: 700;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 2px solid #0F172A;
+}
+
+.tw-data-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.tw-data-table tr:nth-child(even) {
+  background-color: #F8FAFC;
+}
+
+.tw-data-table tr:hover {
+  background-color: #E2E8F0;
+}
+
+.tw-count-box-side {
+  width: 220px;
+  background: #E6F0FA;
+  border: 1px solid #90A4AE;
+  border-radius: 4px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tw-count-header {
+  color: #B91C1C;
+  font-size: 14px;
+  font-weight: 900;
+  margin: 0 0 10px 0;
+}
+
+.tw-count-display {
+  background: #D9E5F6;
+  border: 1px solid #B0C4DE;
+  border-radius: 4px;
+  padding: 20px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.tw-total-label {
+  font-weight: 800;
+  font-size: 13px;
+  color: #000;
+}
+
+.tw-total-value {
+  font-weight: 900;
+  font-size: 24px;
+  color: #7B0080;
+}
+
+/* Clickable Patient Name Link in Reports */
+.clickable-patient-name-btn {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  color: #1d4ed8;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-align: left;
+  border-radius: 4px;
+  transition: all 0.15s ease-in-out;
+  display: inline-block;
+}
+
+.clickable-patient-name-btn:hover {
+  color: #1e40af;
+  background-color: #dbeafe;
+  text-decoration: underline;
+  transform: translateY(-1px);
+}
+
+/* ========================================================================== */
+/* OFFICIAL SHRI JANANI HOSPITALS LABORATORY REPORT & LETTERHEAD STYLES       */
+/* ========================================================================== */
+
+.lab-report-sheet-container {
+  background-color: #f1f5f9;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.official-lab-report-sheet {
+  background: white;
+  width: 100%;
+  max-width: 800px;
+  min-height: 1000px;
+  padding: 24px 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  font-family: 'Inter', 'Calibri', 'Arial', sans-serif;
+  color: #1e293b;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* 1. Letterhead Top Banner */
+.sjh-letterhead-banner {
+  margin-bottom: 12px;
+  position: relative;
+  border-bottom: 2px solid #D91B5C;
+  padding-bottom: 6px;
+}
+
+.sjh-top-accent-stripe {
+  height: 8px;
+  background: linear-gradient(90deg, #3B1E64 0%, #5C1D6D 60%, #D91B5C 100%);
+  margin-bottom: 10px;
+  border-radius: 2px;
+}
+
+.sjh-header-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sjh-logo-left {
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sjh-header-center-text {
+  text-align: center;
+  flex: 1;
+}
+
+.sjh-title-main {
+  font-size: 26px;
+  font-weight: 900;
+  color: #1A103C;
+  margin: 0;
+  letter-spacing: 0.5px;
+  text-decoration: underline;
+  text-decoration-color: #1A103C;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.sjh-address-line {
+  font-size: 12px;
+  color: #D91B5C;
+  font-weight: 700;
+  margin: 3px 0 1px 0;
+}
+
+.sjh-phone-line {
+  font-size: 13px;
+  color: #000;
+  font-weight: 800;
+  margin: 0;
+}
+
+.sjh-logo-right {
+  width: 65px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sjh-sub-banner-title {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 900;
+  color: #0A1931;
+  letter-spacing: 0.8px;
+  margin: 8px 0 10px 0;
+  text-transform: uppercase;
+  font-family: 'Calibri', Arial, sans-serif;
+}
+
+/* 2. Patient Demographics Block */
+.report-demographics-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: white;
+  border: 1px solid #cbd5e1;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.demo-left-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.demo-right-column {
+  width: 270px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: flex-end;
+}
+
+.demo-left-column .demo-row {
+  display: grid;
+  grid-template-columns: 100px 12px 1fr;
+  align-items: center;
+}
+
+.demo-right-column .demo-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  width: 100%;
+}
+
+.demo-label {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.demo-colon {
+  font-weight: 700;
+}
+
+.demo-value {
+  color: #000;
+  font-weight: 600;
+}
+
+.barcode-align-row {
+  margin-bottom: 4px;
+}
+
+/* 3. Official Report Data Table */
+.official-report-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+  font-size: 12px;
+}
+
+.official-report-data-table th {
+  border: 1px solid #0f172a;
+  background-color: #f8fafc;
+  color: #000;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 6px 10px;
+  text-transform: uppercase;
+}
+
+.official-report-data-table td {
+  border: 1px solid #cbd5e1;
+  padding: 6px 10px;
+  color: #000;
+  vertical-align: top;
+}
+
+.report-group-header-tr td {
+  background-color: #ffffff;
+  border: 1px solid #0f172a;
+  border-left: none;
+  border-right: none;
+  font-weight: 900;
+  color: #000;
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 6px 10px;
+}
+
+.report-item-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.report-item-result {
+  font-weight: 800;
+  color: #000;
+}
+
+.report-item-unit {
+  color: #334155;
+}
+
+.report-item-range {
+  color: #334155;
+}
+
+/* 4. Report Bottom Footer */
+.report-bottom-footer {
+  margin-top: 50px;
+}
+
+.end-of-report-tag {
+  text-align: center;
+  font-weight: 800;
+  font-size: 13px;
+  color: #000;
+  margin-bottom: 50px;
+}
+
+.report-signature-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 20px;
+}
+
+.signature-box {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #000;
+  text-transform: uppercase;
+}
+
+
+

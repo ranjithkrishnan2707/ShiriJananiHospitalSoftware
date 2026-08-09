@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHospital } from '../../context/HospitalContext';
 import { Search, X, UserCheck, ArrowLeft } from 'lucide-react';
@@ -10,21 +10,45 @@ const IpdRegistration: React.FC = () => {
 
   const [formData, setFormData] = useState({
     type: 'IP',
-    patientIpid: '48',
-    patientUhid: 'UHID-1001',
-    patientName: 'Rajesh Kumar',
-    age: '45',
-    gender: 'male',
-    address: '12 Hospital Road',
-    city: 'Chennai',
-    contact1: '9876543210',
+    patientIpid: '',
+    patientUhid: '',
+    patientName: '',
+    age: '',
+    gender: '',
+    address: '',
+    city: '',
+    contact1: '',
     contact2: '',
     doa: new Date().toISOString().split('T')[0],
-    refDoctor: 'Dr. Sarah Jenkins'
+    refDoctor: ''
   });
 
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Dropdown state for Patient Name
+  const [showNameDropdown, setShowNameDropdown] = useState(false);
+  const nameDropdownRef = useRef<HTMLDivElement>(null);
+
+  const filteredPreviousPatients = useMemo(() => {
+    if (!formData.patientName.trim()) return patients;
+    const query = formData.patientName.toLowerCase().trim();
+    return patients.filter(p =>
+      p.name.toLowerCase().includes(query) ||
+      p.uhid.toLowerCase().includes(query) ||
+      p.phone.includes(query)
+    );
+  }, [patients, formData.patientName]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (nameDropdownRef.current && !nameDropdownRef.current.contains(event.target as Node)) {
+        setShowNameDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -41,11 +65,11 @@ const IpdRegistration: React.FC = () => {
       patientUhid: p.uhid,
       patientName: p.name,
       age: p.age,
-      gender: p.sex.toLowerCase(),
+      gender: p.sex ? p.sex.toLowerCase() : '',
       contact1: p.phone,
-      refDoctor: p.preferredDoctor || 'Dr. Sarah Jenkins',
-      address: '12 Main Hospital St',
-      city: 'Chennai'
+      refDoctor: p.preferredDoctor || '',
+      address: p.address || '',
+      city: p.city || ''
     }));
     setShowSearchModal(false);
   };
@@ -58,14 +82,14 @@ const IpdRegistration: React.FC = () => {
     
     addOrUpdatePatient({
       uhid: formData.patientUhid || `UHID-${Date.now().toString().slice(-4)}`,
-      patientId: `PT-${formData.patientIpid}`,
+      patientId: formData.patientIpid ? `PT-${formData.patientIpid}` : `PT-${Date.now().toString().slice(-3)}`,
       name: formData.patientName,
-      age: formData.age || '30',
-      sex: formData.gender === 'male' ? 'Male' : 'Female',
-      weight: '65',
-      pulseRate: '72',
-      bloodPressure: '120/80',
-      phone: formData.contact1 || '9876543210',
+      age: formData.age || '',
+      sex: formData.gender === 'male' ? 'Male' : formData.gender === 'female' ? 'Female' : '',
+      weight: '',
+      pulseRate: '',
+      bloodPressure: '',
+      phone: formData.contact1 || '',
       preferredDoctor: formData.refDoctor,
       history: []
     });
@@ -91,7 +115,7 @@ const IpdRegistration: React.FC = () => {
   const handleRefresh = () => {
     setFormData({
       type: 'IP',
-      patientIpid: (Math.floor(Math.random() * 90) + 10).toString(),
+      patientIpid: '',
       patientUhid: '',
       patientName: '',
       age: '',
@@ -187,15 +211,52 @@ const IpdRegistration: React.FC = () => {
 
         <div className="form-group">
           <label>Patient Name</label>
-          <div className="input-container">
+          <div className="input-container" style={{ position: 'relative' }} ref={nameDropdownRef}>
             <input 
               type="text" 
               className="form-control" 
               name="patientName" 
               value={formData.patientName} 
-              onChange={handleInputChange} 
+              onChange={(e) => {
+                handleInputChange(e);
+                setShowNameDropdown(true);
+              }}
+              onFocus={() => setShowNameDropdown(true)}
               placeholder="Full Patient Name"
+              list="ipd-patient-names-datalist"
+              autoComplete="off"
             />
+            <datalist id="ipd-patient-names-datalist">
+              {patients.map((p, idx) => (
+                <option key={idx} value={p.name}>
+                  {p.uhid ? `UHID: ${p.uhid} | Phone: ${p.phone || 'N/A'}` : p.phone || ''}
+                </option>
+              ))}
+            </datalist>
+
+            {showNameDropdown && filteredPreviousPatients.length > 0 && (
+              <div className="patient-name-dropdown">
+                <div className="dropdown-header">Previous Patients ({filteredPreviousPatients.length})</div>
+                {filteredPreviousPatients.map((p, idx) => (
+                  <div
+                    key={idx}
+                    className="dropdown-item"
+                    onClick={() => {
+                      selectPatientFromModal(p);
+                      setShowNameDropdown(false);
+                    }}
+                  >
+                    <div className="patient-item-name">{p.name}</div>
+                    <div className="patient-item-details">
+                      {p.uhid && <span className="badge-uhid">UHID: {p.uhid}</span>}
+                      {p.patientId && <span className="badge-id">ID: {p.patientId}</span>}
+                      {p.phone && <span>Ph: {p.phone}</span>}
+                      {p.age && <span>Age: {p.age}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

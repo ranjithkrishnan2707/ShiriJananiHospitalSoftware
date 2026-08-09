@@ -1,0 +1,180 @@
+.reports-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+.report-tab-btn {
+  background: none;
+  border: none;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.report-tab-btn:hover {
+  background-color: #fdf2f8;
+  color: #be185d;
+}
+
+.report-tab-btn.active {
+  background-color: #be185d;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(190, 24, 93, 0.25);
+}
+
+.report-filter-bar {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.report-filter-inputs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.report-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-report-action {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-report-action:hover {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.btn-report-action.print {
+  background-color: #1e293b;
+  color: #ffffff;
+  border-color: #1e293b;
+}
+
+.btn-report-action.print:hover {
+  background-color: #0f172a;
+}
+
+.btn-report-action.excel {
+  background-color: #166534;
+  color: #ffffff;
+  border-color: #166534;
+}
+
+.btn-report-action.excel:hover {
+  background-color: #15803d;
+}
+
+/* Printable Report Sheet Layout */
+.printable-report-sheet {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.report-sheet-header {
+  border-bottom: 2px dashed #e2e8f0;
+  padding-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.report-hospital-branding h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #9d174d;
+  margin: 0;
+}
+
+.report-title-badge {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  margin-top: 4px;
+}
+
+.financial-summary-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.financial-box-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.financial-box-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.financial-box-value {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+/* Print Style Rule */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .printable-report-sheet, .printable-report-sheet * {
+    visibility: visible;
+  }
+  .printable-report-sheet {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none;
+    box-shadow: none;
+  }
+}

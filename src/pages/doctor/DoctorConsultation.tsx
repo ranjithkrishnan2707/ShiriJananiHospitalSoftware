@@ -139,6 +139,28 @@ const DoctorConsultation: React.FC = () => {
           <button
             type="button"
             className="btn-back-page"
+            onClick={() => navigate('/admin/expenses/add?dept=OPD&from=doctor')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'linear-gradient(135deg, #be185d 0%, #db2777 100%)',
+              color: 'white',
+              border: 'none',
+              padding: '10px 16px',
+              borderRadius: '6px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              boxShadow: '0 4px 10px rgba(190, 24, 93, 0.25)'
+            }}
+          >
+            <Plus size={16} />  Add Expense
+          </button>
+
+          <button
+            type="button"
+            className="btn-back-page"
             onClick={() => navigate(-1)}
             style={{
               display: 'inline-flex',

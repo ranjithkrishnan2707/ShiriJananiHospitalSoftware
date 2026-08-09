@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Building2,
   Database,
@@ -335,7 +335,8 @@ const DEFAULT_TEST_NAME_RECORDS: TestNameEntryRecord[] = [
 
 const LabDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { labRequests, markLabComplete, doctors, openDoctorListModal } = useHospital();
+  const [searchParams] = useSearchParams();
+  const { patients, labRequests, markLabComplete, doctors, openDoctorListModal } = useHospital();
 
   // Navigation Sub-Bar & Active Views State
   const [activeTab, setActiveTab] = useState<'patient-entry' | 'test-entry' | 'test-result' | 'print-result' | 'bill-print' | 'test-group'>('patient-entry');
@@ -348,11 +349,45 @@ const LabDashboard: React.FC = () => {
   const [showRestoreModal, setShowRestoreModal] = useState(false);
   const [showReportMarginModal, setShowReportMarginModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-
+  const [showPreviousReportsModal, setShowPreviousReportsModal] = useState(false);
   // --- MASTER DROPDOWN STATE ---
   const [showMasterDropdown, setShowMasterDropdown] = useState(false);
   const [showTestNameModal, setShowTestNameModal] = useState(false);
   const [showPriceListModal, setShowPriceListModal] = useState(false);
+
+  // Top Navbar Reports Dropdown State
+  const [showReportsDropdown, setShowReportsDropdown] = useState(false);
+
+  // TestWise Report Window State (Matching Screenshot)
+  const [testWiseFromDate, setTestWiseFromDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [testWiseToDate, setTestWiseToDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [testWiseReportGroup, setTestWiseReportGroup] = useState<string>('ALL GROUPS');
+  const [testWiseReportTest, setTestWiseReportTest] = useState<string>('ALL TESTS');
+  const [clickedTestWiseOk, setClickedTestWiseOk] = useState<boolean>(true);
+
+  // Bill View Reports Window State (Matching Screenshot)
+  const [bvFilterStatus, setBvFilterStatus] = useState<'ALL' | 'Pending' | 'Completed'>('ALL');
+  const [bvFromDate, setBvFromDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [bvToDate, setBvToDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [bvDoctorFilter, setBvDoctorFilter] = useState<string>('');
+  const [bvLabFilter, setBvLabFilter] = useState<string>('');
+  const [bvTestTypeFilter, setBvTestTypeFilter] = useState<string>('');
+  const [bvCommissionPct, setBvCommissionPct] = useState<string>('');
+  const [bvCommissionAmt, setBvCommissionAmt] = useState<string>('');
+
+  const DEFAULT_BILL_REPORTS = useMemo(() => [
+    { testNo: '3643', testDate: '07/08/2026', patientName: 'MISS.DURGA D/O MR. SAMINATHAN', age: '25yrs', gender: 'Female', refDoc: 'DR.SRI JANANI,MD.,OG.,', cost: 410.00, discount: 0, total: 410.00, advance: 410.00, balance: 0, expenses: 0, status: 'Completed' },
+    { testNo: '3644', testDate: '07/08/2026', patientName: 'MRS.DHARSHINI W/O GOKUL', age: '21yrs', gender: 'Female', refDoc: 'DR.SRI JANANI,MD.,OG.,', cost: 500.00, discount: 0, total: 500.00, advance: 500.00, balance: 0, expenses: 0, status: 'Completed' },
+    { testNo: '3645', testDate: '07/08/2026', patientName: 'MR.YASAR ARAFATH H/O AYESHA', age: '22yrs', gender: 'Male', refDoc: 'DR.SRI JANANI,MD.,OG.,', cost: 475.00, discount: 0, total: 475.00, advance: 475.00, balance: 0, expenses: 0, status: 'Completed' },
+    { testNo: '3646', testDate: '07/08/2026', patientName: 'MRS.YOGALAXMI W/O MANI', age: '52yrs', gender: 'Female', refDoc: 'DR.SRI JANANI,MD.,OG.,', cost: 735.00, discount: 0, total: 735.00, advance: 735.00, balance: 0, expenses: 0, status: 'Completed' },
+    { testNo: '3647', testDate: '07/08/2026', patientName: 'MRS.SARULATHA W/O VIJAY', age: '24yrs', gender: 'Female', refDoc: 'DR.SRI JANANI,MD.,OG.,', cost: 100.00, discount: 0, total: 100.00, advance: 100.00, balance: 0, expenses: 0, status: 'Completed' }
+  ], []);
+
+  // Price List Filters & View State
+  const [priceListGroupFilter, setPriceListGroupFilter] = useState<string>('ALL GROUPS');
+  const [priceListNameFilter, setPriceListNameFilter] = useState<string>('');
+  const [hasClickedShowPriceList, setHasClickedShowPriceList] = useState<boolean>(false);
+  const [showPriceListPreview, setShowPriceListPreview] = useState<boolean>(false);
 
   // Master Test Groups State (Matching Screenshot)
   const [testGroupsGrid, setTestGroupsGrid] = useState<TestGroupRecord[]>(DEFAULT_GROUP_RECORDS);
@@ -382,8 +417,6 @@ const LabDashboard: React.FC = () => {
   const [tnRefValue, setTnRefValue] = useState('');
   const [tnMethod, setTnMethod] = useState('');
   const [tnRemarks, setTnRemarks] = useState('');
-
-
 
   // Company Details Form
   const [compName, setCompName] = useState('Shri Janani Hospital Diagnostics');
@@ -415,6 +448,91 @@ const LabDashboard: React.FC = () => {
   // Master Test Catalog State
   const [masterTests, setMasterTests] = useState<MasterTest[]>(DEFAULT_MASTER_TESTS);
 
+  const allMasterTestItems = useMemo(() => {
+    const list: {
+      id: string;
+      groupName: string;
+      testName: string;
+      unit: string;
+      specimen: string;
+      cost: number;
+      refValue: string;
+    }[] = [];
+
+    if (testNameGrid) {
+      testNameGrid.forEach(t => {
+        list.push({
+          id: t.id,
+          groupName: t.groupName,
+          testName: t.testName,
+          unit: t.unit || '-',
+          specimen: t.specimen || 'EDTA Blood / Serum',
+          cost: t.cost,
+          refValue: t.refValue || t.maleNormal || 'Normal'
+        });
+      });
+    }
+
+    if (masterTests) {
+      masterTests.forEach(m => {
+        const exists = list.some(l => l.testName.toLowerCase() === m.name.toLowerCase());
+        if (!exists) {
+          list.push({
+            id: m.id,
+            groupName: m.category.toUpperCase(),
+            testName: m.name,
+            unit: m.unit || '-',
+            specimen: m.defaultSpecimen || 'Blood / Serum',
+            cost: m.price,
+            refValue: m.normalRange || 'Normal'
+          });
+        }
+      });
+    }
+
+    return list;
+  }, [testNameGrid, masterTests]);
+
+  const filteredPriceListItems = useMemo(() => {
+    return allMasterTestItems.filter(item => {
+      const matchesGroup = priceListGroupFilter === 'ALL GROUPS' || 
+        item.groupName.toUpperCase() === priceListGroupFilter.toUpperCase();
+      const matchesName = !priceListNameFilter.trim() || 
+        item.testName.toLowerCase().includes(priceListNameFilter.toLowerCase().trim()) ||
+        item.groupName.toLowerCase().includes(priceListNameFilter.toLowerCase().trim());
+      return matchesGroup && matchesName;
+    });
+  }, [allMasterTestItems, priceListGroupFilter, priceListNameFilter]);
+
+  const handleExportPriceListExcel = (itemsToExport: any[]) => {
+    if (!itemsToExport || itemsToExport.length === 0) {
+      alert('No test price items available to export!');
+      return;
+    }
+    const headers = ['S.No', 'Test Code', 'Test Group', 'Test Name', 'Unit', 'Specimen', 'Reference Value', 'Price (INR)'];
+    const rows = itemsToExport.map((item, index) => [
+      index + 1,
+      `"${item.id}"`,
+      `"${item.groupName}"`,
+      `"${item.testName}"`,
+      `"${item.unit}"`,
+      `"${item.specimen}"`,
+      `"${(item.refValue || '').replace(/"/g, '""')}"`,
+      item.cost.toFixed(2)
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,'
+      + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `Master_Test_Price_List_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // --- PATIENT DETAILS (PATIENT ENTRY TAB) STATE ---
   const [patientGrid, setPatientGrid] = useState<PatientRecord[]>(DEFAULT_PATIENTS_DATA);
   const [selectedPid, setSelectedPid] = useState<string>('');
@@ -431,6 +549,98 @@ const LabDashboard: React.FC = () => {
   const [formCity, setFormCity] = useState('');
   const [formPhotoPath, setFormPhotoPath] = useState('');
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  // Patient Name Dropdown State for Lab
+  const [showNameDropdown, setShowNameDropdown] = useState(false);
+  const [showTestEntryNameDropdown, setShowTestEntryNameDropdown] = useState(false);
+  const labNameDropdownRef = useRef<HTMLDivElement>(null);
+  const testEntryNameDropdownRef = useRef<HTMLDivElement>(null);
+
+  const previousPatientsForLab = useMemo(() => {
+    const map = new Map<string, any>();
+    if (patients) {
+      patients.forEach(p => {
+        if (p.name) {
+          map.set(p.name.toLowerCase().trim(), {
+            uhid: p.uhid,
+            patientId: p.patientId,
+            name: p.name,
+            age: p.age,
+            gender: p.sex,
+            phone: p.phone,
+            contact2: (p as any).secondaryPhone || '',
+            address: (p as any).address || '',
+            city: (p as any).city || '',
+            email: (p as any).email || '',
+            doc: p.preferredDoctor
+          });
+        }
+      });
+    }
+    if (patientGrid) {
+      patientGrid.forEach(pg => {
+        if (pg.pname) {
+          map.set(pg.pname.toLowerCase().trim(), {
+            uhid: '',
+            patientId: pg.pid,
+            name: pg.pname,
+            age: pg.age,
+            gender: pg.gender,
+            phone: pg.contact1,
+            contact2: pg.contact2 || '',
+            address: pg.address || '',
+            city: pg.city || '',
+            email: pg.email || '',
+            doc: ''
+          });
+        }
+      });
+    }
+    return Array.from(map.values());
+  }, [patients, patientGrid]);
+
+  const filteredPreviousPatientsForLab = useMemo(() => {
+    if (!formPname.trim()) return previousPatientsForLab;
+    const query = formPname.toLowerCase().trim();
+    return previousPatientsForLab.filter(p =>
+      p.name.toLowerCase().includes(query) ||
+      (p.uhid && p.uhid.toLowerCase().includes(query)) ||
+      (p.patientId && p.patientId.toLowerCase().includes(query)) ||
+      (p.phone && p.phone.includes(query))
+    );
+  }, [previousPatientsForLab, formPname]);
+
+  const handleSelectPatientFromDropdown = (p: any) => {
+    setFormPname(p.name);
+    const foundInGrid = patientGrid.find(pg => pg.pname.toLowerCase() === p.name.toLowerCase() || pg.pid === p.patientId);
+    if (foundInGrid) {
+      handleSelectPatientRow(foundInGrid);
+    } else {
+      if (p.patientId) setFormPid(p.patientId);
+      if (p.age) setFormAge(p.age.replace(/\D/g, ''));
+      if (p.gender) setFormGender(p.gender);
+      if (p.phone) setFormContact1(p.phone);
+      if (p.contact2) setFormContact2(p.contact2);
+      if (p.address) setFormAddress(p.address);
+      if (p.city) setFormCity(p.city);
+      if (p.email) setFormEmail(p.email);
+    }
+    setShowNameDropdown(false);
+    setShowTestEntryNameDropdown(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (labNameDropdownRef.current && !labNameDropdownRef.current.contains(event.target as Node)) {
+        setShowNameDropdown(false);
+      }
+      if (testEntryNameDropdownRef.current && !testEntryNameDropdownRef.current.contains(event.target as Node)) {
+        setShowTestEntryNameDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // --- TEST BILL ENTRY (TEST ENTRY TAB) STATE ---
   const [testNo, setTestNo] = useState<string>('');
@@ -455,12 +665,31 @@ const LabDashboard: React.FC = () => {
   // --- BILL PRINT DIALOG STATE ---
   const [billPrintNo, setBillPrintNo] = useState<string>('');
   const [printDesign, setPrintDesign] = useState<string>('BILLDESIGN-2-A5-Mode');
-  const [withLetterHead, setWithLetterHead] = useState<boolean>(false);
+  const [withLetterHead, setWithLetterHead] = useState<boolean>(true);
   const [letterheadCounter, setLetterheadCounter] = useState<number>(0);
   const [showBillPreviewSheet, setShowBillPreviewSheet] = useState<boolean>(false);
 
   // Selected Tests for Current Patient
   const [selectedTestIds, setSelectedTestIds] = useState<string[]>([]);
+
+  const selectedTestsObj = useMemo(() => {
+    return allMasterTestItems.filter(t => selectedTestIds.includes(t.id));
+  }, [allMasterTestItems, selectedTestIds]);
+
+  const groupedSelectedTests = useMemo(() => {
+    const map = new Map<string, typeof selectedTestsObj>();
+    selectedTestsObj.forEach(test => {
+      const grp = (test.groupName || test.category || 'GENERAL').toUpperCase();
+      if (!map.has(grp)) {
+        map.set(grp, []);
+      }
+      map.get(grp)!.push(test);
+    });
+    return Array.from(map.entries()).map(([groupName, items]) => ({
+      groupName,
+      items
+    }));
+  }, [selectedTestsObj]);
   const [discount, setDiscount] = useState<number>(0);
   const [paidAmount, setPaidAmount] = useState<number>(0);
   const [paymentMode] = useState<string>('Cash');
@@ -492,6 +721,356 @@ const LabDashboard: React.FC = () => {
       status: 'Completed'
     }
   ]);
+
+  // Search Modal Tabs & Test-Wise Report State
+  const [searchModalTab, setSearchModalTab] = useState<'patient-records' | 'test-wise-report'>('patient-records');
+  const [testWiseGroupFilter, setTestWiseGroupFilter] = useState<string>('ALL GROUPS');
+  const [testWiseTestFilter, setTestWiseTestFilter] = useState<string>('ALL TESTS');
+  const [testWiseStatusFilter, setTestWiseStatusFilter] = useState<'ALL' | 'ABNORMAL' | 'NORMAL'>('ALL');
+  const [testWiseSearchQuery, setTestWiseSearchQuery] = useState<string>('');
+
+  const allTestWiseEntries = useMemo(() => {
+    const entries: {
+      labId: string;
+      uhid: string;
+      patientName: string;
+      age: string;
+      gender: string;
+      phone: string;
+      refDoctor: string;
+      date: string;
+      time: string;
+      testId: string;
+      testName: string;
+      value: string;
+      unit: string;
+      normalRange: string;
+      isAbnormal: boolean;
+      specimen: string;
+      remarks: string;
+      groupName: string;
+    }[] = [];
+
+    labRecords.forEach(record => {
+      if (record.results && record.results.length > 0) {
+        record.results.forEach(res => {
+          const master = allMasterTestItems.find(m => m.id === res.testId || m.testName.toLowerCase() === res.testName.toLowerCase());
+          entries.push({
+            labId: record.labId,
+            uhid: record.uhid,
+            patientName: record.patientName,
+            age: record.age,
+            gender: record.gender,
+            phone: record.phone,
+            refDoctor: record.refDoctor,
+            date: record.date,
+            time: record.time,
+            testId: res.testId,
+            testName: res.testName,
+            unit: res.unit,
+            normalRange: res.normalRange,
+            isAbnormal: res.isAbnormal,
+            specimen: res.specimen || 'Blood',
+            remarks: res.remarks || '',
+            value: res.value,
+            groupName: master ? master.groupName : 'GENERAL'
+          });
+        });
+      }
+    });
+
+    return entries;
+  }, [labRecords, allMasterTestItems]);
+
+  const filteredTestWiseEntries = useMemo(() => {
+    return allTestWiseEntries.filter(entry => {
+      // 1. Group Filter
+      const matchesGroup = testWiseGroupFilter === 'ALL GROUPS' ||
+        entry.groupName.toUpperCase() === testWiseGroupFilter.toUpperCase();
+
+      // 2. Test Name Filter
+      const matchesTest = testWiseTestFilter === 'ALL TESTS' ||
+        entry.testName.toLowerCase() === testWiseTestFilter.toLowerCase();
+
+      // 3. Status Filter
+      const matchesStatus = testWiseStatusFilter === 'ALL' ||
+        (testWiseStatusFilter === 'ABNORMAL' && entry.isAbnormal) ||
+        (testWiseStatusFilter === 'NORMAL' && !entry.isAbnormal);
+
+      // 4. Text Search
+      const query = testWiseSearchQuery.toLowerCase().trim();
+      const matchesQuery = !query ||
+        entry.patientName.toLowerCase().includes(query) ||
+        entry.testName.toLowerCase().includes(query) ||
+        entry.labId.toLowerCase().includes(query) ||
+        entry.uhid.toLowerCase().includes(query) ||
+        entry.value.toLowerCase().includes(query);
+
+      return matchesGroup && matchesTest && matchesStatus && matchesQuery;
+    });
+  }, [allTestWiseEntries, testWiseGroupFilter, testWiseTestFilter, testWiseStatusFilter, testWiseSearchQuery]);
+
+  const isGroupMatch = useCallback((entryGroup: string, targetGroup: string) => {
+    if (!targetGroup || targetGroup === 'ALL GROUPS') return true;
+
+    const grp1 = (entryGroup || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const grp2 = (targetGroup || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+    if (grp1 === grp2) return true;
+    if (grp1.includes(grp2) || grp2.includes(grp1)) return true;
+
+    if (
+      (grp1.includes('HAEMATOLOGY') || grp1.includes('HEMATOLOGY')) &&
+      (grp2.includes('HAEMATOLOGY') || grp2.includes('HEMATOLOGY'))
+    ) return true;
+
+    if (
+      (grp1.includes('BIO') || grp1.includes('CHEMISTRY')) &&
+      (grp2.includes('BIO') || grp2.includes('CHEMISTRY'))
+    ) return true;
+
+    return false;
+  }, []);
+
+  const availableTestsForSelectedGroup = useMemo(() => {
+    const masterMatching = allMasterTestItems
+      .filter(t => isGroupMatch(t.groupName, testWiseReportGroup))
+      .map(t => t.testName);
+
+    const entriesMatching = allTestWiseEntries
+      .filter(e => isGroupMatch(e.groupName, testWiseReportGroup))
+      .map(e => e.testName);
+
+    const combined = Array.from(new Set([...masterMatching, ...entriesMatching]));
+    return combined.sort();
+  }, [allMasterTestItems, allTestWiseEntries, testWiseReportGroup, isGroupMatch]);
+
+  const testWiseReportFilteredList = useMemo(() => {
+    return allTestWiseEntries.filter(entry => {
+      if (testWiseFromDate && entry.date < testWiseFromDate) return false;
+      if (testWiseToDate && entry.date > testWiseToDate) return false;
+
+      if (testWiseReportGroup && testWiseReportGroup !== 'ALL GROUPS') {
+        if (!isGroupMatch(entry.groupName, testWiseReportGroup) && !isGroupMatch(entry.testName, testWiseReportGroup)) {
+          return false;
+        }
+      }
+
+      if (testWiseReportTest && testWiseReportTest !== 'ALL TESTS') {
+        const eTest = entry.testName.trim().toLowerCase();
+        const tTest = testWiseReportTest.trim().toLowerCase();
+        if (eTest !== tTest && !eTest.includes(tTest) && !tTest.includes(eTest)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [allTestWiseEntries, testWiseFromDate, testWiseToDate, testWiseReportGroup, testWiseReportTest, isGroupMatch]);
+
+  const previousPatientReports = useMemo(() => {
+    if (!formPname) return allTestWiseEntries;
+    const nameQuery = formPname.toLowerCase().trim();
+    const filtered = allTestWiseEntries.filter(entry =>
+      entry.patientName.toLowerCase().trim().includes(nameQuery) ||
+      nameQuery.includes(entry.patientName.toLowerCase().trim())
+    );
+    return filtered.length > 0 ? filtered : allTestWiseEntries;
+  }, [allTestWiseEntries, formPname]);
+
+  const handleOpenTestResultForPatient = useCallback((
+    patientNameInput: string,
+    testNoOrLabIdInput?: string,
+    extraParams?: {
+      age?: string;
+      gender?: string;
+      refDoctor?: string;
+      uhid?: string;
+      date?: string;
+      testName?: string;
+    }
+  ) => {
+    const qName = (patientNameInput || '').trim();
+    const qId = (testNoOrLabIdInput || '').trim();
+
+    // 1. Search in labRecords
+    const matchedLabRecord = labRecords.find(r => 
+      (qId && (r.labId.toLowerCase() === qId.toLowerCase() || r.uhid.toLowerCase() === qId.toLowerCase())) ||
+      (qName && r.patientName.toLowerCase().includes(qName.toLowerCase())) ||
+      (qName && qName.toLowerCase().includes(r.patientName.toLowerCase()))
+    );
+
+    // 2. Search in patients from HospitalContext
+    const matchedContextPatient = patients.find(p =>
+      (qId && (p.patientId.toLowerCase() === qId.toLowerCase() || p.uhid.toLowerCase() === qId.toLowerCase())) ||
+      (qName && p.name.toLowerCase().includes(qName.toLowerCase()))
+    );
+
+    // 3. Search in patientGrid
+    const matchedGridPatient = patientGrid.find(pg =>
+      (qId && pg.pid.toLowerCase() === qId.toLowerCase()) ||
+      (qName && pg.pname.toLowerCase().includes(qName.toLowerCase()))
+    );
+
+    // 4. Search in labRequests from HospitalContext
+    const matchedLabReq = labRequests.find(lr =>
+      (qId && (lr.id.toLowerCase() === qId.toLowerCase() || lr.uhid.toLowerCase() === qId.toLowerCase())) ||
+      (qName && lr.patientName.toLowerCase().includes(qName.toLowerCase()))
+    );
+
+    // Determine display values - ALWAYS prioritize explicit inputs passed from the report row!
+    const rawName = qName || matchedLabRecord?.patientName || matchedContextPatient?.name || matchedGridPatient?.pname || 'PATIENT';
+    
+    let title = 'Mr.';
+    let nameWithoutTitle = rawName;
+    const upperRaw = rawName.toUpperCase();
+    if (upperRaw.startsWith('MR.')) {
+      title = 'Mr.';
+      nameWithoutTitle = rawName.substring(3).trim();
+    } else if (upperRaw.startsWith('MRS.')) {
+      title = 'Mrs.';
+      nameWithoutTitle = rawName.substring(4).trim();
+    } else if (upperRaw.startsWith('MISS.')) {
+      title = 'Miss.';
+      nameWithoutTitle = rawName.substring(5).trim();
+    } else if (upperRaw.startsWith('MS.')) {
+      title = 'Ms.';
+      nameWithoutTitle = rawName.substring(3).trim();
+    } else if (extraParams?.gender === 'Female' || matchedContextPatient?.sex === 'Female' || matchedGridPatient?.gender === 'Female') {
+      title = 'Mrs.';
+    }
+
+    const ageVal = extraParams?.age || matchedLabRecord?.age || matchedContextPatient?.age || matchedGridPatient?.age || '28';
+    const genderVal = extraParams?.gender || matchedLabRecord?.gender || matchedContextPatient?.sex || matchedGridPatient?.gender || 'Male';
+    const refDocVal = extraParams?.refDoctor || matchedLabRecord?.refDoctor || matchedContextPatient?.preferredDoctor || 'DR.SRI JANANI,MD.,OG.,';
+    
+    // Test No: ALWAYS use exact qId passed from report row, or matched record labId
+    const testNoVal = qId || matchedLabRecord?.labId || matchedContextPatient?.uhid || matchedContextPatient?.patientId || '3574';
+    const pidVal = extraParams?.uhid || matchedLabRecord?.uhid || matchedContextPatient?.uhid || matchedContextPatient?.patientId || matchedGridPatient?.pid || qId || '3490';
+    const reportDateVal = extraParams?.date || matchedLabRecord?.date || new Date().toISOString().split('T')[0];
+
+    setPatientTitle(title);
+    setFormPname(nameWithoutTitle);
+    setFormAge(ageVal.replace(/\D/g, '') || '28');
+    setFormGender(genderVal.toLowerCase().includes('female') ? 'Female' : 'Male');
+    setRefBy(refDocVal);
+    setResultTestNo(testNoVal);
+    setFormPid(pidVal);
+    setTestBillDate(reportDateVal);
+    setResultReportDate(reportDateVal);
+
+    // Find required tests for this patient / bill
+    let reqIds: string[] = [];
+    const initResults: { [key: string]: string } = {};
+    const initSpecimens: { [key: string]: string } = {};
+    const initRemarks: { [key: string]: string } = {};
+
+    if (matchedLabRecord && matchedLabRecord.tests && matchedLabRecord.tests.length > 0) {
+      reqIds = matchedLabRecord.tests.map(t => t.id);
+      if (matchedLabRecord.results) {
+        matchedLabRecord.results.forEach(res => {
+          initResults[res.testId] = res.value;
+          initSpecimens[res.testId] = res.specimen || '';
+          initRemarks[res.testId] = res.remarks || '';
+        });
+      }
+    } else if (matchedLabReq && matchedLabReq.tests) {
+      const reqNames = matchedLabReq.tests.split(',').map(s => s.trim().toLowerCase());
+      reqIds = allMasterTestItems
+        .filter(m => reqNames.some(rn => m.testName.toLowerCase().includes(rn) || rn.includes(m.testName.toLowerCase())))
+        .map(m => m.id);
+    } else if (extraParams?.testName) {
+      const tName = extraParams.testName.toLowerCase();
+      const foundTest = allMasterTestItems.find(m => m.testName.toLowerCase().includes(tName) || tName.includes(m.testName.toLowerCase()));
+      if (foundTest) {
+        reqIds = [foundTest.id];
+      }
+    }
+
+    // Fallback required tests if none matched specifically: assign first 5 master tests
+    if (reqIds.length === 0) {
+      reqIds = allMasterTestItems.slice(0, 5).map(m => m.id);
+    }
+
+    setSelectedTestIds(reqIds);
+    setResultValues(initResults);
+    setSpecimenValues(initSpecimens);
+    setRemarksValues(initRemarks);
+
+    setShowPreviousReportsModal(false);
+    setShowSearchModal(false);
+    setShowReportsDropdown(false);
+    setActiveTab('test-result');
+  }, [labRecords, patients, patientGrid, labRequests, allMasterTestItems]);
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    const testNoParam = searchParams.get('testNo');
+    const patientIdParam = searchParams.get('patientId') || searchParams.get('uhid');
+    const patientNameParam = searchParams.get('patientName') || searchParams.get('pName');
+    const ageParam = searchParams.get('age');
+    const genderParam = searchParams.get('gender');
+    const refDocParam = searchParams.get('refDoc') || searchParams.get('refDoctor');
+
+    if (tabParam === 'test-result' || testNoParam || patientIdParam || patientNameParam) {
+      handleOpenTestResultForPatient(patientNameParam || '', testNoParam || patientIdParam || '', {
+        age: ageParam || undefined,
+        gender: genderParam || undefined,
+        refDoctor: refDocParam || undefined,
+        uhid: patientIdParam || undefined
+      });
+    }
+  }, [searchParams, handleOpenTestResultForPatient]);
+
+  const filteredBillReports = useMemo(() => {
+    return DEFAULT_BILL_REPORTS.filter(r => {
+      if (bvFilterStatus !== 'ALL' && r.status !== bvFilterStatus) return false;
+      if (bvDoctorFilter && r.refDoc !== bvDoctorFilter) return false;
+      return true;
+    });
+  }, [DEFAULT_BILL_REPORTS, bvFilterStatus, bvDoctorFilter]);
+
+  const bvCollectionTotal = useMemo(() => {
+    return filteredBillReports.reduce((acc, r) => acc + r.total, 0);
+  }, [filteredBillReports]);
+
+  const bvBalanceTotal = useMemo(() => {
+    return filteredBillReports.reduce((acc, r) => acc + r.balance, 0);
+  }, [filteredBillReports]);
+
+  const handleExportTestWiseExcel = (entries: any[]) => {
+    if (!entries || entries.length === 0) {
+      alert('No test-wise report entries available to export!');
+      return;
+    }
+    const headers = ['S.No', 'Date & Time', 'Lab ID', 'UHID', 'Patient Name', 'Age/Gender', 'Test Group', 'Test Name', 'Result Value', 'Unit', 'Normal Range', 'Abnormal Flag', 'Ref Doctor'];
+    const rows = entries.map((e, idx) => [
+      idx + 1,
+      `"${e.date} ${e.time}"`,
+      `"${e.labId}"`,
+      `"${e.uhid}"`,
+      `"${e.patientName}"`,
+      `"${e.age} / ${e.gender}"`,
+      `"${e.groupName}"`,
+      `"${e.testName}"`,
+      `"${e.value}"`,
+      `"${e.unit}"`,
+      `"${(e.normalRange || '').replace(/"/g, '""')}"`,
+      e.isAbnormal ? 'ABNORMAL' : 'NORMAL',
+      `"${e.refDoctor}"`
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,'
+      + [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `Lab_Test_Wise_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Test Group Selection in Grid
   const handleSelectGroupRow = (grp: TestGroupRecord) => {
@@ -842,10 +1421,40 @@ const LabDashboard: React.FC = () => {
   };
 
   // --- TEST ENTRY (TEST BILL ENTRY) HANDLERS ---
-  const filteredTestsByGroup = masterTests.filter(t => {
-    if (selectedGroup === 'ALL GROUPS') return true;
-    return t.category.toUpperCase() === selectedGroup.toUpperCase();
-  });
+  const filteredTestsByGroup = useMemo(() => {
+    if (selectedGroup === 'ALL GROUPS') {
+      return allMasterTestItems;
+    }
+
+    const targetGroup = selectedGroup.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+    return allMasterTestItems.filter(item => {
+      const itemGroup = (item.groupName || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+      const itemName = (item.testName || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+      // 1. Direct group name match
+      if (itemGroup === targetGroup) return true;
+
+      // 2. Partial group name match (e.g. "COMPLETE BLOOD COUNT" vs "COMPLETE BLOOD COUNT (CBC)")
+      if (itemGroup.includes(targetGroup) || targetGroup.includes(itemGroup)) return true;
+
+      // 3. Category alias match (e.g. HAEMATOLOGY vs HEMATOLOGY, BIO CHEMISTRY vs BIOCHEMISTRY)
+      if (
+        (targetGroup.includes('HAEMATOLOGY') || targetGroup.includes('HEMATOLOGY')) &&
+        (itemGroup.includes('HAEMATOLOGY') || itemGroup.includes('HEMATOLOGY'))
+      ) return true;
+
+      if (
+        (targetGroup.includes('BIO') || targetGroup.includes('CHEMISTRY')) &&
+        (itemGroup.includes('BIO') || itemGroup.includes('CHEMISTRY'))
+      ) return true;
+
+      // 4. Test name contains group name or vice versa
+      if (itemName.includes(targetGroup) || targetGroup.includes(itemName)) return true;
+
+      return false;
+    });
+  }, [allMasterTestItems, selectedGroup]);
 
   const handleToggleGroupSelectAll = (checked: boolean) => {
     setSelectAllGroupTests(checked);
@@ -896,8 +1505,11 @@ const LabDashboard: React.FC = () => {
   };
 
   // Calculate cost totals
-  const selectedTestsObj = masterTests.filter(t => selectedTestIds.includes(t.id));
-  const subtotal = selectedTestsObj.reduce((acc, curr) => acc + curr.price, 0);
+
+  const subtotal = useMemo(() => {
+    return selectedTestsObj.reduce((acc, curr) => acc + curr.cost, 0);
+  }, [selectedTestsObj]);
+
   const netAmount = Math.max(0, subtotal - discount);
   const balance = Math.max(0, netAmount - paidAmount);
 
@@ -916,12 +1528,12 @@ const LabDashboard: React.FC = () => {
 
     const compiledResults: TestResultItem[] = selectedTestsObj.map(t => ({
       testId: t.id,
-      testName: t.name,
+      testName: t.testName,
       value: resultValues[t.id] || 'Pending',
       unit: t.unit,
-      normalRange: t.normalRange,
+      normalRange: t.refValue,
       isAbnormal: parseFloat(resultValues[t.id] || '0') > 110,
-      specimen: specimenValues[t.id] || t.defaultSpecimen || 'Blood',
+      specimen: specimenValues[t.id] || t.specimen || 'Blood',
       remarks: remarksValues[t.id] || 'Normal'
     }));
 
@@ -956,7 +1568,80 @@ const LabDashboard: React.FC = () => {
   };
 
   const handlePrint = () => {
-    window.print();
+    const reportEl = document.getElementById('official-lab-report-printable');
+    if (!reportEl) {
+      alert('Report not ready. Please open the Print Result tab first.');
+      return;
+    }
+
+    const printWindow = window.open('', '_blank', 'width=900,height=1100');
+    if (!printWindow) {
+      alert('Popup blocked. Please allow popups for this site.');
+      return;
+    }
+
+    printWindow.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lab Report - ${formPname || 'Patient'}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Arial', sans-serif; color: #000; background: #fff; }
+
+    /* Letterhead Banner */
+    .sjh-letterhead-banner { border-bottom: 2px solid #D91B5C; padding-bottom: 6px; margin-bottom: 12px; }
+    .sjh-top-accent-stripe { height: 8px; background: linear-gradient(90deg, #3B1E64 0%, #5C1D6D 60%, #D91B5C 100%); margin-bottom: 10px; border-radius: 2px; }
+    .sjh-header-main-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .sjh-logo-left { width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; }
+    .sjh-header-center-text { text-align: center; flex: 1; }
+    .sjh-title-main { font-size: 26px; font-weight: 900; color: #1A103C; margin: 0; letter-spacing: 0.5px; text-decoration: underline; font-family: 'Times New Roman', Times, serif; }
+    .sjh-address-line { font-size: 12px; color: #D91B5C; font-weight: 700; margin: 3px 0 1px 0; }
+    .sjh-phone-line { font-size: 13px; color: #000; font-weight: 800; margin: 0; }
+    .sjh-logo-right { width: 65px; height: 70px; display: flex; align-items: center; justify-content: center; }
+    .sjh-sub-banner-title { text-align: center; font-size: 16px; font-weight: 900; color: #0A1931; letter-spacing: 0.8px; margin: 8px 0 10px 0; text-transform: uppercase; }
+
+    /* Demographics */
+    .report-demographics-grid { display: flex; justify-content: space-between; align-items: flex-start; border: 1px solid #ccc; padding: 10px 14px; margin-bottom: 14px; font-size: 12px; line-height: 1.7; }
+    .demo-left-column { flex: 1; }
+    .demo-right-column { width: 260px; text-align: right; }
+    .demo-row { display: grid; grid-template-columns: 100px 12px 1fr; align-items: center; margin-bottom: 2px; }
+    .demo-label { font-weight: 700; }
+    .demo-colon { font-weight: 700; }
+    .demo-value { font-weight: 600; }
+    .barcode-align-row { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+    .demo-right-column .demo-row { display: flex; justify-content: flex-end; gap: 6px; }
+
+    /* Report Table */
+    .official-report-data-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 12px; }
+    .official-report-data-table th { border: 1px solid #000; background-color: #f0f0f0; color: #000; font-weight: 800; font-size: 11px; padding: 6px 10px; text-transform: uppercase; text-align: left; }
+    .official-report-data-table td { border: 1px solid #bbb; padding: 6px 10px; color: #000; vertical-align: top; }
+    .report-group-header-tr td { background-color: #fff; border-top: 1px solid #000; border-bottom: 1px solid #000; border-left: none; border-right: none; font-weight: 900; color: #000; font-size: 12px; text-transform: uppercase; padding: 6px 10px; }
+    .report-item-name { font-weight: 600; }
+    .report-item-result { font-weight: 800; }
+
+    /* Footer */
+    .report-bottom-footer { margin-top: 60px; }
+    .end-of-report-tag { text-align: center; font-weight: 800; font-size: 13px; color: #000; margin-bottom: 60px; }
+    .report-signature-row { display: flex; justify-content: space-between; padding: 0 20px; }
+    .signature-box { text-align: center; font-size: 12px; font-weight: 800; color: #000; text-transform: uppercase; }
+
+    @page { margin: 15mm; size: A4 portrait; }
+    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+  </style>
+</head>
+<body>
+  ${reportEl.innerHTML}
+</body>
+</html>`);
+
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
   };
 
   const activeRecord = labRecords[0] || null;
@@ -1131,9 +1816,44 @@ const LabDashboard: React.FC = () => {
             <span>Entry</span>
           </button>
 
-          <button className="nav-item-btn" onClick={() => setShowSearchModal(true)}>
-            <SearchIcon size={16} />
-            <span>Search</span>
+          {/* Reports Dropdown Menu Button */}
+          <div className="dropdown-container">
+            <button
+              className={`nav-item-btn ${showReportsDropdown ? 'active' : ''}`}
+              onClick={() => {
+                setShowReportsDropdown(!showReportsDropdown);
+                setShowCompanyDropdown(false);
+                setShowMasterDropdown(false);
+              }}
+            >
+              <FileText size={16} />
+              <span>Reports</span>
+              <ChevronDown size={14} className="ml-1" />
+            </button>
+
+            {showReportsDropdown && (
+              <div className="company-dropdown-menu">
+                <button
+                  className="dropdown-menu-item"
+                  onClick={() => {
+                    setShowReportsDropdown(false);
+                    setActiveTab('test-wise-report');
+                  }}
+                >
+                  <FileText size={16} />
+                  <span>TestWise Report</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          <button 
+            className="nav-item-btn" 
+            onClick={() => navigate('/admin/expenses/add?dept=Lab&from=lab')} 
+            style={{ background: 'linear-gradient(135deg, #be185d 0%, #db2777 100%)', color: 'white', fontWeight: 700 }}
+          >
+            <Plus size={16} />
+            <span> Add Expense</span>
           </button>
 
           <button className="nav-item-btn" onClick={() => navigate(-1)} style={{ backgroundColor: '#1e293b', color: 'white' }}>
@@ -1189,6 +1909,14 @@ const LabDashboard: React.FC = () => {
           <Receipt size={16} />
           <span>Bill Print</span>
         </button>
+
+        <button
+          className={`subtab-btn ${activeTab === 'test-wise-report' ? 'active' : ''}`}
+          onClick={() => setActiveTab('test-wise-report')}
+        >
+          <FileText size={16} />
+          <span>TestWise Report</span>
+        </button>
       </div>
 
       {/* --- MAIN WORKSPACE --- */}
@@ -1232,28 +1960,75 @@ const LabDashboard: React.FC = () => {
 
                   <div className="form-row">
                     <label className="field-label">Patient Name</label>
-                    <div className="field-inline-group">
-                      <select
-                        className="form-control-desktop name-select"
-                        value={formPname}
-                        onChange={e => {
-                          setFormPname(e.target.value);
-                          const found = patientGrid.find(p => p.pname === e.target.value);
-                          if (found) handleSelectPatientRow(found);
-                        }}
-                      >
-                        <option value="">-- Select Name --</option>
-                        {patientGrid.map(p => (
-                          <option key={p.pid} value={p.pname}>{p.pname}</option>
-                        ))}
-                      </select>
-                      <input
-                        type="text"
-                        className="form-control-desktop name-text-input"
-                        placeholder="Type Patient Name"
-                        value={formPname}
-                        onChange={e => setFormPname(e.target.value)}
-                      />
+                    <div className="field-inline-group" style={{ position: 'relative' }} ref={labNameDropdownRef}>
+                      <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
+                        <input
+                          type="text"
+                          className="form-control-desktop name-text-input"
+                          placeholder="Type Patient Name to filter..."
+                          value={formPname}
+                          onChange={e => {
+                            setFormPname(e.target.value);
+                            setShowNameDropdown(true);
+                          }}
+                          onFocus={() => setShowNameDropdown(true)}
+                          autoComplete="off"
+                          style={{ width: '100%', paddingRight: '28px' }}
+                        />
+                        <button
+                          type="button"
+                          className="btn-dropdown-toggle"
+                          onClick={() => setShowNameDropdown(!showNameDropdown)}
+                          title="Toggle Patient List"
+                          style={{
+                            position: 'absolute',
+                            right: '6px',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: '#555',
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '4px'
+                          }}
+                        >
+                          <ChevronDown size={14} />
+                        </button>
+
+                        {showNameDropdown && (
+                          <div className="patient-name-dropdown">
+                            <div className="dropdown-header">
+                              {filteredPreviousPatientsForLab.length > 0 
+                                ? `Matching Patients (${filteredPreviousPatientsForLab.length})` 
+                                : 'No Matching Patients'}
+                            </div>
+                            {filteredPreviousPatientsForLab.map((p, idx) => (
+                              <div
+                                key={idx}
+                                className="dropdown-item"
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  handleSelectPatientFromDropdown(p);
+                                }}
+                              >
+                                <div className="patient-item-name">{p.name}</div>
+                                <div className="patient-item-details">
+                                  {p.uhid && <span className="badge-uhid">UHID: {p.uhid}</span>}
+                                  {p.patientId && <span className="badge-id">ID: {p.patientId}</span>}
+                                  {p.age && <span>Age: {p.age}</span>}
+                                  {p.gender && <span>{p.gender}</span>}
+                                  {p.phone && <span>Ph: {p.phone}</span>}
+                                </div>
+                              </div>
+                            ))}
+                            {filteredPreviousPatientsForLab.length === 0 && (
+                              <div className="dropdown-item-empty" style={{ padding: '10px 12px', fontSize: '12px', color: '#666', fontStyle: 'italic' }}>
+                                No patient matching "{formPname}". Type name to register new patient.
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                       <button className="btn-search-red" onClick={handleSearchByName}>Search</button>
                     </div>
                   </div>
@@ -1601,21 +2376,61 @@ const LabDashboard: React.FC = () => {
 
                 <div className="demo-field flex-grow">
                   <label>Patient Name</label>
-                  <div className="patient-browse-group">
+                  <div className="patient-browse-group" style={{ position: 'relative' }} ref={testEntryNameDropdownRef}>
                     <input
                       type="text"
                       className="form-control-desktop full-width"
                       value={formPname}
-                      onChange={e => setFormPname(e.target.value)}
-                      placeholder="Enter Patient Name"
+                      onChange={e => {
+                        setFormPname(e.target.value);
+                        setShowTestEntryNameDropdown(true);
+                      }}
+                      onFocus={() => setShowTestEntryNameDropdown(true)}
+                      placeholder="Type Patient Name to filter..."
+                      autoComplete="off"
                     />
                     <button
+                      type="button"
                       className="btn-browse"
-                      title="Browse Registered Patients"
-                      onClick={() => setActiveTab('patient-entry')}
+                      title="Toggle Patient List"
+                      onClick={() => setShowTestEntryNameDropdown(!showTestEntryNameDropdown)}
                     >
-                      ...
+                      <ChevronDown size={14} />
                     </button>
+
+                    {showTestEntryNameDropdown && (
+                      <div className="patient-name-dropdown">
+                        <div className="dropdown-header">
+                          {filteredPreviousPatientsForLab.length > 0 
+                            ? `Registered Patients (${filteredPreviousPatientsForLab.length})` 
+                            : 'No Matching Patients'}
+                        </div>
+                        {filteredPreviousPatientsForLab.map((p, idx) => (
+                          <div
+                            key={idx}
+                            className="dropdown-item"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              handleSelectPatientFromDropdown(p);
+                            }}
+                          >
+                            <div className="patient-item-name">{p.name}</div>
+                            <div className="patient-item-details">
+                              {p.uhid && <span className="badge-uhid">UHID: {p.uhid}</span>}
+                              {p.patientId && <span className="badge-id">ID: {p.patientId}</span>}
+                              {p.age && <span>Age: {p.age}</span>}
+                              {p.gender && <span>{p.gender}</span>}
+                              {p.phone && <span>Ph: {p.phone}</span>}
+                            </div>
+                          </div>
+                        ))}
+                        {filteredPreviousPatientsForLab.length === 0 && (
+                          <div className="dropdown-item-empty" style={{ padding: '10px 12px', fontSize: '12px', color: '#666', fontStyle: 'italic' }}>
+                            No patient matching "{formPname}".
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -1717,10 +2532,18 @@ const LabDashboard: React.FC = () => {
                             checked={isChecked}
                             onChange={() => { }}
                           />
-                          <span className="test-name-span">{test.name}</span>
+                          <span className="test-name-span">{test.testName}</span>
+                          <span className="test-price-tag" style={{ marginLeft: 'auto', fontSize: '11px', fontWeight: 'bold', color: '#102A43' }}>
+                            ₹{test.cost.toFixed(2)}
+                          </span>
                         </div>
                       );
                     })}
+                    {filteredTestsByGroup.length === 0 && (
+                      <div style={{ padding: '12px', fontSize: '12px', color: '#64748b', fontStyle: 'italic', textAlign: 'center' }}>
+                        No tests found for group "{selectedGroup}".
+                      </div>
+                    )}
                   </div>
 
                   <div className="submit-btn-row">
@@ -1739,14 +2562,14 @@ const LabDashboard: React.FC = () => {
                           <th>Test Details</th>
                           <th>Amount</th>
                           <th>Delete</th>
-                          <th>TType</th>
+                          <th>Group</th>
                         </tr>
                       </thead>
                       <tbody>
                         {selectedTestsObj.map(test => (
                           <tr key={test.id}>
-                            <td><strong>{test.name}</strong></td>
-                            <td>₹{test.price.toFixed(2)}</td>
+                            <td><strong>{test.testName}</strong></td>
+                            <td>₹{test.cost.toFixed(2)}</td>
                             <td>
                               <button
                                 className="btn-delete-test-row"
@@ -1756,7 +2579,7 @@ const LabDashboard: React.FC = () => {
                                 <Trash size={14} />
                               </button>
                             </td>
-                            <td>{test.ttype || 'Single'}</td>
+                            <td><small>{test.groupName}</small></td>
                           </tr>
                         ))}
                         {selectedTestsObj.length === 0 && (
@@ -1907,7 +2730,7 @@ const LabDashboard: React.FC = () => {
 
                 <h2 className="result-entry-title-banner">TEST RESULT ENTRY</h2>
 
-                <button className="btn-bill-view-red" onClick={() => setActiveTab('bill-print')}>
+                <button className="btn-bill-view-red" onClick={() => setShowPreviousReportsModal(true)}>
                   BILL VIEW
                 </button>
               </div>
@@ -2009,10 +2832,10 @@ const LabDashboard: React.FC = () => {
                       <div key={test.id} className="result-test-checkbox-item">
                         <input
                           type="checkbox"
-                          checked={true}
-                          onChange={() => { }}
+                          checked={selectedTestIds.includes(test.id)}
+                          onChange={() => toggleTestSelection(test.id)}
                         />
-                        <span>{test.name}</span>
+                        <span>{test.testName || test.name}</span>
                       </div>
                     ))}
                   </div>
@@ -2044,8 +2867,8 @@ const LabDashboard: React.FC = () => {
                       <tbody>
                         {selectedTestsObj.map(test => (
                           <tr key={test.id}>
-                            <td>{test.category}</td>
-                            <td><strong>{test.name}</strong></td>
+                            <td>{test.groupName || test.category || 'GENERAL'}</td>
+                            <td><strong>{test.testName || test.name}</strong></td>
                             <td>
                               <input
                                 type="text"
@@ -2055,13 +2878,13 @@ const LabDashboard: React.FC = () => {
                                 onChange={e => setResultValues({ ...resultValues, [test.id]: e.target.value })}
                               />
                             </td>
-                            <td>{test.unit}</td>
-                            <td>{test.normalRange}</td>
+                            <td>{test.unit || '-'}</td>
+                            <td>{test.refValue || test.normalRange || 'Normal'}</td>
                             <td>
                               <input
                                 type="text"
                                 className="form-control-desktop table-specimen-input"
-                                value={specimenValues[test.id] || ''}
+                                value={specimenValues[test.id] || test.specimen || 'EDTA Blood'}
                                 onChange={e => setSpecimenValues({ ...specimenValues, [test.id]: e.target.value })}
                               />
                             </td>
@@ -2116,74 +2939,199 @@ const LabDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Tab 4: Print Result */}
+        {/* ========================================================================= */}
+        {/* TAB 4: PRINT DIAGNOSTIC TEST REPORT (EXACT LETTERHEAD & PRINT LAYOUT)     */}
+        {/* ========================================================================= */}
         {activeTab === 'print-result' && (
-          <div className="tab-content-card card fade-in">
-            <div className="card-header-bar">
+          <div className="tab-content-card card fade-in" style={{ maxWidth: '900px', margin: '0 auto' }}>
+            <div className="card-header-bar flex justify-between items-center" style={{ flexWrap: 'wrap', gap: '10px' }}>
               <div>
-                <h3>Laboratory Diagnostic Test Report</h3>
-                <p>Preview and print formal patient test result report.</p>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800 }}>Laboratory Diagnostic Test Report</h3>
+                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748b' }}>
+                  Official pathology report print preview with Shri Janani Hospitals letterhead.
+                </p>
               </div>
-              <button className="btn-print-action" onClick={handlePrint}>
-                <Printer size={18} /> Print Report
-              </button>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', background: '#f1f5f9', padding: '6px 10px', borderRadius: '4px', border: '1px solid #cbd5e1' }}>
+                  <input
+                    type="checkbox"
+                    checked={withLetterHead}
+                    onChange={e => setWithLetterHead(e.target.checked)}
+                  />
+                  <span>Show Letterhead Banner</span>
+                </label>
+                <button className="btn-desktop" onClick={() => setActiveTab('test-result')}>
+                  <ChevronLeft size={16} /> Back to Entry
+                </button>
+                <button className="btn-print-action" onClick={handlePrint}>
+                  <Printer size={18} /> Print Report
+                </button>
+              </div>
             </div>
 
-            <div className="lab-report-sheet print-area">
-              <div className="report-header">
-                <h2>SHRI JANANI HOSPITAL & DIAGNOSTICS</h2>
-                <p>123 Healthcare Boulevard, Medical Enclave | Phone: +91 98765 43210</p>
-                <div className="report-badge">PATHOLOGY LABORATORY REPORT</div>
-              </div>
+            <div className="lab-report-sheet-container">
+              <div className="official-lab-report-sheet print-area" id="official-lab-report-printable">
+                {/* 1. Letterhead Banner (Shown when withLetterHead is true) */}
+                {withLetterHead && (
+                  <div className="sjh-letterhead-banner">
+                    <div className="sjh-top-accent-stripe"></div>
+                    <div className="sjh-header-main-row">
+                      <div className="sjh-logo-left">
+                        <svg width="68" height="68" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <text x="5" y="65" fill="#3B1E64" fontSize="62" fontWeight="900" fontFamily="serif">S</text>
+                          <text x="35" y="78" fill="#D91B5C" fontSize="68" fontWeight="900" fontFamily="serif">J</text>
+                          <text x="55" y="65" fill="#3B1E64" fontSize="62" fontWeight="900" fontFamily="serif">H</text>
+                        </svg>
+                      </div>
 
-              <div className="report-patient-info">
-                <div className="info-col">
-                  <p><strong>Patient Name:</strong> {patientTitle} {formPname || 'Rajesh Kumar'}</p>
-                  <p><strong>Test No / PID:</strong> {resultTestNo} / PID-{formPid}</p>
-                  <p><strong>Age / Gender:</strong> {formAge || '45 Y'} / {formGender}</p>
-                </div>
-                <div className="info-col">
-                  <p><strong>Ref Doctor:</strong> {refBy}</p>
-                  <p><strong>Sample Date:</strong> {testBillDate}</p>
-                  <p><strong>Report Status:</strong> Final Verified</p>
-                </div>
-              </div>
+                      <div className="sjh-header-center-text">
+                        <h1 className="sjh-title-main">SHRI JANANI HOSPITALS</h1>
+                        <p className="sjh-address-line">No 65 SSD Road, Opp Ulavar Santhai, <strong>TIRUCHENGODE - 637 211</strong></p>
+                        <p className="sjh-phone-line">Ph : 90801 22772, 85258 22772</p>
+                      </div>
 
-              <table className="report-table">
-                <thead>
-                  <tr>
-                    <th>TEST NAME</th>
-                    <th>RESULT VALUE</th>
-                    <th>UNIT</th>
-                    <th>REFERENCE RANGE</th>
-                    <th>REMARKS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedTestsObj.map(test => {
-                    const val = resultValues[test.id] || '8.5';
-                    const rem = remarksValues[test.id] || 'Normal';
-                    return (
-                      <tr key={test.id}>
-                        <td><strong>{test.name}</strong></td>
-                        <td><strong>{val}</strong></td>
-                        <td>{test.unit}</td>
-                        <td>{test.normalRange}</td>
-                        <td>{rem}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                      <div className="sjh-logo-right">
+                        <svg width="60" height="65" viewBox="0 0 100 100" fill="#D91B5C">
+                          <path d="M50 10 L50 90 M40 20 C60 25, 60 35, 50 40 C40 45, 40 55, 50 60 C60 65, 60 75, 50 80 M50 15 L30 25 L50 20 L70 25 Z" stroke="#D91B5C" strokeWidth="4" fill="none" />
+                          <circle cx="50" cy="10" r="6" fill="#D91B5C" />
+                          <path d="M30 22 Q50 32 70 22 Q50 42 30 22 Z" fill="#D91B5C" opacity="0.8" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div className="sjh-bottom-magenta-line"></div>
+                    <h3 className="sjh-sub-banner-title">SHRI PRASANNA BALAJI DIAGNOSTICS</h3>
+                  </div>
+                )}
 
-              <div className="report-footer-sign">
-                <div className="sign-box">
-                  <p><strong>Lab Technician</strong></p>
-                  <span>Verified Sample</span>
+                {/* Blank Header spacing for pre-printed letterhead stationary when withLetterHead is false */}
+                {!withLetterHead && (
+                  <div style={{ height: '140px' }} className="preprinted-letterhead-spacer"></div>
+                )}
+
+                {/* 2. Patient Demographics Block (Exact matching user sample) */}
+                <div className="report-demographics-grid">
+                  <div className="demo-left-column">
+                    <div className="demo-row">
+                      <span className="demo-label">Test No</span>
+                      <span className="demo-colon">:</span>
+                      <span className="demo-value"><strong>{resultTestNo || '3648'}</strong></span>
+                    </div>
+                    <div className="demo-row">
+                      <span className="demo-label">Patient Name</span>
+                      <span className="demo-colon">:</span>
+                      <span className="demo-value"><strong>{patientTitle} {formPname || 'SANTHIYA D/O.MR.VADIVEL'}</strong></span>
+                    </div>
+                    <div className="demo-row">
+                      <span className="demo-label">Age / Sex</span>
+                      <span className="demo-colon">:</span>
+                      <span className="demo-value">{formAge || '14'} YRS / {formGender}</span>
+                    </div>
+                    <div className="demo-row">
+                      <span className="demo-label">Ref.Doctor</span>
+                      <span className="demo-colon">:</span>
+                      <span className="demo-value"><strong>{refBy || 'DR.SRI JANANI,MD.,OG.,'}</strong></span>
+                    </div>
+                  </div>
+
+                  <div className="demo-right-column">
+                    <div className="barcode-align-row">
+                      <div className="report-barcode-box">
+                        <svg width="150" height="28" viewBox="0 0 150 28">
+                          <rect x="5" y="2" width="2" height="22" fill="#000"/>
+                          <rect x="9" y="2" width="4" height="22" fill="#000"/>
+                          <rect x="15" y="2" width="1" height="22" fill="#000"/>
+                          <rect x="18" y="2" width="3" height="22" fill="#000"/>
+                          <rect x="23" y="2" width="2" height="22" fill="#000"/>
+                          <rect x="27" y="2" width="5" height="22" fill="#000"/>
+                          <rect x="34" y="2" width="1" height="22" fill="#000"/>
+                          <rect x="37" y="2" width="3" height="22" fill="#000"/>
+                          <rect x="42" y="2" width="4" height="22" fill="#000"/>
+                          <rect x="48" y="2" width="2" height="22" fill="#000"/>
+                          <rect x="52" y="2" width="1" height="22" fill="#000"/>
+                          <rect x="55" y="2" width="5" height="22" fill="#000"/>
+                          <rect x="62" y="2" width="2" height="22" fill="#000"/>
+                          <rect x="66" y="2" width="3" height="22" fill="#000"/>
+                          <rect x="71" y="2" width="1" height="22" fill="#000"/>
+                          <rect x="74" y="2" width="4" height="22" fill="#000"/>
+                          <rect x="80" y="2" width="2" height="22" fill="#000"/>
+                          <rect x="84" y="2" width="5" height="22" fill="#000"/>
+                          <rect x="91" y="2" width="1" height="22" fill="#000"/>
+                          <rect x="94" y="2" width="3" height="22" fill="#000"/>
+                          <rect x="99" y="2" width="2" height="22" fill="#000"/>
+                          <rect x="103" y="2" width="4" height="22" fill="#000"/>
+                          <rect x="109" y="2" width="1" height="22" fill="#000"/>
+                          <rect x="112" y="2" width="3" height="22" fill="#000"/>
+                          <rect x="117" y="2" width="5" height="22" fill="#000"/>
+                          <rect x="124" y="2" width="2" height="22" fill="#000"/>
+                          <rect x="128" y="2" width="1" height="22" fill="#000"/>
+                          <rect x="131" y="2" width="4" height="22" fill="#000"/>
+                          <rect x="137" y="2" width="2" height="22" fill="#000"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <div className="demo-row">
+                      <span className="demo-label">Collected Date</span>
+                      <span className="demo-colon">:</span>
+                      <span className="demo-value">{testBillDate || new Date().toLocaleDateString('en-GB')} 10:57:33</span>
+                    </div>
+                    <div className="demo-row">
+                      <span className="demo-label">Reported Date</span>
+                      <span className="demo-colon">:</span>
+                      <span className="demo-value">{resultReportDate || testBillDate || new Date().toLocaleDateString('en-GB')} 10:58:53</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="sign-box text-right">
-                  <p><strong>Dr. Aris Thorne, M.D.</strong></p>
-                  <span>Consultant Pathologist</span>
+
+                {/* 3. Official Pathology Test Results Table (Exact matching user sample) */}
+                <table className="official-report-data-table">
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: 'left', width: '38%' }}>TEST NAME</th>
+                      <th style={{ textAlign: 'left', width: '22%' }}>RESULT</th>
+                      <th style={{ textAlign: 'left', width: '15%' }}>UNIT</th>
+                      <th style={{ textAlign: 'left', width: '25%' }}>NORMAL RANGE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupedSelectedTests.map((group, gIdx) => (
+                      <React.Fragment key={'grp_' + gIdx}>
+                        <tr className="report-group-header-tr">
+                          <td colSpan={4} className="report-group-header-td">
+                            <strong>{group.groupName}</strong>
+                          </td>
+                        </tr>
+                        {group.items.map((test, tIdx) => {
+                          const val = resultValues[test.id] || 'PALE YELLOW';
+                          const unit = test.unit && test.unit !== '-' ? test.unit : '';
+                          const range = test.refValue || test.normalRange || '';
+                          return (
+                            <tr key={'test_row_' + test.id + '_' + tIdx} className="report-item-tr">
+                              <td className="report-item-name">{test.testName || test.name}</td>
+                              <td className="report-item-result"><strong>{val}</strong></td>
+                              <td className="report-item-unit">{unit}</td>
+                              <td className="report-item-range">{range}</td>
+                            </tr>
+                          );
+                        })}
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* 4. Report Bottom Footer & Signatures */}
+                <div className="report-bottom-footer">
+                  <div className="end-of-report-tag">
+                    ****End of Report****
+                  </div>
+
+                  <div className="report-signature-row">
+                    <div className="signature-box left">
+                      <strong>DOCTOR SIGNATURE</strong>
+                    </div>
+                    <div className="signature-box right">
+                      <strong>LAB TECHNICIAN</strong>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2610,6 +3558,217 @@ const LabDashboard: React.FC = () => {
         </div>
       )}
 
+        {/* ========================================================================= */}
+        {/* TAB: TESTWISE REPORT WINDOW (EXACT REPLICA OF USER'S SCREENSHOT IMAGE)    */}
+        {/* ========================================================================= */}
+        {activeTab === 'test-wise-report' && (
+          <div className="test-wise-report-desktop-window card fade-in">
+            <div className="window-header">
+              <div className="window-header-left">
+                <FileText size={18} />
+                <span>TestWise Report</span>
+              </div>
+              <div className="window-header-right-controls" style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                <button className="window-close-red" onClick={() => setActiveTab('patient-entry')}>X</button>
+              </div>
+            </div>
+
+            <div className="window-body">
+              {/* Top Filter Bar Section */}
+              <div className="tw-top-controls-card">
+                <div className="tw-reports-title-label">
+                  REPORTS
+                </div>
+
+                <div className="tw-filter-form-grid">
+                  <div className="tw-date-row">
+                    <label className="tw-label">From</label>
+                    <input
+                      type="date"
+                      className="form-control-desktop tw-date-input"
+                      value={testWiseFromDate}
+                      onChange={e => setTestWiseFromDate(e.target.value)}
+                    />
+
+                    <label className="tw-label">Group Wise Report</label>
+                    <select
+                      className="form-control-desktop tw-select-wide"
+                      value={testWiseReportGroup}
+                      onChange={e => {
+                        setTestWiseReportGroup(e.target.value);
+                        setTestWiseReportTest('ALL TESTS');
+                      }}
+                    >
+                      <option value="ALL GROUPS">-- ALL GROUPS --</option>
+                      {testGroupsGrid.map(grp => (
+                        <option key={grp.id} value={grp.name}>{grp.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="tw-date-row">
+                    <label className="tw-label">To</label>
+                    <input
+                      type="date"
+                      className="form-control-desktop tw-date-input"
+                      value={testWiseToDate}
+                      onChange={e => setTestWiseToDate(e.target.value)}
+                    />
+
+                    <label className="tw-label">Test Wise Report</label>
+                    <select
+                      className="form-control-desktop tw-select-wide"
+                      value={testWiseReportTest}
+                      onChange={e => setTestWiseReportTest(e.target.value)}
+                    >
+                      <option value="ALL TESTS">-- ALL TESTS --</option>
+                      {availableTestsForSelectedGroup.map((testName, idx) => (
+                        <option key={testName + '_' + idx} value={testName}>
+                          {testName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Right Action Buttons */}
+                <div className="tw-actions-column">
+                  <div className="tw-btn-pair">
+                    <button className="tw-btn-action" onClick={() => window.print()}>
+                      PRINT
+                    </button>
+                    <button className="tw-btn-action" onClick={() => setClickedTestWiseOk(true)}>
+                      OK
+                    </button>
+                  </div>
+                  <div className="tw-btn-pair">
+                    <button className="tw-btn-action tw-btn-export" onClick={() => handleExportTestWiseExcel(testWiseReportFilteredList)}>
+                      EXPORT TO EXCEL
+                    </button>
+                    <button
+                      className="tw-btn-action"
+                      onClick={() => {
+                        setTestWiseReportGroup('HAEMATOLOGY');
+                        setTestWiseReportTest('ALL TESTS');
+                        setClickedTestWiseOk(true);
+                      }}
+                    >
+                      BLOOD GROUP DET
+                    </button>
+                  </div>
+                </div>
+
+                <button className="tw-window-red-x" onClick={() => setActiveTab('patient-entry')}>
+                  X
+                </button>
+              </div>
+
+              {/* Main Content Layout (Table on Left, Count Box on Right) */}
+              <div className="tw-workspace-layout">
+                <div className="tw-table-container">
+                  <table className="tw-data-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: '50px' }}>S.No</th>
+                        <th>Date & Time</th>
+                        <th>Lab ID</th>
+                        <th>UHID</th>
+                        <th>Patient Name</th>
+                        <th>Test Group</th>
+                        <th>Test Name</th>
+                        <th>Result Value</th>
+                        <th>Normal Range</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {testWiseReportFilteredList.length === 0 ? (
+                        <tr>
+                          <td colSpan={11} className="text-center empty-td" style={{ padding: '40px', color: '#64748b' }}>
+                            No test-wise report records found matching the specified date range and test filters.
+                          </td>
+                        </tr>
+                      ) : (
+                        testWiseReportFilteredList.map((entry, idx) => (
+                          <tr key={'tw_' + entry.labId + '_' + entry.testId + '_' + idx}>
+                            <td style={{ textAlign: 'center' }}>{idx + 1}</td>
+                            <td><small>{entry.date} {entry.time}</small></td>
+                            <td><code>{entry.labId}</code></td>
+                            <td>{entry.uhid}</td>
+                            <td>
+                              <button
+                                type="button"
+                                className="clickable-patient-name-btn"
+                                title="Click to view test results for this patient"
+                                onClick={() => handleOpenTestResultForPatient(entry.patientName, entry.labId || entry.uhid, {
+                                  age: entry.age,
+                                  gender: entry.gender,
+                                  refDoctor: entry.refDoctor,
+                                  uhid: entry.uhid,
+                                  date: entry.date,
+                                  testName: entry.testName
+                                })}
+                              >
+                                {entry.patientName}
+                              </button>
+                              <br />
+                              <small style={{ color: '#64748b' }}>({entry.age}/{entry.gender})</small>
+                            </td>
+                            <td><small>{entry.groupName}</small></td>
+                            <td><strong style={{ color: '#102A43' }}>{entry.testName}</strong></td>
+                            <td>
+                              <strong style={{ fontSize: '13px', color: entry.isAbnormal ? '#dc2626' : '#16a34a' }}>
+                                {entry.value} {entry.unit}
+                              </strong>
+                            </td>
+                            <td><small>{entry.normalRange}</small></td>
+                            <td>
+                              {entry.isAbnormal ? (
+                                <span className="badge-status" style={{ backgroundColor: '#fee2e2', color: '#991b1b', padding: '2px 8px', borderRadius: '4px', fontWeight: 700, fontSize: '11px' }}>
+                                  ABNORMAL
+                                </span>
+                              ) : (
+                                <span className="badge-status" style={{ backgroundColor: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: '4px', fontWeight: 700, fontSize: '11px' }}>
+                                  NORMAL
+                                </span>
+                              )}
+                            </td>
+                            <td>
+                              <button
+                                className="btn-icon-action"
+                                onClick={() => handleOpenTestResultForPatient(entry.patientName, entry.labId || entry.uhid, {
+                                  age: entry.age,
+                                  gender: entry.gender,
+                                  refDoctor: entry.refDoctor,
+                                  uhid: entry.uhid,
+                                  date: entry.date,
+                                  testName: entry.testName
+                                })}
+                              >
+                                <Eye size={14} /> Report
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Right Count Box (Matching Screenshot) */}
+                <div className="tw-count-box-side">
+                  <h4 className="tw-count-header">Count</h4>
+                  <div className="tw-count-display">
+                    <span className="tw-total-label">Total</span>
+                    <span className="tw-total-value">{testWiseReportFilteredList.length}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
 
 
       {/* --- MASTER DROPDOWN SUB-MODAL 4: PRICE LIST --- */}
@@ -2833,69 +3992,749 @@ const LabDashboard: React.FC = () => {
           </div>
         </div>
       )}
+      {/* --- PREVIOUS TEST REPORTS / BILL VIEW WINDOW (EXACT MATCH OF USER SCREENSHOT) --- */}
+      {showPreviousReportsModal && (
+        <div className="lab-modal-overlay">
+          <div className="lab-modal-card card large fade-in" style={{ maxWidth: '1480px', width: '98%', backgroundColor: '#DDE8FA', border: '2px solid #5C768D' }}>
+            <div className="modal-header" style={{ background: 'linear-gradient(180deg, #1E3F66 0%, #0F172A 100%)', color: 'white' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <ClipboardCheck size={20} />
+                <h3 style={{ margin: 0, color: 'white' }}>Reports</h3>
+              </div>
+              <button className="close-btn" onClick={() => setShowPreviousReportsModal(false)}><X size={18} /></button>
+            </div>
 
-      {/* --- MODAL 3: SEARCH RECORDS --- */}
+            <div className="modal-body" style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {/* TOP CONTROL BAR (MATCHING SCREENSHOT) */}
+              <div className="bv-top-bar" style={{ display: 'flex', gap: '10px', alignItems: 'center', background: '#E6F0FA', padding: '8px 12px', borderRadius: '4px', border: '1px solid #90A4AE', flexWrap: 'wrap' }}>
+                {/* Radio Box */}
+                <div style={{ border: '1px solid #90A4AE', padding: '4px 10px', borderRadius: '4px', background: '#D9E5F6' }}>
+                  <div style={{ color: '#000080', fontWeight: 900, fontSize: '13px', marginBottom: '2px' }}>REPORTS</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '11px', fontWeight: 700 }}>
+                    <label style={{ color: '#900', cursor: 'pointer' }}>
+                      <input type="radio" name="bvStatus" checked={bvFilterStatus === 'ALL'} onChange={() => setBvFilterStatus('ALL')} /> ALL
+                    </label>
+                    <label style={{ color: '#900', cursor: 'pointer' }}>
+                      <input type="radio" name="bvStatus" checked={bvFilterStatus === 'Pending'} onChange={() => setBvFilterStatus('Pending')} /> Pending
+                    </label>
+                    <label style={{ color: '#900', cursor: 'pointer' }}>
+                      <input type="radio" name="bvStatus" checked={bvFilterStatus === 'Completed'} onChange={() => setBvFilterStatus('Completed')} /> Completed
+                    </label>
+                  </div>
+                </div>
+
+                {/* From / To Date */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 800 }}>From</label>
+                    <input type="date" className="form-control-desktop" style={{ width: '130px', padding: '2px 6px' }} value={bvFromDate} onChange={e => setbvFromDate(e.target.value)} />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 800 }}>To</label>
+                    <input type="date" className="form-control-desktop" style={{ width: '130px', padding: '2px 6px' }} value={bvToDate} onChange={e => setbvToDate(e.target.value)} />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <button className="tw-btn-action" style={{ background: '#D9E5F6', border: '1px solid #5C768D', padding: '4px 12px', fontWeight: 800 }} onClick={() => window.print()}>Print</button>
+                  <button className="tw-btn-action" style={{ background: '#D9E5F6', border: '1px solid #5C768D', padding: '4px 12px', fontWeight: 800 }} onClick={() => alert('Previewing Report')}>Preview</button>
+                  <button className="tw-btn-action" style={{ background: '#D9E5F6', border: '1px solid #5C768D', padding: '4px 12px', fontWeight: 800 }} onClick={() => setClickedTestWiseOk(true)}>OK</button>
+                </div>
+
+                {/* Dropdowns Column */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: '240px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <label style={{ fontSize: '11px', fontWeight: 800, minWidth: '110px' }}>Doctor Wise Report</label>
+                    <select className="form-control-desktop" style={{ flex: 1, padding: '2px 6px' }} value={bvDoctorFilter} onChange={e => setBvDoctorFilter(e.target.value)}>
+                      <option value="">-- ALL DOCTORS --</option>
+                      <option value="DR.SRI JANANI,MD.,OG.,">DR.SRI JANANI,MD.,OG.,</option>
+                    </select>
+                    <button className="tw-btn-action" style={{ padding: '2px 6px', fontSize: '10px' }} onClick={() => window.print()}>Doc.Print</button>
+                    <button className="tw-btn-action" style={{ padding: '2px 6px', fontSize: '10px' }} onClick={() => alert('Preview Doc Report')}>Preview</button>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <label style={{ fontSize: '11px', fontWeight: 800, minWidth: '110px' }}>LAB Wise Report</label>
+                    <select className="form-control-desktop" style={{ flex: 1, padding: '2px 6px' }} value={bvLabFilter} onChange={e => setBvLabFilter(e.target.value)}>
+                      <option value="">-- ALL LABS --</option>
+                      <option value="SELF">SELF</option>
+                    </select>
+                    <button className="tw-btn-action" style={{ padding: '2px 6px', fontSize: '10px' }} onClick={() => window.print()}>Lab.Print</button>
+                    <button className="tw-btn-action" style={{ padding: '2px 6px', fontSize: '10px' }} onClick={() => alert('Preview Lab Report')}>Preview</button>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <label style={{ fontSize: '11px', fontWeight: 800, minWidth: '110px' }}>Test Type</label>
+                    <select className="form-control-desktop" style={{ flex: 1, padding: '2px 6px' }} value={bvTestTypeFilter} onChange={e => setBvTestTypeFilter(e.target.value)}>
+                      <option value="">-- ALL TYPES --</option>
+                      <option value="Single">Single</option>
+                      <option value="Group">Group</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Export & Consolidate */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+                  <button className="tw-btn-action tw-btn-export" style={{ width: '150px', background: '#D9E5F6', border: '1px solid #5C768D', fontWeight: 800 }} onClick={() => handleExportTestWiseExcel(filteredBillReports)}>
+                    EXPORT TO EXCEL
+                  </button>
+                  <div style={{ fontSize: '11px', fontWeight: 800, textAlign: 'center', marginTop: '2px' }}>Monthwise Consolidate</div>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <button className="tw-btn-action" style={{ padding: '2px 8px', fontSize: '10px' }} onClick={() => alert('Consolidate Preview')}>Preview</button>
+                    <button className="tw-btn-action" style={{ padding: '2px 8px', fontSize: '10px' }} onClick={() => window.print()}>Print</button>
+                  </div>
+                </div>
+
+                {/* Daily Test & Cash/Due Cards */}
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <div style={{ border: '1px solid #5C768D', background: '#D9E5F6', padding: '4px 8px', borderRadius: '4px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 800, color: '#900' }}>Daily Test<br />Report</div>
+                    <button className="tw-btn-action" style={{ padding: '2px 8px', marginTop: '4px', fontSize: '10px' }} onClick={() => alert('Daily Test Report')}>Preview</button>
+                  </div>
+                  <div style={{ border: '1px solid #5C768D', background: '#D9E5F6', padding: '4px 8px', borderRadius: '4px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 800, color: '#900' }}>Cash/Due<br />Report</div>
+                    <button className="tw-btn-action" style={{ padding: '2px 8px', marginTop: '4px', fontSize: '10px' }} onClick={() => alert('Cash/Due Report')}>Preview</button>
+                  </div>
+                </div>
+
+                <button className="tw-window-red-x" onClick={() => setShowPreviousReportsModal(false)} style={{ marginLeft: 'auto', background: '#D32F2F', color: 'white', padding: '8px 14px', fontWeight: 900 }}>
+                  X
+                </button>
+              </div>
+
+              {/* MAIN CONTENT SPLIT LAYOUT */}
+              <div style={{ display: 'flex', gap: '12px', minHeight: '440px' }}>
+                {/* Left Table Grid */}
+                <div style={{ flex: 1, background: 'white', border: '1px solid #90A4AE', borderRadius: '4px', overflowY: 'auto', maxHeight: '480px' }}>
+                  <table className="search-results-table" style={{ fontSize: '12px' }}>
+                    <thead>
+                      <tr style={{ position: 'sticky', top: 0, background: '#1E3F66', color: 'white', zIndex: 10 }}>
+                        <th>Test No</th>
+                        <th>Test Date</th>
+                        <th>Patient Name</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>Ref Doc</th>
+                        <th style={{ textAlign: 'right' }}>Cost</th>
+                        <th style={{ textAlign: 'right' }}>Discount</th>
+                        <th style={{ textAlign: 'right' }}>Total</th>
+                        <th style={{ textAlign: 'right' }}>Advance</th>
+                        <th style={{ textAlign: 'right' }}>Balance</th>
+                        <th style={{ textAlign: 'right' }}>Expenses</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredBillReports.map((r, idx) => (
+                        <tr key={'bv_row_' + r.testNo + '_' + idx}>
+                          <td>
+                            <strong
+                              style={{ color: '#1d4ed8', cursor: 'pointer', textDecoration: 'underline' }}
+                              onClick={() => handleOpenTestResultForPatient(r.patientName, r.testNo, {
+                                age: r.age,
+                                gender: r.gender,
+                                refDoctor: r.refDoc,
+                                date: r.testDate
+                              })}
+                            >
+                              {r.testNo}
+                            </strong>
+                          </td>
+                          <td>{r.testDate}</td>
+                          <td>
+                               <button
+                                 type="button"
+                                 className="clickable-patient-name-btn"
+                                 title="Click to view test results for this patient"
+                                 onClick={() => handleOpenTestResultForPatient(r.patientName, r.testNo, {
+                                   age: r.age,
+                                   gender: r.gender,
+                                   refDoctor: r.refDoc,
+                                   date: r.testDate
+                                 })}
+                                 style={{
+                                   background: 'none',
+                                   border: 'none',
+                                   padding: 0,
+                                   color: '#1d4ed8',
+                                   fontWeight: 700,
+                                   cursor: 'pointer',
+                                   textDecoration: 'underline',
+                                   textAlign: 'left'
+                                 }}
+                               >
+                                 {r.patientName}
+                               </button>
+                             </td>
+                          <td>{r.age}</td>
+                          <td>{r.gender}</td>
+                          <td><small>{r.refDoc}</small></td>
+                          <td style={{ textAlign: 'right' }}>{r.cost.toFixed(2)}</td>
+                          <td style={{ textAlign: 'right' }}>{r.discount.toFixed(2)}</td>
+                          <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{r.total.toFixed(2)}</td>
+                          <td style={{ textAlign: 'right' }}>{r.advance.toFixed(2)}</td>
+                          <td style={{ textAlign: 'right' }}>{r.balance.toFixed(2)}</td>
+                          <td style={{ textAlign: 'right' }}>{r.expenses.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Right Side Summary Panel (Matching Screenshot) */}
+                <div style={{ width: '250px', background: '#E6F0FA', border: '1px solid #90A4AE', borderRadius: '4px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  {/* Collection Register */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <h4 style={{ margin: 0, color: '#800000', fontSize: '13px', fontWeight: 900 }}>Collection Register</h4>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 800 }}>
+                      <span>Collection Amount</span>
+                      <span style={{ color: '#7B0080', fontSize: '15px' }}>{bvCollectionTotal.toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 800 }}>
+                      <span>Balance</span>
+                      <span style={{ color: '#7B0080', fontSize: '15px' }}>.{bvBalanceTotal.toFixed(0)}0</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 800 }}>
+                      <span>Total</span>
+                      <span style={{ color: '#7B0080', fontSize: '15px' }}>{bvCollectionTotal.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  <hr style={{ border: '0.5px solid #CBD5E1', margin: 0 }} />
+
+                  {/* Doctor Wise Commission */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <h4 style={{ margin: 0, color: '#800000', fontSize: '13px', fontWeight: 900 }}>Doctor Wise Commission</h4>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 800 }}>
+                      <span>Collection Amount</span>
+                      <span style={{ color: '#7B0080' }}>.00</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 800 }}>
+                      <span>Expenses</span>
+                      <span style={{ color: '#7B0080' }}>.00</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 800 }}>
+                      <span>Total Amount</span>
+                      <span style={{ color: '#7B0080' }}>.00</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', fontWeight: 800, marginTop: '4px' }}>
+                      <span>Commission Percentage</span>
+                      <input type="text" className="form-control-desktop" style={{ width: '60px', padding: '1px 4px' }} value={bvCommissionPct} onChange={e => setBvCommissionPct(e.target.value)} />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', fontWeight: 800 }}>
+                      <span>Commission Amount</span>
+                      <input type="text" className="form-control-desktop" style={{ width: '60px', padding: '1px 4px' }} value={bvCommissionAmt} onChange={e => setBvCommissionAmt(e.target.value)} />
+                    </div>
+                  </div>
+
+                  <hr style={{ border: '0.5px solid #CBD5E1', margin: 0 }} />
+
+                  {/* Expenses */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: 'auto' }}>
+                    <h4 style={{ margin: 0, color: '#800000', fontSize: '13px', fontWeight: 900 }}>Expenses</h4>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 800 }}>
+                      <span>Total</span>
+                      <span style={{ color: '#7B0080' }}>.00</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL 3: SEARCH RECORDS & TEST-WISE REPORT --- */}
       {showSearchModal && (
         <div className="lab-modal-overlay">
-          <div className="lab-modal-card card large">
-            <div className="modal-header">
-              <h3><SearchIcon size={20} /> Search Lab Records & Patient Test History</h3>
+          <div className="lab-modal-card card large fade-in" style={{ maxWidth: '1250px', width: '95%' }}>
+            <div className="modal-header" style={{ background: 'linear-gradient(180deg, #1E3F66 0%, #0F172A 100%)', color: 'white' }}>
+              <h3><SearchIcon size={20} /> Search Lab Records & Test-Wise Reports</h3>
               <button className="close-btn" onClick={() => setShowSearchModal(false)}><X size={18} /></button>
             </div>
-            <div className="modal-body">
-              <input
-                type="text"
-                className="form-control search-large-input"
-                placeholder="Search by UHID, Patient Name, Lab ID..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
 
-              <table className="search-results-table">
+            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {/* Search Sub-Tabs Bar */}
+              <div className="search-tab-bar" style={{ display: 'flex', gap: '8px', borderBottom: '2px solid #CBD5E1', paddingBottom: '8px' }}>
+                <button
+                  type="button"
+                  className={`subtab-btn ${searchModalTab === 'patient-records' ? 'active' : ''}`}
+                  onClick={() => setSearchModalTab('patient-records')}
+                  style={{ flex: '0 1 auto', padding: '6px 18px' }}
+                >
+                  <UserPlus size={16} /> Patient & Lab Records
+                </button>
+                <button
+                  type="button"
+                  className={`subtab-btn ${searchModalTab === 'test-wise-report' ? 'active' : ''}`}
+                  onClick={() => setSearchModalTab('test-wise-report')}
+                  style={{ flex: '0 1 auto', padding: '6px 18px' }}
+                >
+                  <TestTube2 size={16} /> Test-Wise Report Analytics ({allTestWiseEntries.length})
+                </button>
+              </div>
+
+              {/* TAB 1: PATIENT & LAB RECORDS SEARCH */}
+              {searchModalTab === 'patient-records' && (
+                <div className="search-tab-content fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <input
+                      type="text"
+                      className="form-control search-large-input"
+                      placeholder="Search by UHID, Patient Name, Lab ID, Phone..."
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      style={{ flex: 1 }}
+                    />
+                  </div>
+
+                  <table className="search-results-table">
+                    <thead>
+                      <tr>
+                        <th>Lab ID</th>
+                        <th>UHID</th>
+                        <th>Patient Name</th>
+                        <th>Date & Time</th>
+                        <th>Tests Count</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {labRecords
+                        .filter(r =>
+                          r.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          r.uhid.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          r.labId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (r.phone && r.phone.includes(searchQuery))
+                        )
+                        .map(r => (
+                          <tr key={r.labId}>
+                            <td><strong>{r.labId}</strong></td>
+                            <td>{r.uhid}</td>
+                            <td>
+                              <button
+                                type="button"
+                                className="clickable-patient-name-btn"
+                                title="Click to view test results for this patient"
+                                onClick={() => handleOpenTestResultForPatient(r.patientName, r.labId || r.uhid, {
+                                  age: r.age,
+                                  gender: r.gender,
+                                  refDoctor: r.refDoctor,
+                                  uhid: r.uhid,
+                                  date: r.date
+                                })}
+                              >
+                                {r.patientName}
+                              </button>
+                            </td>
+                            <td>{r.date} <small>{r.time}</small></td>
+                            <td>{r.tests.length} Tests</td>
+                            <td>₹{r.totalAmount.toFixed(2)}</td>
+                            <td><span className="badge-status normal">{r.status}</span></td>
+                            <td>
+                              <button
+                                className="btn-icon-action"
+                                onClick={() => handleOpenTestResultForPatient(r.patientName, r.labId || r.uhid, {
+                                  age: r.age,
+                                  gender: r.gender,
+                                  refDoctor: r.refDoctor,
+                                  uhid: r.uhid,
+                                  date: r.date
+                                })}
+                              >
+                                <Eye size={16} /> View Full Report
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* TAB 2: TEST-WISE REPORT SEARCH */}
+              {searchModalTab === 'test-wise-report' && (
+                <div className="search-tab-content fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {/* Test-Wise Filter Controls */}
+                  <div className="test-wise-filters-row" style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', flexWrap: 'wrap', background: '#F8FAFC', padding: '10px 14px', borderRadius: '6px', border: '1px solid #CBD5E1' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '180px' }}>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#334155' }}>Filter Test Group:</label>
+                      <select
+                        className="form-control-desktop"
+                        value={testWiseGroupFilter}
+                        onChange={e => {
+                          setTestWiseGroupFilter(e.target.value);
+                          setTestWiseTestFilter('ALL TESTS');
+                        }}
+                      >
+                        <option value="ALL GROUPS">-- ALL GROUPS --</option>
+                        {testGroupsGrid.map(g => (
+                          <option key={g.id} value={g.name}>{g.name}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '200px', flex: 1 }}>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#334155' }}>Filter Test Name:</label>
+                      <select
+                        className="form-control-desktop"
+                        value={testWiseTestFilter}
+                        onChange={e => setTestWiseTestFilter(e.target.value)}
+                      >
+                        <option value="ALL TESTS">-- ALL TESTS --</option>
+                        {allMasterTestItems
+                          .filter(t => testWiseGroupFilter === 'ALL GROUPS' || t.groupName.toUpperCase() === testWiseGroupFilter.toUpperCase())
+                          .map((t, idx) => (
+                            <option key={t.id + '_' + idx} value={t.testName}>{t.testName}</option>
+                          ))}
+                      </select>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '130px' }}>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#334155' }}>Result Status:</label>
+                      <select
+                        className="form-control-desktop"
+                        value={testWiseStatusFilter}
+                        onChange={e => setTestWiseStatusFilter(e.target.value as any)}
+                      >
+                        <option value="ALL">All Results</option>
+                        <option value="ABNORMAL">Abnormal Only</option>
+                        <option value="NORMAL">Normal Only</option>
+                      </select>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '200px', flex: 1 }}>
+                      <label style={{ fontSize: '11px', fontWeight: 700, color: '#334155' }}>Search Query:</label>
+                      <input
+                        type="text"
+                        className="form-control-desktop"
+                        placeholder="Search patient, test, value..."
+                        value={testWiseSearchQuery}
+                        onChange={e => setTestWiseSearchQuery(e.target.value)}
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      className="btn-price-action btn-export-list"
+                      onClick={() => handleExportTestWiseExcel(filteredTestWiseEntries)}
+                    >
+                      <FileSpreadsheet size={15} /> Export Excel
+                    </button>
+                  </div>
+
+                  {/* Test-Wise Report Results Table */}
+                  <div style={{ maxHeight: '380px', overflowY: 'auto', border: '1px solid #CBD5E1', borderRadius: '4px' }}>
+                    <table className="search-results-table">
+                      <thead>
+                        <tr style={{ position: 'sticky', top: 0, zIndex: 10, background: '#1E3F66', color: 'white' }}>
+                          <th>Date</th>
+                          <th>Lab ID</th>
+                          <th>Patient Name</th>
+                          <th>Test Group</th>
+                          <th>Test Name</th>
+                          <th>Result Value</th>
+                          <th>Normal Range</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredTestWiseEntries.length === 0 ? (
+                          <tr>
+                            <td colSpan={9} style={{ textAlign: 'center', padding: '24px', color: '#64748b', fontStyle: 'italic' }}>
+                              No test-wise report records found matching the filters.
+                            </td>
+                          </tr>
+                        ) : (
+                          filteredTestWiseEntries.map((entry, idx) => (
+                            <tr key={entry.labId + '_' + entry.testId + '_' + idx}>
+                              <td><small>{entry.date} {entry.time}</small></td>
+                              <td><code>{entry.labId}</code></td>
+                              <td>
+                                <button
+                                  type="button"
+                                  className="clickable-patient-name-btn"
+                                  title="Click to view test results for this patient"
+                                  onClick={() => handleOpenTestResultForPatient(entry.patientName, entry.labId || entry.uhid, {
+                                    age: entry.age,
+                                    gender: entry.gender,
+                                    refDoctor: entry.refDoctor,
+                                    uhid: entry.uhid,
+                                    date: entry.date,
+                                    testName: entry.testName
+                                  })}
+                                >
+                                  {entry.patientName}
+                                </button>
+                                <br />
+                                <small style={{ color: '#64748b' }}>{entry.age} / {entry.gender}</small>
+                              </td>
+                              <td><small>{entry.groupName}</small></td>
+                              <td><strong style={{ color: '#1e3a8a' }}>{entry.testName}</strong></td>
+                              <td>
+                                <strong style={{ fontSize: '13px', color: entry.isAbnormal ? '#dc2626' : '#16a34a' }}>
+                                  {entry.value} {entry.unit}
+                                </strong>
+                              </td>
+                              <td><small>{entry.normalRange}</small></td>
+                              <td>
+                                {entry.isAbnormal ? (
+                                  <span className="badge-status" style={{ backgroundColor: '#fee2e2', color: '#991b1b', padding: '2px 8px', borderRadius: '4px', fontWeight: 700, fontSize: '11px' }}>
+                                    ABNORMAL
+                                  </span>
+                                ) : (
+                                  <span className="badge-status" style={{ backgroundColor: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: '4px', fontWeight: 700, fontSize: '11px' }}>
+                                    NORMAL
+                                  </span>
+                                )}
+                              </td>
+                              <td>
+                                <button
+                                  className="btn-icon-action"
+                                  onClick={() => handleOpenTestResultForPatient(entry.patientName, entry.labId || entry.uhid, {
+                                    age: entry.age,
+                                    gender: entry.gender,
+                                    refDoctor: entry.refDoctor,
+                                    uhid: entry.uhid,
+                                    date: entry.date,
+                                    testName: entry.testName
+                                  })}
+                                >
+                                  <Eye size={14} /> Report
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#475569' }}>
+                    <span>Showing <strong>{filteredTestWiseEntries.length}</strong> test report entries</span>
+                    <button className="btn-desktop" onClick={() => setShowSearchModal(false)}>Close</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MASTER DROPDOWN: PRICE LIST PAGE                                          */}
+      {/* ========================================================================= */}
+      {showPriceListModal && (
+        <div className="lab-modal-overlay">
+          <div className="price-list-window card fade-in">
+            <div className="price-list-header">
+              <div className="price-list-header-left">
+                <Tag size={18} />
+                <span>Test Master Price List</span>
+              </div>
+              <button className="window-close-red" onClick={() => setShowPriceListModal(false)}>X</button>
+            </div>
+
+            <div className="price-list-body">
+              <div className="price-list-filters-bar">
+                <div className="price-filter-group">
+                  <label className="price-filter-label">1. Select Test Group:</label>
+                  <select
+                    className="form-control-desktop price-group-select"
+                    value={priceListGroupFilter}
+                    onChange={e => setPriceListGroupFilter(e.target.value)}
+                  >
+                    <option value="ALL GROUPS">-- ALL GROUPS --</option>
+                    {testGroupsGrid.map(g => (
+                      <option key={g.id} value={g.name}>{g.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="price-filter-group flex-1">
+                  <label className="price-filter-label">2. Test Name:</label>
+                  <input
+                    type="text"
+                    className="form-control-desktop price-name-input"
+                    placeholder="Enter or type Test Name to filter..."
+                    value={priceListNameFilter}
+                    onChange={e => setPriceListNameFilter(e.target.value)}
+                  />
+                </div>
+
+                <div className="price-filter-actions">
+                  <button
+                    type="button"
+                    className="btn-price-action btn-show-list"
+                    onClick={() => setHasClickedShowPriceList(true)}
+                  >
+                    <SearchIcon size={15} /> Show Price List
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-price-action btn-preview-list"
+                    onClick={() => {
+                      setHasClickedShowPriceList(true);
+                      setShowPriceListPreview(true);
+                    }}
+                  >
+                    <Eye size={15} /> Preview
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-price-action btn-export-list"
+                    onClick={() => handleExportPriceListExcel(filteredPriceListItems)}
+                  >
+                    <FileSpreadsheet size={15} /> Export to Excel
+                  </button>
+                </div>
+              </div>
+
+              {/* Price List Table Container */}
+              <div className="price-list-table-container">
+                <table className="price-list-data-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: '60px' }}>S.No</th>
+                      <th style={{ width: '80px' }}>Test ID</th>
+                      <th>Test Group</th>
+                      <th>Test Name</th>
+                      <th>Unit</th>
+                      <th>Specimen</th>
+                      <th>Normal Reference Value</th>
+                      <th style={{ textAlign: 'right', paddingRight: '16px' }}>Price / Cost (₹)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {!hasClickedShowPriceList ? (
+                      <tr>
+                        <td colSpan={8} className="text-center empty-td" style={{ padding: '30px', color: '#64748b' }}>
+                          Select Test Group or enter Test Name and click <strong>"Show Price List"</strong> to display item rates.
+                        </td>
+                      </tr>
+                    ) : filteredPriceListItems.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="text-center empty-td" style={{ padding: '30px', color: '#ef4444' }}>
+                          No test items found matching the selected group / name criteria.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredPriceListItems.map((item, idx) => (
+                        <tr key={item.id + '_' + idx}>
+                          <td style={{ textAlign: 'center' }}>{idx + 1}</td>
+                          <td><code>{item.id}</code></td>
+                          <td><strong>{item.groupName}</strong></td>
+                          <td><span className="test-name-bold">{item.testName}</span></td>
+                          <td>{item.unit}</td>
+                          <td>{item.specimen}</td>
+                          <td><small style={{ color: '#475569' }}>{item.refValue}</small></td>
+                          <td style={{ textAlign: 'right', fontWeight: '800', color: '#1e3a8a', paddingRight: '16px' }}>
+                            ₹{item.cost.toFixed(2)}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="price-list-footer-bar">
+                <span className="price-count-badge">
+                  Total Items: <strong>{hasClickedShowPriceList ? filteredPriceListItems.length : 0}</strong>
+                </span>
+                <button className="btn-desktop" onClick={() => setShowPriceListModal(false)}>
+                  Close Window
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* FULL ITEMS PRICE LIST PREVIEW PAGE (PRINTABLE & EXPORTABLE REPORT)         */}
+      {/* ========================================================================= */}
+      {showPriceListPreview && (
+        <div className="lab-modal-overlay" style={{ zIndex: 10000 }}>
+          <div className="price-list-preview-window">
+            <div className="preview-toolbar no-print">
+              <div className="preview-toolbar-left">
+                <FileText size={18} />
+                <span>Full Items Price List - Formal Preview</span>
+              </div>
+              <div className="preview-toolbar-right">
+                <button type="button" className="btn-preview-tool btn-print" onClick={() => window.print()}>
+                  <Printer size={15} /> Print Price List
+                </button>
+                <button
+                  type="button"
+                  className="btn-preview-tool btn-excel"
+                  onClick={() => handleExportPriceListExcel(filteredPriceListItems)}
+                >
+                  <FileSpreadsheet size={15} /> Export to Excel
+                </button>
+                <button type="button" className="btn-preview-tool btn-close" onClick={() => setShowPriceListPreview(false)}>
+                  <X size={15} /> Close Preview
+                </button>
+              </div>
+            </div>
+
+            <div className="preview-report-sheet print-area">
+              <div className="report-header-banner">
+                <h1 className="hospital-name-heading">SHRI JANANI HOSPITAL & DIAGNOSTICS</h1>
+                <p className="hospital-sub-heading">12 Gandhi Road, Gobichettipalayam | Ph: 9715425302</p>
+                <div className="report-divider-line"></div>
+                <h2 className="report-title-heading">MASTER TEST PRICE LIST REPORT</h2>
+                <div className="report-meta-row">
+                  <span>Category Filter: <strong>{priceListGroupFilter}</strong></span>
+                  <span>Generated Date: <strong>{new Date().toLocaleDateString('en-GB')}</strong></span>
+                  <span>Total Items Listed: <strong>{filteredPriceListItems.length}</strong></span>
+                </div>
+              </div>
+
+              <table className="preview-report-table">
                 <thead>
                   <tr>
-                    <th>Lab ID</th>
-                    <th>UHID</th>
-                    <th>Patient Name</th>
-                    <th>Date</th>
-                    <th>Tests Count</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th style={{ width: '40px' }}>S.No</th>
+                    <th style={{ width: '70px' }}>Code</th>
+                    <th>Test Group</th>
+                    <th>Test Name</th>
+                    <th>Specimen</th>
+                    <th>Unit</th>
+                    <th>Reference Range</th>
+                    <th style={{ textAlign: 'right' }}>Price (₹)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {labRecords
-                    .filter(r =>
-                      r.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      r.uhid.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      r.labId.toLowerCase().includes(searchQuery.toLowerCase())
-                    )
-                    .map(r => (
-                      <tr key={r.labId}>
-                        <td><strong>{r.labId}</strong></td>
-                        <td>{r.uhid}</td>
-                        <td>{r.patientName}</td>
-                        <td>{r.date}</td>
-                        <td>{r.tests.length} Tests</td>
-                        <td>₹{r.totalAmount}</td>
-                        <td><span className="badge-status normal">{r.status}</span></td>
-                        <td>
-                          <button
-                            className="btn-icon-action"
-                            onClick={() => {
-                              setFormPname(r.patientName);
-                              setShowSearchModal(false);
-                              setActiveTab('print-result');
-                            }}
-                          >
-                            <Eye size={16} /> View Report
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                  {filteredPriceListItems.map((item, idx) => (
+                    <tr key={'prev_' + item.id + '_' + idx}>
+                      <td style={{ textAlign: 'center' }}>{idx + 1}</td>
+                      <td><code>{item.id}</code></td>
+                      <td><strong>{item.groupName}</strong></td>
+                      <td>{item.testName}</td>
+                      <td>{item.specimen}</td>
+                      <td>{item.unit}</td>
+                      <td><small>{item.refValue}</small></td>
+                      <td style={{ textAlign: 'right', fontWeight: 'bold' }}>₹{item.cost.toFixed(2)}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
+
+              <div className="report-footer-signatures">
+                <div className="sig-box">
+                  <div className="sig-line"></div>
+                  <span>Lab Manager</span>
+                </div>
+                <div className="sig-box">
+                  <div className="sig-line"></div>
+                  <span>Pathologist Signature</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

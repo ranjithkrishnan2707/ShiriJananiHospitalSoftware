@@ -21,7 +21,7 @@ const Sidebar: React.FC = () => {
   const { prescriptions, labRequests, scanRequests } = useHospital();
   
   const isAdminActive = location.pathname.startsWith('/admin');
-  const [isAdminOpen, setIsAdminOpen] = useState<boolean>(isAdminActive);
+  const [isAdminOpen, setIsAdminOpen] = useState<boolean>(isAdminActive || true);
 
   const pendingPrescriptions = prescriptions.filter(p => p.status === 'Pending').length;
   const pendingLabs = labRequests.filter(l => l.status === 'Pending').length;
@@ -40,6 +40,7 @@ const Sidebar: React.FC = () => {
 
   const adminSubItems = [
     { path: '/admin', name: 'Admin Panel Overview', exact: true },
+    { path: '/admin/expenses', name: 'Expense Management' },
     { path: '/admin/staff-attendance', name: 'Staff Attendance' },
     { path: '/admin/manage-staff', name: 'Manage Staff' },
     { path: '/admin/monitor-billing', name: 'Monitor Billing' },

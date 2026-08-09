@@ -86,6 +86,83 @@ button {
   border-color: var(--color-primary);
 }
 
+/* Patient Name Dropdown Suggestions */
+.patient-name-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  min-width: 280px;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.patient-name-dropdown .dropdown-header {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  background-color: var(--color-hover);
+  border-bottom: 1px solid var(--color-border);
+  letter-spacing: 0.5px;
+}
+
+.patient-name-dropdown .dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.patient-name-dropdown .dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.patient-name-dropdown .dropdown-item:hover {
+  background-color: #e8f2ff;
+}
+
+.patient-name-dropdown .patient-item-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--color-text);
+}
+
+.patient-name-dropdown .patient-item-details {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--color-text-light);
+}
+
+.patient-name-dropdown .badge-uhid {
+  background-color: #e2e8f0;
+  color: #334155;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.patient-name-dropdown .badge-id {
+  background-color: #dbeafe;
+  color: #1e40af;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
 /* Placeholder Page Styles */
 .placeholder-page {
   display: flex;
@@ -120,4 +197,195 @@ button {
   color: var(--color-text-light);
   max-width: 500px;
   line-height: 1.6;
+}
+
+/* ==========================================
+   BULLETPROOF PRINT STYLES - FIXES BLANK PAGE
+   ========================================== */
+@media print {
+  /* 1. Reset Page & Margins */
+  @page {
+    size: A4 portrait;
+    margin: 10mm 10mm 10mm 10mm;
+  }
+
+  /* 2. Disable ALL animations & transforms (Transforms cause blank pages in print mode!) */
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  /* 3. Reset Body & HTML height & overflow */
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 10.5pt !important;
+    line-height: 1.4 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    position: static !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* 4. Hide Non-Printable Elements */
+  .sidebar,
+  .main-header,
+  .expenses-header-card,
+  .billing-header-card,
+  .expenses-nav-bar,
+  .billing-nav-bar,
+  .filter-card,
+  .billing-filter-card,
+  .quick-filter-bar,
+  .global-search-container,
+  .table-toolbar,
+  .pagination-container,
+  .no-print,
+  button,
+  .btn,
+  .btn-action-icon,
+  .btn-reset-filters,
+  .btn-add-expense-primary,
+  .btn-page,
+  .btn-submit-expense,
+  .action-buttons-group,
+  .modal-footer button,
+  .modal-header button,
+  .expenses-header-actions,
+  .billing-header-actions {
+    display: none !important;
+  }
+
+  /* 5. Reset All Container Wrappers to static so print engine calculates full height */
+  .layout-container,
+  .layout-body,
+  .main-content,
+  .page-transition,
+  .expenses-layout-container,
+  .billing-dashboard-container,
+  .medical-erp-container,
+  .lab-module-container,
+  .doctor-consultation-container {
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+    transform: none !important;
+  }
+
+  /* 6. Modal Dialog Print Fix (Prevents Blank Page on Modals!) */
+  .modal-overlay {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
+    background: #ffffff !important;
+    display: block !important;
+    z-index: 999999 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+
+  .modal-box-card,
+  .add-expense-modal-card,
+  .printable-area,
+  .report-section-box,
+  .expenses-table-card,
+  .billing-table-card {
+    position: relative !important;
+    box-shadow: none !important;
+    border: 1px solid #000000 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 15px !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border-radius: 0 !important;
+  }
+
+  .modal-header,
+  .add-expense-modal-header {
+    background: #f1f5f9 !important;
+    color: #000000 !important;
+    border-bottom: 2px solid #000000 !important;
+    padding: 10px 14px !important;
+    position: static !important;
+  }
+
+  .modal-header h2,
+  .modal-header h3,
+  .modal-header h4,
+  .add-expense-modal-header h3 {
+    color: #000000 !important;
+  }
+
+  /* 7. Tables Formatting */
+  table, .data-table, .billing-table, .medication-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-top: 10px !important;
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  table th, table td {
+    border: 1px solid #000000 !important;
+    padding: 8px 10px !important;
+    color: #000000 !important;
+    background: #ffffff !important;
+    font-size: 10pt !important;
+  }
+
+  table th {
+    background-color: #f1f5f9 !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+  }
+
+  table th:last-child,
+  table td:last-child {
+    display: none !important;
+  }
+
+  input, select, textarea {
+    border: none !important;
+    background: transparent !important;
+    font-weight: bold !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  .editable-discount-input {
+    border: none !important;
+    background: transparent !important;
+    color: #000000 !important;
+  }
 }

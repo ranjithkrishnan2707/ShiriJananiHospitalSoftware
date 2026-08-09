@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHospital } from '../../context/HospitalContext';
 import { Upload, Printer, X, FileText, CheckCircle, ArrowLeft } from 'lucide-react';
@@ -8,6 +8,7 @@ export interface OpdRecord {
   uhid: string;
   patientId: string;
   rchId: string;
+  aadharNumber?: string;
   date: string;
   name: string;
   age: string;
@@ -29,11 +30,11 @@ export interface OpdRecord {
 }
 
 const INITIAL_OPD_RECORDS: OpdRecord[] = [
-  { uhid: '3490', patientId: '1210', rchId: 'RCH-001', date: '2026-05-21', name: 'JAYA SUDHA W/O RAMESH', age: '29 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543210', address: '12 Main St', city: 'Chennai', session: 'morning', bp: '120/80', temp: '98.6', pulse: '72', spo2: '99', complaints: 'Routine ANC checkup' },
-  { uhid: '3491', patientId: '1211', rchId: 'RCH-002', date: '2026-05-21', name: 'DEEPIKA W/O KANAN', age: '26 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '', address: '45 Cross Rd', city: 'Chennai', session: 'morning', bp: '110/70', temp: '98.4', pulse: '76', spo2: '98', complaints: 'Nausea & fever' },
-  { uhid: '3492', patientId: '1212', rchId: 'RCH-003', date: '2026-05-21', name: 'MUNESHWARI W/O SEKAR', age: '21 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543212', address: '8 Gandhi St', city: 'Chennai', session: 'morning', bp: '115/75', temp: '98.6', pulse: '74', spo2: '99', complaints: 'Headache' },
-  { uhid: '3493', patientId: '1213', rchId: 'RCH-004', date: '2026-05-21', name: 'KALAIVANI W/O MANI', age: '30 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543213', address: '99 North Ave', city: 'Chennai', session: 'evening', bp: '122/82', temp: '99.0', pulse: '80', spo2: '97', complaints: 'Back ache' },
-  { uhid: '3494', patientId: '1214', rchId: 'RCH-005', date: '2026-05-21', name: 'KEERTHANA W/O SURYA', age: '27 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543214', address: '14 Park St', city: 'Chennai', session: 'evening', bp: '118/78', temp: '98.6', pulse: '72', spo2: '99', complaints: 'General weakness' },
+  { uhid: '3490', patientId: '1210', rchId: 'RCH-001', aadharNumber: '9876 5432 1098', date: '2026-05-21', name: 'JAYA SUDHA W/O RAMESH', age: '29 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543210', address: '12 Main St', city: 'Chennai', session: 'morning', bp: '120/80', temp: '98.6', pulse: '72', spo2: '99', complaints: 'Routine ANC checkup' },
+  { uhid: '3491', patientId: '1211', rchId: 'RCH-002', aadharNumber: '8765 4321 0987', date: '2026-05-21', name: 'DEEPIKA W/O KANAN', age: '26 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '', address: '45 Cross Rd', city: 'Chennai', session: 'morning', bp: '110/70', temp: '98.4', pulse: '76', spo2: '98', complaints: 'Nausea & fever' },
+  { uhid: '3492', patientId: '1212', rchId: 'RCH-003', aadharNumber: '7654 3210 9876', date: '2026-05-21', name: 'MUNESHWARI W/O SEKAR', age: '21 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543212', address: '8 Gandhi St', city: 'Chennai', session: 'morning', bp: '115/75', temp: '98.6', pulse: '74', spo2: '99', complaints: 'Headache' },
+  { uhid: '3493', patientId: '1213', rchId: 'RCH-004', aadharNumber: '6543 2109 8765', date: '2026-05-21', name: 'KALAIVANI W/O MANI', age: '30 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543213', address: '99 North Ave', city: 'Chennai', session: 'evening', bp: '122/82', temp: '99.0', pulse: '80', spo2: '97', complaints: 'Back ache' },
+  { uhid: '3494', patientId: '1214', rchId: 'RCH-005', aadharNumber: '5432 1098 7654', date: '2026-05-21', name: 'KEERTHANA W/O SURYA', age: '27 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543214', address: '14 Park St', city: 'Chennai', session: 'evening', bp: '118/78', temp: '98.6', pulse: '72', spo2: '99', complaints: 'General weakness' },
 ];
 
 const OpdRegistration: React.FC = () => {
@@ -49,6 +50,7 @@ const OpdRegistration: React.FC = () => {
   const [session, setSession] = useState('morning');
   const [patientId, setPatientId] = useState('1217');
   const [rchId, setRchId] = useState('');
+  const [aadharNumber, setAadharNumber] = useState('');
   const [titlePrefix, setTitlePrefix] = useState('mrs');
   const [patientName, setPatientName] = useState('');
   const [age, setAge] = useState('');
@@ -76,10 +78,85 @@ const OpdRegistration: React.FC = () => {
   const [toDate, setToDate] = useState('2026-05-21');
   const [filteredOpdList, setFilteredOpdList] = useState<OpdRecord[]>(INITIAL_OPD_RECORDS);
 
+  // Patient Name Dropdown State
+  const [showNameDropdown, setShowNameDropdown] = useState(false);
+  const nameDropdownRef = useRef<HTMLDivElement>(null);
+
   // Modals state
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<string[]>(['Blood_Report_3490.pdf', 'Scan_Report_3490.png']);
+
+  // Collect previous patient records for suggestions dropdown
+  const previousPatients = useMemo(() => {
+    const map = new Map<string, any>();
+    patients.forEach(p => {
+      if (p.name) {
+        map.set(p.name.toLowerCase().trim(), {
+          uhid: p.uhid,
+          patientId: p.patientId,
+          rchId: '',
+          aadharNumber: p.aadharNumber || '',
+          name: p.name,
+          age: p.age,
+          gender: p.sex,
+          phone: p.phone,
+          doc: p.preferredDoctor,
+          address: '12 Main St',
+          city: 'Chennai',
+          bp: p.bloodPressure,
+          pulse: p.pulseRate,
+          weight: p.weight,
+        });
+      }
+    });
+    opdList.forEach(o => {
+      if (o.name) {
+        map.set(o.name.toLowerCase().trim(), {
+          uhid: o.uhid,
+          patientId: o.patientId,
+          rchId: o.rchId,
+          aadharNumber: o.aadharNumber || '',
+          name: o.name,
+          age: o.age,
+          gender: o.gender,
+          phone: o.phone,
+          doc: o.doc,
+          address: o.address,
+          city: o.city,
+          bp: o.bp,
+          temp: o.temp,
+          pulse: o.pulse,
+          spo2: o.spo2,
+          complaints: o.complaints
+        });
+      }
+    });
+    return Array.from(map.values());
+  }, [patients, opdList]);
+
+  const filteredPreviousPatients = useMemo(() => {
+    if (!patientName.trim()) return previousPatients;
+    const query = patientName.toLowerCase().trim();
+    return previousPatients.filter(p =>
+      p.name.toLowerCase().includes(query) ||
+      (p.uhid && p.uhid.toLowerCase().includes(query)) ||
+      (p.patientId && p.patientId.toLowerCase().includes(query)) ||
+      (p.rchId && p.rchId.toLowerCase().includes(query)) ||
+      (p.aadharNumber && p.aadharNumber.includes(query)) ||
+      (p.phone && p.phone.includes(query))
+    );
+  }, [previousPatients, patientName]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (nameDropdownRef.current && !nameDropdownRef.current.contains(event.target as Node)) {
+        setShowNameDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Handle Search buttons
   const handleSearchPatientId = () => {
@@ -99,6 +176,22 @@ const OpdRegistration: React.FC = () => {
       alert(`Patient found: ${found.name}`);
     } else {
       alert(`No patient found with RCH ID: ${rchId}`);
+    }
+  };
+
+  const handleSearchAadhar = () => {
+    const cleanTerm = aadharNumber.replace(/\s+/g, '').toLowerCase();
+    if (!cleanTerm) {
+      alert('Please enter an Aadhar Number to search.');
+      return;
+    }
+    const found = patients.find(p => p.aadharNumber && p.aadharNumber.replace(/\s+/g, '').toLowerCase().includes(cleanTerm)) || 
+                  opdList.find(o => o.aadharNumber && o.aadharNumber.replace(/\s+/g, '').toLowerCase().includes(cleanTerm));
+    if (found) {
+      populateFormFromRecord(found);
+      alert(`Patient found: ${found.name}`);
+    } else {
+      alert(`No patient found with Aadhar Number: ${aadharNumber}`);
     }
   };
 
@@ -128,6 +221,7 @@ const OpdRegistration: React.FC = () => {
     setUhid(rec.uhid || rec.patientUhid || '3499');
     setPatientId(rec.patientId || '1218');
     setRchId(rec.rchId || '');
+    setAadharNumber(rec.aadharNumber || rec.aadharNo || '');
     setPatientName(rec.name || rec.patientName || '');
     setAge(rec.age || '');
     setGender(rec.gender?.toLowerCase() || rec.sex?.toLowerCase() || 'female');
@@ -169,6 +263,7 @@ const OpdRegistration: React.FC = () => {
       uhid: uhid || `OP-${Date.now().toString().slice(-4)}`,
       patientId: patientId || `PT-${Date.now().toString().slice(-3)}`,
       rchId: rchId || 'RCH-NEW',
+      aadharNumber: aadharNumber || '',
       date: new Date().toISOString().split('T')[0],
       name: formattedName,
       age: age ? `${age} Yrs` : '25 Yrs',
@@ -207,6 +302,7 @@ const OpdRegistration: React.FC = () => {
       bloodPressure: bp || '120/80',
       phone: contact1 || '9876543210',
       preferredDoctor: doctorName,
+      aadharNumber: aadharNumber,
       history: []
     });
 
@@ -248,6 +344,7 @@ const OpdRegistration: React.FC = () => {
     setUhid((Math.floor(Math.random() * 9000) + 1000).toString());
     setPatientId((Math.floor(Math.random() * 9000) + 1000).toString());
     setRchId('');
+    setAadharNumber('');
     setPatientName('');
     setAge('');
     setAddress('');
@@ -340,6 +437,21 @@ const OpdRegistration: React.FC = () => {
           </div>
 
           <div className="form-group">
+            <label>Aadhar No</label>
+            <div className="input-container">
+              <input 
+                type="text" 
+                className="form-control" 
+                placeholder="Enter 12-digit Aadhar No" 
+                maxLength={14}
+                value={aadharNumber} 
+                onChange={(e) => setAadharNumber(e.target.value)} 
+              />
+              <button className="search-btn" type="button" onClick={handleSearchAadhar}>Search</button>
+            </div>
+          </div>
+
+          <div className="form-group">
             <label>Patient Name</label>
             <div className="input-container">
               <select className="form-control" style={{ width: '30%' }} value={titlePrefix} onChange={(e) => setTitlePrefix(e.target.value)}>
@@ -347,7 +459,53 @@ const OpdRegistration: React.FC = () => {
                 <option value="ms">Ms.</option>
                 <option value="mrs">Mrs.</option>
               </select>
-              <input type="text" className="form-control" placeholder="Full Patient Name" value={patientName} onChange={(e) => setPatientName(e.target.value)} />
+              <div style={{ flex: 1, position: 'relative' }} ref={nameDropdownRef}>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  placeholder="Full Patient Name" 
+                  value={patientName} 
+                  onChange={(e) => {
+                    setPatientName(e.target.value);
+                    setShowNameDropdown(true);
+                  }}
+                  onFocus={() => setShowNameDropdown(true)}
+                  list="opd-patient-names-datalist"
+                  autoComplete="off"
+                />
+                <datalist id="opd-patient-names-datalist">
+                  {previousPatients.map((p, idx) => (
+                    <option key={idx} value={p.name}>
+                      {p.uhid ? `UHID: ${p.uhid} | Phone: ${p.phone || 'N/A'}` : p.phone || ''}
+                    </option>
+                  ))}
+                </datalist>
+
+                {showNameDropdown && filteredPreviousPatients.length > 0 && (
+                  <div className="patient-name-dropdown">
+                    <div className="dropdown-header">Previous Patients ({filteredPreviousPatients.length})</div>
+                    {filteredPreviousPatients.map((p, idx) => (
+                      <div
+                        key={idx}
+                        className="dropdown-item"
+                        onClick={() => {
+                          populateFormFromRecord(p);
+                          setShowNameDropdown(false);
+                        }}
+                      >
+                        <div className="patient-item-name">{p.name}</div>
+                        <div className="patient-item-details">
+                          {p.uhid && <span className="badge-uhid">UHID: {p.uhid}</span>}
+                          {p.patientId && <span className="badge-id">ID: {p.patientId}</span>}
+                          {p.aadharNumber && <span className="badge-id">Aadhar: {p.aadharNumber}</span>}
+                          {p.phone && <span>Ph: {p.phone}</span>}
+                          {p.age && <span>Age: {p.age}</span>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <button className="search-btn" type="button" onClick={handleSearchName}>Search</button>
             </div>
           </div>
@@ -419,6 +577,7 @@ const OpdRegistration: React.FC = () => {
                 <tr>
                   <th>OPUHID</th>
                   <th>RCH ID</th>
+                  <th>Aadhar No</th>
                   <th>OP Date</th>
                   <th>Patient Name</th>
                   <th>Age</th>
@@ -439,6 +598,7 @@ const OpdRegistration: React.FC = () => {
                   >
                     <td>{row.uhid}</td>
                     <td>{row.rchId}</td>
+                    <td>{row.aadharNumber || '-'}</td>
                     <td>{row.date}</td>
                     <td>{row.name}</td>
                     <td>{row.age}</td>
@@ -458,6 +618,17 @@ const OpdRegistration: React.FC = () => {
           
           <div className="section-header" style={{marginBottom: '12px'}}>Personal Details</div>
           <div className="new-patient-grid">
+            <div className="np-group">
+              <label>Aadhar Number</label>
+              <input 
+                type="text" 
+                className="form-control" 
+                placeholder="12-digit Aadhar No" 
+                maxLength={14}
+                value={aadharNumber} 
+                onChange={(e) => setAadharNumber(e.target.value)} 
+              />
+            </div>
             <div className="np-group"><label>Husband/Father's Name</label><input type="text" className="form-control" /></div>
             <div className="np-group"><label>Education</label><input type="text" className="form-control" /></div>
             <div className="np-group"><label>Job</label><input type="text" className="form-control" /></div>
@@ -638,6 +809,7 @@ const OpdRegistration: React.FC = () => {
               <div><strong>Patient Name:</strong> {activeRecord.name}</div>
               <div><strong>Age / Sex:</strong> {activeRecord.age} / {activeRecord.gender}</div>
               <div><strong>RCH ID:</strong> {activeRecord.rchId}</div>
+              <div><strong>Aadhar No:</strong> {activeRecord.aadharNumber || 'N/A'}</div>
               <div><strong>Ref. Doctor:</strong> {activeRecord.doc}</div>
               <div><strong>Contact:</strong> {activeRecord.phone}</div>
               <div><strong>Session:</strong> {activeRecord.session.toUpperCase()}</div>

@@ -21,6 +21,7 @@ export interface Patient {
   bloodPressure: string;
   phone: string;
   preferredDoctor: string;
+  aadharNumber?: string;
   history: PatientHistory[];
 }
 
@@ -55,7 +56,58 @@ export interface ScanRequest {
   scanType: string;
   date: string;
   status: 'Pending' | 'Completed';
+  reportFile?: string;
+  findings?: string;
+  radiologist?: string;
+  amount?: number;
 }
+
+const INITIAL_SCAN_REQUESTS: ScanRequest[] = [
+  {
+    id: 'SCN-101',
+    patientName: 'JAYA SUDHA W/O RAMESH',
+    uhid: '3490',
+    scanType: 'Obstetric Anomaly USG Scan',
+    date: '2026-08-09',
+    status: 'Pending',
+    radiologist: 'Dr. G. Srijaya',
+    amount: 2500
+  },
+  {
+    id: 'SCN-102',
+    patientName: 'DEEPIKA W/O KANAN',
+    uhid: '3491',
+    scanType: 'Abdomen & Pelvis USG Scan',
+    date: '2026-08-09',
+    status: 'Completed',
+    reportFile: 'USG_Pelvis_Report_3491.pdf',
+    findings: 'Single live intrauterine gestation of ~28 weeks. Normal fetal cardiac activity & liquor volume.',
+    radiologist: 'Dr. G. Srijaya',
+    amount: 1800
+  },
+  {
+    id: 'SCN-103',
+    patientName: 'MUNESHWARI W/O SEKAR',
+    uhid: '3492',
+    scanType: 'Fetal Echocardiography',
+    date: '2026-08-08',
+    status: 'Completed',
+    reportFile: 'Fetal_Echo_Report_3492.pdf',
+    findings: 'Normal 4-chamber cardiac view. No obvious congenital structural heart anomaly detected.',
+    radiologist: 'Dr. G. Srijaya',
+    amount: 3200
+  },
+  {
+    id: 'SCN-104',
+    patientName: 'KALAIVANI W/O MANI',
+    uhid: '3493',
+    scanType: 'Transvaginal Scan (TVS)',
+    date: '2026-08-08',
+    status: 'Pending',
+    radiologist: 'Dr. G. Srijaya',
+    amount: 1500
+  }
+];
 
 // --- Dummy Database ---
 const DUMMY_PATIENTS: Patient[] = [
@@ -144,6 +196,8 @@ interface HospitalContextType {
   markPrescriptionComplete: (id: string) => void;
   markLabComplete: (id: string) => void;
   markScanComplete: (id: string) => void;
+  addScanRequest: (scan: ScanRequest) => void;
+  updateScanReport: (id: string, reportFile: string, findings: string, radiologist?: string) => void;
   addOrUpdateDoctor: (doctor: DoctorItem) => void;
   deleteDoctor: (id: string) => void;
   openDoctorListModal: () => void;
@@ -156,7 +210,7 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
   const [patients, setPatients] = useState<Patient[]>(DUMMY_PATIENTS);
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [labRequests, setLabRequests] = useState<LabRequest[]>([]);
-  const [scanRequests, setScanRequests] = useState<ScanRequest[]>([]);
+  const [scanRequests, setScanRequests] = useState<ScanRequest[]>(INITIAL_SCAN_REQUESTS);
   const [doctors, setDoctors] = useState<DoctorItem[]>(INITIAL_DOCTORS);
   const [isDoctorListOpen, setIsDoctorListOpen] = useState(false);
 
@@ -316,6 +370,24 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
     setScanRequests(prev => prev.map(s => s.id === id ? { ...s, status: 'Completed' } : s));
   };
 
+  const addScanRequest = (scan: ScanRequest) => {
+    setScanRequests(prev => [scan, ...prev]);
+  };
+
+  const updateScanReport = (id: string, reportFile: string, findings: string, radiologist?: string) => {
+    setScanRequests(prev => prev.map(s => 
+      s.id === id 
+        ? { 
+            ...s, 
+            status: 'Completed', 
+            reportFile: reportFile || s.reportFile || 'Scan_Report.pdf', 
+            findings: findings || s.findings || '', 
+            radiologist: radiologist || s.radiologist || 'Dr. G. Srijaya' 
+          } 
+        : s
+    ));
+  };
+
   return (
     <HospitalContext.Provider value={{
       patients,
@@ -330,6 +402,8 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
       markPrescriptionComplete,
       markLabComplete,
       markScanComplete,
+      addScanRequest,
+      updateScanReport,
       addOrUpdateDoctor,
       deleteDoctor,
       openDoctorListModal,
