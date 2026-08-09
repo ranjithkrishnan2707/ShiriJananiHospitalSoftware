@@ -29,12 +29,14 @@ export interface OpdRecord {
   complaints?: string;
 }
 
+const getTodayStr = () => new Date().toISOString().split('T')[0];
+
 const INITIAL_OPD_RECORDS: OpdRecord[] = [
-  { uhid: '3490', patientId: '1210', rchId: 'RCH-001', aadharNumber: '9876 5432 1098', date: '2026-05-21', name: 'JAYA SUDHA W/O RAMESH', age: '29 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543210', address: '12 Main St', city: 'Chennai', session: 'morning', bp: '120/80', temp: '98.6', pulse: '72', spo2: '99', complaints: 'Routine ANC checkup' },
-  { uhid: '3491', patientId: '1211', rchId: 'RCH-002', aadharNumber: '8765 4321 0987', date: '2026-05-21', name: 'DEEPIKA W/O KANAN', age: '26 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '', address: '45 Cross Rd', city: 'Chennai', session: 'morning', bp: '110/70', temp: '98.4', pulse: '76', spo2: '98', complaints: 'Nausea & fever' },
-  { uhid: '3492', patientId: '1212', rchId: 'RCH-003', aadharNumber: '7654 3210 9876', date: '2026-05-21', name: 'MUNESHWARI W/O SEKAR', age: '21 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543212', address: '8 Gandhi St', city: 'Chennai', session: 'morning', bp: '115/75', temp: '98.6', pulse: '74', spo2: '99', complaints: 'Headache' },
-  { uhid: '3493', patientId: '1213', rchId: 'RCH-004', aadharNumber: '6543 2109 8765', date: '2026-05-21', name: 'KALAIVANI W/O MANI', age: '30 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543213', address: '99 North Ave', city: 'Chennai', session: 'evening', bp: '122/82', temp: '99.0', pulse: '80', spo2: '97', complaints: 'Back ache' },
-  { uhid: '3494', patientId: '1214', rchId: 'RCH-005', aadharNumber: '5432 1098 7654', date: '2026-05-21', name: 'KEERTHANA W/O SURYA', age: '27 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543214', address: '14 Park St', city: 'Chennai', session: 'evening', bp: '118/78', temp: '98.6', pulse: '72', spo2: '99', complaints: 'General weakness' },
+  { uhid: '3490', patientId: '1210', rchId: 'RCH-001', aadharNumber: '9876 5432 1098', date: getTodayStr(), name: 'JAYA SUDHA W/O RAMESH', age: '29 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543210', address: '12 Main St', city: 'Chennai', session: 'morning', bp: '120/80', temp: '98.6', pulse: '72', spo2: '99', complaints: 'Routine ANC checkup' },
+  { uhid: '3491', patientId: '1211', rchId: 'RCH-002', aadharNumber: '8765 4321 0987', date: getTodayStr(), name: 'DEEPIKA W/O KANAN', age: '26 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '', address: '45 Cross Rd', city: 'Chennai', session: 'morning', bp: '110/70', temp: '98.4', pulse: '76', spo2: '98', complaints: 'Nausea & fever' },
+  { uhid: '3492', patientId: '1212', rchId: 'RCH-003', aadharNumber: '7654 3210 9876', date: getTodayStr(), name: 'MUNESHWARI W/O SEKAR', age: '21 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543212', address: '8 Gandhi St', city: 'Chennai', session: 'morning', bp: '115/75', temp: '98.6', pulse: '74', spo2: '99', complaints: 'Headache' },
+  { uhid: '3493', patientId: '1213', rchId: 'RCH-004', aadharNumber: '6543 2109 8765', date: getTodayStr(), name: 'KALAIVANI W/O MANI', age: '30 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543213', address: '99 North Ave', city: 'Chennai', session: 'evening', bp: '122/82', temp: '99.0', pulse: '80', spo2: '97', complaints: 'Back ache' },
+  { uhid: '3494', patientId: '1214', rchId: 'RCH-005', aadharNumber: '5432 1098 7654', date: getTodayStr(), name: 'KEERTHANA W/O SURYA', age: '27 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543214', address: '14 Park St', city: 'Chennai', session: 'evening', bp: '118/78', temp: '98.6', pulse: '72', spo2: '99', complaints: 'General weakness' },
 ];
 
 const OpdRegistration: React.FC = () => {
@@ -74,8 +76,8 @@ const OpdRegistration: React.FC = () => {
   const [complaints, setComplaints] = useState('');
 
   // Table Date Filter State
-  const [fromDate, setFromDate] = useState('2026-05-21');
-  const [toDate, setToDate] = useState('2026-05-21');
+  const [fromDate, setFromDate] = useState(getTodayStr());
+  const [toDate, setToDate] = useState(getTodayStr());
   const [filteredOpdList, setFilteredOpdList] = useState<OpdRecord[]>(INITIAL_OPD_RECORDS);
 
   // Patient Name Dropdown State

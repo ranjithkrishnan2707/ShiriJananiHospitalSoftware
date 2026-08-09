@@ -18,19 +18,21 @@ interface BillItem {
   paymentMode: 'Cash' | 'Card' | 'UPI' | 'GPay';
 }
 
+const getTodayStr = () => new Date().toISOString().split('T')[0];
+
 const INITIAL_BILLS: BillItem[] = [
-  { bNo: 'OPB-101', bDate: '2026-05-21', ophuid: '3490', pName: 'JAYA SUDHA', age: '29 Yrs', refDoc: 'Dr. G. Srijaya', gross: 500, discount: 0, total: 500, cashAmount: 500, gpayAmount: 0, paymentMode: 'Cash' },
-  { bNo: 'OPB-102', bDate: '2026-05-21', ophuid: '3491', pName: 'DEEPIKA', age: '26 Yrs', refDoc: 'Dr. G. Srijaya', gross: 750, discount: 50, total: 700, cashAmount: 0, gpayAmount: 700, paymentMode: 'GPay' },
-  { bNo: 'OPB-103', bDate: '2026-05-21', ophuid: '3492', pName: 'MUNESHWARI', age: '21 Yrs', refDoc: 'Dr. Sarah Jenkins', gross: 600, discount: 0, total: 600, cashAmount: 600, gpayAmount: 0, paymentMode: 'Cash' },
-  { bNo: 'OPB-104', bDate: '2026-05-21', ophuid: '3493', pName: 'KALAIVANI', age: '30 Yrs', refDoc: 'Dr. Rajiv Menon', gross: 1200, discount: 100, total: 1100, cashAmount: 0, gpayAmount: 1100, paymentMode: 'GPay' },
-  { bNo: 'OPB-105', bDate: '2026-05-21', ophuid: '3494', pName: 'KEERTHANA', age: '27 Yrs', refDoc: 'Dr. G. Srijaya', gross: 500, discount: 0, total: 500, cashAmount: 500, gpayAmount: 0, paymentMode: 'Cash' },
+  { bNo: 'OPB-101', bDate: getTodayStr(), ophuid: '3490', pName: 'JAYA SUDHA', age: '29 Yrs', refDoc: 'Dr. G. Srijaya', gross: 500, discount: 0, total: 500, cashAmount: 500, gpayAmount: 0, paymentMode: 'Cash' },
+  { bNo: 'OPB-102', bDate: getTodayStr(), ophuid: '3491', pName: 'DEEPIKA', age: '26 Yrs', refDoc: 'Dr. G. Srijaya', gross: 750, discount: 50, total: 700, cashAmount: 0, gpayAmount: 700, paymentMode: 'GPay' },
+  { bNo: 'OPB-103', bDate: getTodayStr(), ophuid: '3492', pName: 'MUNESHWARI', age: '21 Yrs', refDoc: 'Dr. Sarah Jenkins', gross: 600, discount: 0, total: 600, cashAmount: 600, gpayAmount: 0, paymentMode: 'Cash' },
+  { bNo: 'OPB-104', bDate: getTodayStr(), ophuid: '3493', pName: 'KALAIVANI', age: '30 Yrs', refDoc: 'Dr. Rajiv Menon', gross: 1200, discount: 100, total: 1100, cashAmount: 0, gpayAmount: 1100, paymentMode: 'GPay' },
+  { bNo: 'OPB-105', bDate: getTodayStr(), ophuid: '3494', pName: 'KEERTHANA', age: '27 Yrs', refDoc: 'Dr. G. Srijaya', gross: 500, discount: 0, total: 500, cashAmount: 500, gpayAmount: 0, paymentMode: 'Cash' },
 ];
 
 const OpBillReport: React.FC = () => {
   const navigate = useNavigate();
   const [reportType, setReportType] = useState('ALL');
-  const [fromDate, setFromDate] = useState('2026-05-21');
-  const [toDate, setToDate] = useState('2026-05-21');
+  const [fromDate, setFromDate] = useState(getTodayStr());
+  const [toDate, setToDate] = useState(getTodayStr());
   const [selectedDoctor, setSelectedDoctor] = useState('');
   
   const [bills] = useState<BillItem[]>(INITIAL_BILLS);

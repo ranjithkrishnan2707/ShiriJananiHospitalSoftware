@@ -224,7 +224,7 @@ const IpdDischargeSummary: React.FC = () => {
       <div className="grid-2-col">
         <div className="discharge-form-group">
           <label>DATE AND TIME</label>
-          <input type="datetime-local" defaultValue="2026-05-18T10:30" />
+          <input type="datetime-local" defaultValue={new Date().toISOString().slice(0, 16)} />
         </div>
         <div className="discharge-form-group">
           <label>BABY CRIED IMMEDIATELY AFTER BIRTH</label>
@@ -345,7 +345,7 @@ const IpdDischargeSummary: React.FC = () => {
 
       <div className="discharge-form-group">
         <label>REVIEW AFTER ONE WEEK ON DATE</label>
-        <input type="date" defaultValue="2026-05-28" style={{ maxWidth: '200px' }} />
+        <input type="date" defaultValue={new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]} style={{ maxWidth: '200px' }} />
       </div>
 
       <div style={{ backgroundColor: '#fef2f2', padding: '16px', borderRadius: '6px', marginTop: '24px', border: '1px solid #fecaca' }}>

@@ -19,8 +19,27 @@ const MedicalDashboard: React.FC = () => {
   // State for active modal dialog
   const [activeModal, setActiveModal] = useState<string | null>(null);
 
+  // Helper functions for dynamic dates
+  const getCurrentFY = () => {
+    const d = new Date();
+    const yr = d.getFullYear();
+    const start = d.getMonth() >= 3 ? yr : yr - 1;
+    return `${start}-${start + 1}`;
+  };
+
+  const getFYList = () => {
+    const d = new Date();
+    const yr = d.getFullYear();
+    const start = d.getMonth() >= 3 ? yr : yr - 1;
+    return [
+      `${start}-${start + 1} (Current Active)`,
+      `${start - 1}-${start}`,
+      `${start - 2}-${start - 1}`
+    ];
+  };
+
   // Form states for modals
-  const [salesYear, setSalesYear] = useState('2026-2027');
+  const [salesYear, setSalesYear] = useState(getCurrentFY());
   const [activeUser, setActiveUser] = useState('Dr. Admin (Pharmacist)');
   const [newSupplierName, setNewSupplierName] = useState('');
   const [newSupplierPhone, setNewSupplierPhone] = useState('');
@@ -155,7 +174,7 @@ const MedicalDashboard: React.FC = () => {
               Select accounting & sales year for pharmacy stock and financial transactions:
             </p>
             <div style={{ display: 'flex', gap: '12px' }}>
-              {['2026-2027 (Current Active)', '2025-2026', '2024-2025'].map(yr => (
+              {getFYList().map(yr => (
                 <button
                   key={yr}
                   className="form-control"

@@ -46,6 +46,19 @@ interface MasterTest {
   unit: string;
   ttype?: string;
   defaultSpecimen?: string;
+  groupName?: string;
+  testName?: string;
+  cost?: number;
+  refValue?: string;
+  specimen?: string;
+}
+
+interface UnifiedMasterTest extends MasterTest {
+  groupName: string;
+  testName: string;
+  cost: number;
+  refValue: string;
+  specimen: string;
 }
 
 interface TestResultItem {
@@ -339,7 +352,7 @@ const LabDashboard: React.FC = () => {
   const { patients, labRequests, markLabComplete, doctors, openDoctorListModal } = useHospital();
 
   // Navigation Sub-Bar & Active Views State
-  const [activeTab, setActiveTab] = useState<'patient-entry' | 'test-entry' | 'test-result' | 'print-result' | 'bill-print' | 'test-group'>('patient-entry');
+  const [activeTab, setActiveTab] = useState<'patient-entry' | 'test-entry' | 'test-result' | 'print-result' | 'bill-print' | 'test-group' | 'test-wise-report'>('patient-entry');
   const [showSearchModal, setShowSearchModal] = useState(false);
 
   // --- COMPANY DROPDOWN STATE ---
@@ -449,24 +462,21 @@ const LabDashboard: React.FC = () => {
   const [masterTests, setMasterTests] = useState<MasterTest[]>(DEFAULT_MASTER_TESTS);
 
   const allMasterTestItems = useMemo(() => {
-    const list: {
-      id: string;
-      groupName: string;
-      testName: string;
-      unit: string;
-      specimen: string;
-      cost: number;
-      refValue: string;
-    }[] = [];
+    const list: UnifiedMasterTest[] = [];
 
     if (testNameGrid) {
       testNameGrid.forEach(t => {
         list.push({
           id: t.id,
+          name: t.testName,
+          category: t.groupName,
+          price: t.cost,
+          normalRange: t.refValue || t.maleNormal || 'Normal',
+          unit: t.unit || '-',
           groupName: t.groupName,
           testName: t.testName,
-          unit: t.unit || '-',
           specimen: t.specimen || 'EDTA Blood / Serum',
+          defaultSpecimen: t.specimen || 'EDTA Blood / Serum',
           cost: t.cost,
           refValue: t.refValue || t.maleNormal || 'Normal'
         });
@@ -475,13 +485,19 @@ const LabDashboard: React.FC = () => {
 
     if (masterTests) {
       masterTests.forEach(m => {
-        const exists = list.some(l => l.testName.toLowerCase() === m.name.toLowerCase());
+        const exists = list.some(l => (l.testName || l.name).toLowerCase() === m.name.toLowerCase());
         if (!exists) {
           list.push({
             id: m.id,
+            name: m.name,
+            category: m.category,
+            price: m.price,
+            normalRange: m.normalRange,
+            unit: m.unit || '-',
+            ttype: m.ttype,
+            defaultSpecimen: m.defaultSpecimen,
             groupName: m.category.toUpperCase(),
             testName: m.name,
-            unit: m.unit || '-',
             specimen: m.defaultSpecimen || 'Blood / Serum',
             cost: m.price,
             refValue: m.normalRange || 'Normal'
@@ -4027,11 +4043,11 @@ const LabDashboard: React.FC = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <label style={{ fontSize: '12px', fontWeight: 800 }}>From</label>
-                    <input type="date" className="form-control-desktop" style={{ width: '130px', padding: '2px 6px' }} value={bvFromDate} onChange={e => setbvFromDate(e.target.value)} />
+                    <input type="date" className="form-control-desktop" style={{ width: '130px', padding: '2px 6px' }} value={bvFromDate} onChange={e => setBvFromDate(e.target.value)} />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <label style={{ fontSize: '12px', fontWeight: 800 }}>To</label>
-                    <input type="date" className="form-control-desktop" style={{ width: '130px', padding: '2px 6px' }} value={bvToDate} onChange={e => setbvToDate(e.target.value)} />
+                    <input type="date" className="form-control-desktop" style={{ width: '130px', padding: '2px 6px' }} value={bvToDate} onChange={e => setBvToDate(e.target.value)} />
                   </div>
                 </div>
 

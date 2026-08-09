@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 // --- Types ---
 export interface PatientHistory {
@@ -62,13 +62,20 @@ export interface ScanRequest {
   amount?: number;
 }
 
+const getTodayStr = () => new Date().toISOString().split('T')[0];
+const getDaysAgoStr = (daysAgo: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  return d.toISOString().split('T')[0];
+};
+
 const INITIAL_SCAN_REQUESTS: ScanRequest[] = [
   {
     id: 'SCN-101',
     patientName: 'JAYA SUDHA W/O RAMESH',
     uhid: '3490',
     scanType: 'Obstetric Anomaly USG Scan',
-    date: '2026-08-09',
+    date: getTodayStr(),
     status: 'Pending',
     radiologist: 'Dr. G. Srijaya',
     amount: 2500
@@ -78,7 +85,7 @@ const INITIAL_SCAN_REQUESTS: ScanRequest[] = [
     patientName: 'DEEPIKA W/O KANAN',
     uhid: '3491',
     scanType: 'Abdomen & Pelvis USG Scan',
-    date: '2026-08-09',
+    date: getTodayStr(),
     status: 'Completed',
     reportFile: 'USG_Pelvis_Report_3491.pdf',
     findings: 'Single live intrauterine gestation of ~28 weeks. Normal fetal cardiac activity & liquor volume.',
@@ -90,7 +97,7 @@ const INITIAL_SCAN_REQUESTS: ScanRequest[] = [
     patientName: 'MUNESHWARI W/O SEKAR',
     uhid: '3492',
     scanType: 'Fetal Echocardiography',
-    date: '2026-08-08',
+    date: getDaysAgoStr(1),
     status: 'Completed',
     reportFile: 'Fetal_Echo_Report_3492.pdf',
     findings: 'Normal 4-chamber cardiac view. No obvious congenital structural heart anomaly detected.',
@@ -102,7 +109,7 @@ const INITIAL_SCAN_REQUESTS: ScanRequest[] = [
     patientName: 'KALAIVANI W/O MANI',
     uhid: '3493',
     scanType: 'Transvaginal Scan (TVS)',
-    date: '2026-08-08',
+    date: getDaysAgoStr(1),
     status: 'Pending',
     radiologist: 'Dr. G. Srijaya',
     amount: 1500
@@ -125,7 +132,7 @@ const DUMMY_PATIENTS: Patient[] = [
     history: [
       {
         id: 'H1',
-        date: '2026-06-10',
+        date: getDaysAgoStr(60),
         diagnosis: 'Mild Hypertension',
         prescription: 'Amlodipine 5mg OD',
         labRequest: 'Lipid Profile',
@@ -147,7 +154,7 @@ const DUMMY_PATIENTS: Patient[] = [
     history: [
       {
         id: 'H2',
-        date: '2026-07-01',
+        date: getDaysAgoStr(30),
         diagnosis: 'Migraine',
         prescription: 'Sumatriptan 50mg PRN',
         labRequest: '',
@@ -217,6 +224,29 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
   const openDoctorListModal = () => setIsDoctorListOpen(true);
   const closeDoctorListModal = () => setIsDoctorListOpen(false);
 
+  useEffect(() => {
+    const fetchApiData = async () => {
+      try {
+        const [patRes, docRes, scnRes, rxRes, labRes] = await Promise.allSettled([
+          fetch('http://localhost:5000/api/patients').then(r => r.ok ? r.json() : null),
+          fetch('http://localhost:5000/api/doctors').then(r => r.ok ? r.json() : null),
+          fetch('http://localhost:5000/api/scan').then(r => r.ok ? r.json() : null),
+          fetch('http://localhost:5000/api/prescriptions').then(r => r.ok ? r.json() : null),
+          fetch('http://localhost:5000/api/lab').then(r => r.ok ? r.json() : null)
+        ]);
+
+        if (patRes.status === 'fulfilled' && patRes.value && patRes.value.length > 0) setPatients(patRes.value);
+        if (docRes.status === 'fulfilled' && docRes.value && docRes.value.length > 0) setDoctors(docRes.value);
+        if (scnRes.status === 'fulfilled' && scnRes.value && scnRes.value.length > 0) setScanRequests(scnRes.value);
+        if (rxRes.status === 'fulfilled' && rxRes.value && rxRes.value.length > 0) setPrescriptions(rxRes.value);
+        if (labRes.status === 'fulfilled' && labRes.value && labRes.value.length > 0) setLabRequests(labRes.value);
+      } catch (err) {
+        console.log('MySQL API fetch fallback:', err);
+      }
+    };
+    fetchApiData();
+  }, []);
+
   const addOrUpdateDoctor = (doc: DoctorItem) => {
     setDoctors(prev => {
       const idx = prev.findIndex(d => d.id === doc.id);
@@ -227,10 +257,18 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
       }
       return [...prev, doc];
     });
+
+    fetch('http://localhost:5000/api/doctors', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(doc)
+    }).catch(err => console.error('MySQL Save Doctor Error:', err));
   };
 
   const deleteDoctor = (id: string) => {
     setDoctors(prev => prev.filter(d => d.id !== id));
+    fetch(`http://localhost:5000/api/doctors/${id}`, { method: 'DELETE' })
+      .catch(err => console.error('MySQL Delete Doctor Error:', err));
   };
 
   const addOrUpdatePatient = (patient: Patient) => {
@@ -243,10 +281,18 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
       }
       return [patient, ...prev];
     });
+
+    fetch('http://localhost:5000/api/patients', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patient)
+    }).catch(err => console.error('MySQL Save Patient Error:', err));
   };
 
   const deletePatient = (uhid: string) => {
     setPatients(prev => prev.filter(p => p.uhid !== uhid));
+    fetch(`http://localhost:5000/api/patients/${uhid}`, { method: 'DELETE' })
+      .catch(err => console.error('MySQL Delete Patient Error:', err));
   };
 
   const addConsultation = (
@@ -372,6 +418,11 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
 
   const addScanRequest = (scan: ScanRequest) => {
     setScanRequests(prev => [scan, ...prev]);
+    fetch('http://localhost:5000/api/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(scan)
+    }).catch(err => console.error('MySQL Add Scan Error:', err));
   };
 
   const updateScanReport = (id: string, reportFile: string, findings: string, radiologist?: string) => {
@@ -386,6 +437,11 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
           } 
         : s
     ));
+    fetch(`http://localhost:5000/api/scan/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reportFile, findings, radiologist })
+    }).catch(err => console.error('MySQL Update Scan Report Error:', err));
   };
 
   return (

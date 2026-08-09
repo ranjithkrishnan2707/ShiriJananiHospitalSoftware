@@ -22,8 +22,9 @@ const ExpenseReportsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ReportTabType>('monthly');
 
   // Filter parameters
-  const [selectedMonth, setSelectedMonth] = useState<number>(8); // August (1-indexed: 8)
-  const [selectedYear, setSelectedYear] = useState<number>(2026);
+  const currentYr = new Date().getFullYear();
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState<number>(currentYr);
   const [selectedDept, setSelectedDept] = useState<string>('ALL');
   const [selectedCat, setSelectedCat] = useState<string>('ALL');
 
@@ -198,8 +199,9 @@ const ExpenseReportsPage: React.FC = () => {
               value={selectedYear}
               onChange={(e) => setSelectedYear(parseInt(e.target.value, 10))}
             >
-              <option value={2026}>2026</option>
-              <option value={2025}>2025</option>
+              <option value={currentYr}>{currentYr}</option>
+              <option value={currentYr - 1}>{currentYr - 1}</option>
+              <option value={currentYr - 2}>{currentYr - 2}</option>
             </select>
           </div>
 

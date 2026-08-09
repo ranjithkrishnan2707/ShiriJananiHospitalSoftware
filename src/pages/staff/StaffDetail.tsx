@@ -161,10 +161,23 @@ const generateMonthLogs = (year: number, monthIdx: number, monthName: string, sh
   };
 };
 
-const JULY_2026 = generateMonthLogs(2026, 6, 'July 2026', 'Morning');
-const JUNE_2026 = generateMonthLogs(2026, 5, 'June 2026', 'Morning');
-const MAY_2026 = generateMonthLogs(2026, 4, 'May 2026', 'Morning');
-const APRIL_2026 = generateMonthLogs(2026, 3, 'April 2026', 'Morning');
+const currentYr = new Date().getFullYear();
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+const generateRecentMonthLogs = () => {
+  const now = new Date();
+  const logsList = [];
+  for (let i = 0; i < 4; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const yr = d.getFullYear();
+    const mIdx = d.getMonth();
+    const label = `${MONTH_NAMES[mIdx]} ${yr}`;
+    logsList.push(generateMonthLogs(yr, mIdx, label, 'Morning'));
+  }
+  return logsList;
+};
+
+const DYNAMIC_MONTHLY_ATTENDANCE = generateRecentMonthLogs();
 
 const FULL_STAFF_DATABASE: Record<string, DetailedStaffProfile> = {
   'EMP001': {
@@ -198,7 +211,7 @@ const FULL_STAFF_DATABASE: Record<string, DetailedStaffProfile> = {
     avgClockIn: '07:55 AM',
     assignedWard: 'Cath Lab / Cardiology OPD 1',
     licenseNo: 'TN-MED-45892',
-    monthlyAttendance: [JULY_2026, JUNE_2026, MAY_2026, APRIL_2026]
+    monthlyAttendance: DYNAMIC_MONTHLY_ATTENDANCE
   },
   'EMP-001': {
     id: 'EMP-001',
@@ -231,7 +244,7 @@ const FULL_STAFF_DATABASE: Record<string, DetailedStaffProfile> = {
     avgClockIn: '08:05 AM',
     assignedWard: 'Cardiology OPD 2',
     licenseNo: 'TN-MED-56210',
-    monthlyAttendance: [JULY_2026, JUNE_2026, MAY_2026, APRIL_2026]
+    monthlyAttendance: DYNAMIC_MONTHLY_ATTENDANCE
   },
   'EMP002': {
     id: 'EMP002',
@@ -264,7 +277,7 @@ const FULL_STAFF_DATABASE: Record<string, DetailedStaffProfile> = {
     avgClockIn: '09:55 PM',
     assignedWard: 'Main ICU - Bed 1 to 6',
     licenseNo: 'TN-NUR-78120',
-    monthlyAttendance: [JULY_2026, JUNE_2026, MAY_2026, APRIL_2026]
+    monthlyAttendance: DYNAMIC_MONTHLY_ATTENDANCE
   },
   'EMP-002': {
     id: 'EMP-002',
@@ -295,7 +308,7 @@ const FULL_STAFF_DATABASE: Record<string, DetailedStaffProfile> = {
     totalHoursThisMonth: '160 Hours',
     avgClockIn: '07:58 AM',
     assignedWard: 'Emergency Care Unit',
-    monthlyAttendance: [JULY_2026, JUNE_2026, MAY_2026, APRIL_2026]
+    monthlyAttendance: DYNAMIC_MONTHLY_ATTENDANCE
   },
   'EMP003': {
     id: 'EMP003',
@@ -327,7 +340,7 @@ const FULL_STAFF_DATABASE: Record<string, DetailedStaffProfile> = {
     avgClockIn: '08:00 AM',
     assignedWard: 'Central Medical Store',
     licenseNo: 'TN-PHARM-12490',
-    monthlyAttendance: [JULY_2026, JUNE_2026, MAY_2026, APRIL_2026]
+    monthlyAttendance: DYNAMIC_MONTHLY_ATTENDANCE
   },
   'EMP004': {
     id: 'EMP004',
@@ -358,7 +371,7 @@ const FULL_STAFF_DATABASE: Record<string, DetailedStaffProfile> = {
     totalHoursThisMonth: '144 Hours',
     avgClockIn: '01:55 PM',
     assignedWard: 'Main Lobby OPD Help Desk',
-    monthlyAttendance: [JULY_2026, JUNE_2026, MAY_2026, APRIL_2026]
+    monthlyAttendance: DYNAMIC_MONTHLY_ATTENDANCE
   },
   'EMP005': {
     id: 'EMP005',
@@ -389,7 +402,7 @@ const FULL_STAFF_DATABASE: Record<string, DetailedStaffProfile> = {
     totalHoursThisMonth: '172 Hours',
     avgClockIn: '07:50 AM',
     assignedWard: 'Diagnostic Pathology Lab 1',
-    monthlyAttendance: [JULY_2026, JUNE_2026, MAY_2026, APRIL_2026]
+    monthlyAttendance: DYNAMIC_MONTHLY_ATTENDANCE
   },
   'EMP006': {
     id: 'EMP006',
@@ -421,7 +434,7 @@ const FULL_STAFF_DATABASE: Record<string, DetailedStaffProfile> = {
     avgClockIn: '01:50 PM',
     assignedWard: 'Neurology Ward & ER Consultation',
     licenseNo: 'TN-MED-62194',
-    monthlyAttendance: [JULY_2026, JUNE_2026, MAY_2026, APRIL_2026]
+    monthlyAttendance: DYNAMIC_MONTHLY_ATTENDANCE
   },
   'EMP007': {
     id: 'EMP007',
@@ -452,7 +465,7 @@ const FULL_STAFF_DATABASE: Record<string, DetailedStaffProfile> = {
     totalHoursThisMonth: '160 Hours',
     avgClockIn: '08:00 AM',
     assignedWard: 'Administrative Office Floor 2',
-    monthlyAttendance: [JULY_2026, JUNE_2026, MAY_2026, APRIL_2026]
+    monthlyAttendance: DYNAMIC_MONTHLY_ATTENDANCE
   }
 };
 
@@ -494,7 +507,7 @@ const StaffDetail: React.FC = () => {
       totalHoursThisMonth: '160 Hours',
       avgClockIn: '08:00 AM',
       assignedWard: 'General Ward',
-      monthlyAttendance: [JULY_2026, JUNE_2026, MAY_2026, APRIL_2026]
+      monthlyAttendance: DYNAMIC_MONTHLY_ATTENDANCE
     };
 
   const currentMonthData = staff.monthlyAttendance[selectedMonthIndex] || staff.monthlyAttendance[0];
