@@ -472,16 +472,8 @@ const OpdRegistration: React.FC = () => {
                     setShowNameDropdown(true);
                   }}
                   onFocus={() => setShowNameDropdown(true)}
-                  list="opd-patient-names-datalist"
                   autoComplete="off"
                 />
-                <datalist id="opd-patient-names-datalist">
-                  {previousPatients.map((p, idx) => (
-                    <option key={idx} value={p.name}>
-                      {p.uhid ? `UHID: ${p.uhid} | Phone: ${p.phone || 'N/A'}` : p.phone || ''}
-                    </option>
-                  ))}
-                </datalist>
 
                 {showNameDropdown && filteredPreviousPatients.length > 0 && (
                   <div className="patient-name-dropdown">
@@ -490,6 +482,11 @@ const OpdRegistration: React.FC = () => {
                       <div
                         key={idx}
                         className="dropdown-item"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          populateFormFromRecord(p);
+                          setShowNameDropdown(false);
+                        }}
                         onClick={() => {
                           populateFormFromRecord(p);
                           setShowNameDropdown(false);

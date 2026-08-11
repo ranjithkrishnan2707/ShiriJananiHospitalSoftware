@@ -238,10 +238,10 @@ const OpBillReport: React.FC = () => {
                           <button
                             type="button"
                             className="clickable-patient-name-btn"
-                            title="Click to open Test Result page for this patient"
+                            title="Click to view full medical and billing history for this patient"
                             onClick={(e) => {
                               e.stopPropagation();
-                              navigate(`/lab?tab=test-result&patientId=${b.ophuid}&patientName=${encodeURIComponent(b.pName)}`);
+                              navigate(`/doctor/patient-history/${b.ophuid}`);
                             }}
                             style={{
                               background: 'none',

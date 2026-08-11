@@ -36,7 +36,7 @@ const ScanDashboard: React.FC = () => {
   // New Scan Entry Modal Form State
   const [newUhid, setNewUhid] = useState('');
   const [newPatientName, setNewPatientName] = useState('');
-  const [newScanType, setNewScanType] = useState('Abdomen & Pelvis USG Scan');
+  const [newScanType, setNewScanType] = useState('NT SCAN');
   const [newRadiologist, setNewRadiologist] = useState('Dr. G. Srijaya');
   const [newAmount, setNewAmount] = useState('2500');
 
@@ -188,7 +188,7 @@ const ScanDashboard: React.FC = () => {
             type="button" 
             className="btn-view"
             style={{ backgroundColor: '#0284c7', color: 'white', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-            onClick={() => handleOpenUploadModal()}
+            onClick={() => navigate('/scan/upload')}
           >
             <Upload size={16} /> Upload Scan Report
           </button>
@@ -345,7 +345,7 @@ const ScanDashboard: React.FC = () => {
                         {row.status === 'Pending' ? (
                           <button 
                             className="tbl-btn tbl-btn-upload"
-                            onClick={() => handleOpenUploadModal(row)}
+                            onClick={() => navigate('/scan/upload', { state: { scanId: row.id } })}
                             title="Upload Scan Report File"
                           >
                             <Upload size={14} /> Upload Report
@@ -385,7 +385,7 @@ const ScanDashboard: React.FC = () => {
           <div className="card" style={{ width: '650px', padding: '28px', background: 'white', position: 'relative' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #0284c7', paddingBottom: '12px', marginBottom: '20px' }}>
               <h3 style={{ margin: 0, color: '#0284c7', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Upload size={20} /> Upload Diagnostic Scan Report
+                <Upload size={20} /> Upload Scan Report
               </h3>
               <button style={{ background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => setShowUploadModal(false)}>
                 <X size={20} />
@@ -432,15 +432,24 @@ const ScanDashboard: React.FC = () => {
                     value={uploadPatientName} 
                     onChange={(e) => setUploadPatientName(e.target.value)} 
                     placeholder="Enter patient full name"
-                    list="scan-patient-datalist"
                   />
-                  <datalist id="scan-patient-datalist">
-                    {patients.map((p, idx) => (
-                      <option key={idx} value={p.name} onClick={() => handleSelectPatientForUpload(p)}>
-                        UHID: {p.uhid} | Phone: {p.phone}
-                      </option>
-                    ))}
-                  </datalist>
+                  {patients.length > 0 && uploadPatientName && (
+                    <div className="patient-name-dropdown" style={{ position: 'absolute', zIndex: 100, background: '#fff', border: '1px solid #ccc', width: '100%', maxHeight: '150px', overflowY: 'auto' }}>
+                      {patients.filter(p => p.name.toLowerCase().includes(uploadPatientName.toLowerCase())).map((p, idx) => (
+                        <div
+                          key={idx}
+                          style={{ padding: '8px', cursor: 'pointer', borderBottom: '1px solid #eee', fontSize: '13px' }}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleSelectPatientForUpload(p);
+                          }}
+                          onClick={() => handleSelectPatientForUpload(p)}
+                        >
+                          <strong>{p.name}</strong> (UHID: {p.uhid} | Ph: {p.phone})
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -606,13 +615,12 @@ const ScanDashboard: React.FC = () => {
                   value={newScanType}
                   onChange={(e) => setNewScanType(e.target.value)}
                 >
-                  <option value="Obstetric Anomaly USG Scan">Obstetric Anomaly USG Scan</option>
-                  <option value="Abdomen & Pelvis USG Scan">Abdomen & Pelvis USG Scan</option>
-                  <option value="Fetal Echocardiography">Fetal Echocardiography</option>
-                  <option value="NT Scan & Nasal Bone">NT Scan & Nasal Bone</option>
-                  <option value="Transvaginal Scan (TVS)">Transvaginal Scan (TVS)</option>
-                  <option value="Growth & Color Doppler USG">Growth & Color Doppler USG</option>
-                  <option value="Chest X-Ray PA View">Chest X-Ray PA View</option>
+                  <option value="NT SCAN">NT SCAN</option>
+                  <option value="ANOMALY SCAN">ANOMALY SCAN</option>
+                  <option value="ABDOMEN KUB PELVIS">ABDOMEN KUB PELVIS</option>
+                  <option value="EARLY-VIABILTY">EARLY-VIABILTY</option>
+                  <option value="PELVIC SCAN">PELVIC SCAN</option>
+                  <option value="GROWTH">GROWTH</option>
                 </select>
               </div>
 
@@ -651,16 +659,16 @@ const ScanDashboard: React.FC = () => {
 
       {/* --- MODAL 3: VIEW SCAN REPORT & PRINT SLIP --- */}
       {showViewModal && selectedScan && (
-        <div className="modal-overlay" style={{
+        <div className="modal-overlay printable-scan-modal-overlay" style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           backgroundColor: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000
         }}>
-          <div className="card" style={{ width: '650px', padding: '32px', background: 'white', position: 'relative', borderRadius: '12px' }}>
+          <div className="card printable-scan-modal-card" style={{ width: '650px', padding: '32px', background: 'white', position: 'relative', borderRadius: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #0284c7', paddingBottom: '12px', marginBottom: '20px' }}>
-              <div>
+              {/* <div>
                 <h2 style={{ margin: 0, color: '#0284c7', fontSize: '22px', fontWeight: 800 }}>SHRI JANANI HOSPITAL</h2>
                 <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, letterSpacing: '0.5px' }}>DEPARTMENT OF RADIOLOGY & ULTRASOUND IMAGING</span>
-              </div>
+              </div> */}
               <button style={{ background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => setShowViewModal(false)}>
                 <X size={20} />
               </button>

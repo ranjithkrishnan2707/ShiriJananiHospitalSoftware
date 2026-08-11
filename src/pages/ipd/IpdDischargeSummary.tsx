@@ -16,6 +16,7 @@ export interface AdviceRowItem {
   id: number;
   tabletName: string;
   mg: string;
+  dosage: string;
   timing: string;
   days: string;
 }
@@ -29,8 +30,7 @@ const IpdDischargeSummary: React.FC = () => {
   ]);
 
   const [adviceRows, setAdviceRows] = useState<AdviceRowItem[]>([
-    { id: 1, tabletName: ' ', mg: ' ', timing: ' ', days: ' ' },
-    
+    { id: 1, tabletName: '', mg: '', dosage: '1 - 0 - 1', timing: 'AF', days: '' },
   ]);
 
   const addMedicationRow = () => {
@@ -44,7 +44,7 @@ const IpdDischargeSummary: React.FC = () => {
 
   const addAdviceRow = () => {
     const nextId = adviceRows.length ? Math.max(...adviceRows.map(r => r.id)) + 1 : 1;
-    setAdviceRows(prev => [...prev, { id: nextId, tabletName: '', mg: '', timing: ' ', days: '' }]);
+    setAdviceRows(prev => [...prev, { id: nextId, tabletName: '', mg: '', dosage: '1 - 0 - 1', timing: 'AF', days: '' }]);
   };
 
   const removeAdviceRow = (id: number) => {
@@ -293,6 +293,7 @@ const IpdDischargeSummary: React.FC = () => {
           <tr>
             <th>TABLET NAME</th>
             <th>MG</th>
+            <th>DOSAGE (e.g. 1-0-1)</th>
             <th>TIMING (AF / BF)</th>
             <th>NO. OF DAYS</th>
             <th style={{ width: '40px' }}>ACTION</th>
@@ -301,15 +302,16 @@ const IpdDischargeSummary: React.FC = () => {
         <tbody>
           {adviceRows.map((row) => (
             <tr key={row.id}>
-              <td><input type="text" defaultValue={row.tabletName} onChange={e => row.tabletName = e.target.value} /></td>
-              <td><input type="text" defaultValue={row.mg} onChange={e => row.mg = e.target.value} /></td>
+              <td><input type="text" defaultValue={row.tabletName} placeholder="Tablet Name" onChange={e => row.tabletName = e.target.value} /></td>
+              <td><input type="text" defaultValue={row.mg} placeholder="Mg" onChange={e => row.mg = e.target.value} /></td>
+              <td><input type="text" defaultValue={row.dosage} placeholder="1 - 0 - 1" onChange={e => row.dosage = e.target.value} /></td>
               <td>
                 <select defaultValue={row.timing} onChange={e => row.timing = e.target.value} style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }}>
                   <option value="AF">AF (After Food)</option>
                   <option value="BF">BF (Before Food)</option>
                 </select>
               </td>
-              <td><input type="text" defaultValue={row.days} onChange={e => row.days = e.target.value} /></td>
+              <td><input type="text" defaultValue={row.days} placeholder="Days" onChange={e => row.days = e.target.value} /></td>
               <td>
                 <button className="btn-icon" style={{ color: 'var(--color-error)' }} onClick={() => removeAdviceRow(row.id)} title="Delete row">
                   <Trash2 size={16} />

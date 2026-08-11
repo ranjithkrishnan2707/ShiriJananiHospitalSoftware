@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, History, Plus, Trash2, Pill, ArrowLeft } from 'lucide-react';
+import { Search, History, Plus, Trash2, Pill, ArrowLeft, FolderHeart, Sparkles, Zap, RotateCcw } from 'lucide-react';
 import { useHospital } from '../../context/HospitalContext';
 import type { Patient } from '../../context/HospitalContext';
 import './DoctorConsultation.css';
@@ -9,6 +9,7 @@ export interface PrescribedTabletRow {
   id: number;
   tabletName: string;
   mg: string;
+  dosage: string; // e.g. '1 - 0 - 1'
   timing: string; // 'AF' | 'BF'
   days: string;
 }
@@ -29,14 +30,40 @@ const DoctorConsultation: React.FC = () => {
 
   // Table State for Prescribed Medicines / Tablets
   const [medicineRows, setMedicineRows] = useState<PrescribedTabletRow[]>([
-    { id: 1, tabletName: ' ', mg: ' ', timing: ' ', days: ' ' },
+    { id: 1, tabletName: '', mg: '', dosage: '1 - 0 - 1', timing: 'AF', days: '' },
   ]);
 
   const addMedicineRow = () => {
     const nextId = medicineRows.length ? Math.max(...medicineRows.map(m => m.id)) + 1 : 1;
     setMedicineRows(prev => [
       ...prev,
-      { id: nextId, tabletName: '', mg: ' ', timing: 'AF', days: ' ' }
+      { id: nextId, tabletName: '', mg: '', dosage: '1 - 0 - 1', timing: 'AF', days: '' }
+    ]);
+  };
+
+  const quickAddMedicine = (name: string, mg: string, defaultDosage: string, timing: string, days: string) => {
+    // Check if the last row is completely empty, fill it; otherwise append a new row
+    setMedicineRows(prev => {
+      const lastRow = prev[prev.length - 1];
+      if (lastRow && !lastRow.tabletName.trim()) {
+        return prev.map(m => m.id === lastRow.id ? { ...m, tabletName: name, mg, dosage: defaultDosage, timing, days } : m);
+      }
+      const nextId = prev.length ? Math.max(...prev.map(m => m.id)) + 1 : 1;
+      return [...prev, { id: nextId, tabletName: name, mg, dosage: defaultDosage, timing, days }];
+    });
+  };
+
+  const applyDosageShortcut = (dosageVal: string) => {
+    setMedicineRows(prev => {
+      if (prev.length === 0) return prev;
+      const lastIndex = prev.length - 1;
+      return prev.map((m, idx) => idx === lastIndex ? { ...m, dosage: dosageVal } : m);
+    });
+  };
+
+  const clearAllMedicineRows = () => {
+    setMedicineRows([
+      { id: 1, tabletName: '', mg: '', dosage: '1 - 0 - 1', timing: 'AF', days: '' }
     ]);
   };
 
@@ -67,7 +94,7 @@ const DoctorConsultation: React.FC = () => {
     // Convert medicine rows into formatted string for context & pharmacy dispatch
     const formattedMedicines = medicineRows
       .filter(m => m.tabletName.trim() !== '')
-      .map(m => `${m.tabletName} ${m.mg ? m.mg + 'mg' : ''} (${m.timing}) - ${m.days} days`)
+      .map(m => `${m.tabletName} ${m.mg ? m.mg + 'mg' : ''} ${m.dosage ? '[' + m.dosage + ']' : ''} (${m.timing}) - ${m.days} days`)
       .join('; ');
 
     addConsultation(
@@ -87,7 +114,7 @@ const DoctorConsultation: React.FC = () => {
     setSearchTerm('');
     setDiagnosis('');
     setMedicineRows([
-      { id: 1, tabletName: '', mg: '', timing: 'AF', days: '' }
+      { id: 1, tabletName: '', mg: '', dosage: '1 - 0 - 1', timing: 'AF', days: '' }
     ]);
     setLabTests('');
     setScanRequests('');
@@ -135,6 +162,28 @@ const DoctorConsultation: React.FC = () => {
               </div>
             )}
           </div>
+
+          <button
+            type="button"
+            className="btn-back-page"
+            onClick={() => navigate('/doctor/patient-history')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+              color: 'white',
+              border: 'none',
+              padding: '10px 16px',
+              borderRadius: '6px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              boxShadow: '0 4px 10px rgba(2, 132, 199, 0.3)'
+            }}
+          >
+            <FolderHeart size={16} /> Previous Patient History
+          </button>
 
           <button
             type="button"
@@ -211,18 +260,52 @@ const DoctorConsultation: React.FC = () => {
 
           {/* Dynamic Table for Prescribed Medicines / Tablets */}
           <div className="prescription-table-container">
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Pill size={18} color="var(--color-primary)" /> Prescribed Medicines / Tablets
-            </label>
+            <div className="med-section-header">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
+                <Pill size={18} color="var(--color-primary)" /> Prescribed Medicines / Tablets
+              </label>
+              <span className="med-row-count-badge">{medicineRows.length} {medicineRows.length === 1 ? 'Item' : 'Items'}</span>
+            </div>
+
+            {/* Quick Prescription Chips */}
+            <div className="quick-presets-wrapper">
+              <span className="quick-presets-label">
+                <Sparkles size={13} color="#0284c7" /> Quick Prescribe:
+              </span>
+              <div className="quick-presets-scroll">
+                <button type="button" className="med-chip" onClick={() => quickAddMedicine('Tab Calcium Carbonate', '500', '1 - 0 - 1', 'AF', '30')}>
+                  + Tab Calcium 500mg
+                </button>
+                <button type="button" className="med-chip" onClick={() => quickAddMedicine('Tab Iron & Folic Acid', '100', '1 - 0 - 0', 'BF', '30')}>
+                  + Tab Iron & Folic Acid
+                </button>
+                <button type="button" className="med-chip" onClick={() => quickAddMedicine('Tab Paracetamol', '650', '1 - 0 - 1', 'AF', '5')}>
+                  + Tab Paracetamol 650mg
+                </button>
+                <button type="button" className="med-chip" onClick={() => quickAddMedicine('Tab Doxinate', '10', '1 - 0 - 1', 'BF', '10')}>
+                  + Tab Doxinate
+                </button>
+                <button type="button" className="med-chip" onClick={() => quickAddMedicine('Tab Folvite', '5', '1 - 0 - 0', 'AF', '30')}>
+                  + Tab Folvite 5mg
+                </button>
+                <button type="button" className="med-chip" onClick={() => quickAddMedicine('Tab Pantocid', '40', '1 - 0 - 0', 'BF', '10')}>
+                  + Tab Pantocid 40mg
+                </button>
+                <button type="button" className="med-chip" onClick={() => quickAddMedicine('Tab Autrin', '', '1 - 0 - 0', 'AF', '30')}>
+                  + Tab Autrin
+                </button>
+              </div>
+            </div>
 
             <table className="medicine-input-table">
               <thead>
                 <tr>
                   <th>Tablet Name</th>
-                  <th style={{ width: '100px' }}>Mg</th>
-                  <th style={{ width: '130px' }}>AF / BF</th>
-                  <th style={{ width: '110px' }}>No. of Days</th>
-                  <th style={{ width: '40px' }}>Action</th>
+                  <th style={{ width: '85px' }}>Mg</th>
+                  <th style={{ width: '135px' }}>Dosage (e.g. 1-0-1)</th>
+                  <th style={{ width: '135px' }}>AF / BF</th>
+                  <th style={{ width: '95px' }}>No. Days</th>
+                  <th style={{ width: '40px', textAlign: 'center' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -231,7 +314,8 @@ const DoctorConsultation: React.FC = () => {
                     <td>
                       <input
                         type="text"
-                        className="form-control"
+                        className="form-control med-input-name"
+                        placeholder="e.g. Tab Paracetamol"
                         value={row.tabletName}
                         onChange={(e) => updateMedicineRow(row.id, 'tabletName', e.target.value)}
                       />
@@ -240,13 +324,23 @@ const DoctorConsultation: React.FC = () => {
                       <input
                         type="text"
                         className="form-control"
+                        placeholder="650"
                         value={row.mg}
                         onChange={(e) => updateMedicineRow(row.id, 'mg', e.target.value)}
                       />
                     </td>
                     <td>
+                      <input
+                        type="text"
+                        className="form-control dosage-input-highlight"
+                        placeholder="1 - 0 - 1"
+                        value={row.dosage}
+                        onChange={(e) => updateMedicineRow(row.id, 'dosage', e.target.value)}
+                      />
+                    </td>
+                    <td>
                       <select
-                        className="form-control"
+                        className={`form-control timing-select ${row.timing.toLowerCase()}`}
                         value={row.timing}
                         onChange={(e) => updateMedicineRow(row.id, 'timing', e.target.value)}
                       >
@@ -258,11 +352,12 @@ const DoctorConsultation: React.FC = () => {
                       <input
                         type="text"
                         className="form-control"
+                        placeholder="5"
                         value={row.days}
                         onChange={(e) => updateMedicineRow(row.id, 'days', e.target.value)}
                       />
                     </td>
-                    <td>
+                    <td style={{ textAlign: 'center' }}>
                       <button
                         type="button"
                         className="btn-icon btn-delete-row"
@@ -278,9 +373,32 @@ const DoctorConsultation: React.FC = () => {
               </tbody>
             </table>
 
-            <button type="button" className="btn-add-med-row" onClick={addMedicineRow}>
-              <Plus size={16} /> Add Tablet Row
-            </button>
+            {/* Quick Dosage Shortcut Bar */}
+            <div className="quick-dosage-toolbar">
+              <span className="dosage-tool-label">
+                <Zap size={13} color="#ea580c" /> Dosage Shortcuts for active row:
+              </span>
+              <div className="dosage-btn-group">
+                <button type="button" className="dosage-pill-btn" onClick={() => applyDosageShortcut('1 - 0 - 1')}>1 - 0 - 1</button>
+                <button type="button" className="dosage-pill-btn" onClick={() => applyDosageShortcut('1 - 1 - 1')}>1 - 1 - 1</button>
+                <button type="button" className="dosage-pill-btn" onClick={() => applyDosageShortcut('1 - 0 - 0')}>1 - 0 - 0</button>
+                <button type="button" className="dosage-pill-btn" onClick={() => applyDosageShortcut('0 - 0 - 1')}>0 - 0 - 1</button>
+                <button type="button" className="dosage-pill-btn" onClick={() => applyDosageShortcut('1 - 1 - 1 - 1')}>1 - 1 - 1 - 1</button>
+              </div>
+            </div>
+
+            {/* Actions Bar */}
+            <div className="med-table-actions-bar">
+              <button type="button" className="btn-add-med-row" onClick={addMedicineRow}>
+                <Plus size={16} /> Add Tablet Row
+              </button>
+              
+              {medicineRows.length > 1 && (
+                <button type="button" className="btn-clear-med-rows" onClick={clearAllMedicineRows}>
+                  <RotateCcw size={14} /> Clear All Rows
+                </button>
+              )}
+            </div>
           </div>
 
           <div>

@@ -462,6 +462,103 @@
   font-weight: 500;
 }
 
+/* Enhanced Prescribed Medicines Table */
+.medication-table-enhanced {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #bfdbfe;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.08);
+}
+
+.medication-table-enhanced th {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #0284c7;
+}
+
+.medication-table-enhanced td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+  font-size: 13px;
+}
+
+.medication-table-enhanced tbody tr:hover {
+  background-color: #f0f9ff;
+}
+
+.med-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.med-icon-box {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: #e0f2fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.med-name-text {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.med-dosage-tag {
+  display: inline-block;
+  background: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #7dd3fc;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 3px 12px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+}
+
+.med-timing-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.med-timing-badge.af {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.med-timing-badge.bf {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fef3c7;
+}
+
+.med-duration-pill {
+  font-weight: 700;
+  color: #475569;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
 /* Examination / Notes Box */
 .erp-notes-card {
   background: #FFFBEB;

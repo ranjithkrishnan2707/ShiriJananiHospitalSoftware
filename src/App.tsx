@@ -13,9 +13,12 @@ import ManageStaff from './pages/admin/ManageStaff';
 import ShiftAllocation from './pages/admin/ShiftAllocation';
 import OpBillReport from './pages/billing/OpBillReport';
 import DoctorConsultation from './pages/doctor/DoctorConsultation';
+import DoctorPatientHistoryList from './pages/doctor/DoctorPatientHistoryList';
+import DoctorPatientDetailHistory from './pages/doctor/DoctorPatientDetailHistory';
 import MedicalDashboard from './pages/medical/MedicalDashboard';
 import LabDashboard from './pages/lab/LabDashboard';
 import ScanDashboard from './pages/scan/ScanDashboard';
+import UploadScanReportPage from './pages/scan/UploadScanReportPage';
 import StaffAttendance from './pages/attendance/StaffAttendance';
 import AdminStaffAttendance from './pages/admin/AdminStaffAttendance';
 import StaffDetail from './pages/staff/StaffDetail';
@@ -71,6 +74,8 @@ const App: React.FC = () => {
               </Route>
               
               <Route path="doctor" element={<DoctorConsultation />} />
+              <Route path="doctor/patient-history" element={<DoctorPatientHistoryList />} />
+              <Route path="doctor/patient-history/:uhid" element={<DoctorPatientDetailHistory />} />
               
               <Route path="medical" element={
                 <ProtectedModule moduleKey="medical" moduleName="Medical Module">
@@ -87,6 +92,12 @@ const App: React.FC = () => {
               <Route path="scan" element={
                 <ProtectedModule moduleKey="scan" moduleName="Scan Module">
                   <ScanDashboard />
+                </ProtectedModule>
+              } />
+
+              <Route path="scan/upload" element={
+                <ProtectedModule moduleKey="scan" moduleName="Scan Module">
+                  <UploadScanReportPage />
                 </ProtectedModule>
               } />
               

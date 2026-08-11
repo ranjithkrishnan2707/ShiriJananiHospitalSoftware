@@ -610,49 +610,95 @@ const MedicalDashboard: React.FC = () => {
   };
 
   const renderMedicinesTable = (medicinesText: string) => {
-    if (!medicinesText) return <p style={{ color: '#64748B' }}>No medicines prescribed.</p>;
+    if (!medicinesText || medicinesText.trim() === '' || medicinesText.toLowerCase().includes('no medicines')) {
+      return <p style={{ color: '#64748B', fontStyle: 'italic', padding: '12px 0' }}>No medicines prescribed for this visit.</p>;
+    }
 
+    // Split on semicolons, newlines, or commas
     const lines = medicinesText
-      .split(/\n|,/)
+      .split(/;|\n/)
       .map(line => line.trim())
       .filter(line => line.length > 0);
 
+    const parseMedLine = (rawLine: string) => {
+      let line = rawLine;
+      let dosage = '1 Tab';
+      let timing = 'AF';
+      let duration = '5 Days';
+
+      // 1. Extract dosage in brackets [1-0-1] or [1 - 0 - 1]
+      const bracketMatch = line.match(/\[(.*?)\]/);
+      if (bracketMatch) {
+        dosage = bracketMatch[1].trim();
+        line = line.replace(/\[(.*?)\]/, '').trim();
+      }
+
+      // 2. Extract timing (AF / BF)
+      if (/\(AF\)|After Food|\bAF\b/i.test(line)) {
+        timing = 'AF';
+        line = line.replace(/\(AF\)|After Food|\bAF\b/gi, '').trim();
+      } else if (/\(BF\)|Before Food|\bBF\b/i.test(line)) {
+        timing = 'BF';
+        line = line.replace(/\(BF\)|Before Food|\bBF\b/gi, '').trim();
+      }
+
+      // 3. Extract duration e.g. - 30 days or - 5 days
+      const durationMatch = line.match(/-\s*(\d+\s*(?:days|day)?)/i);
+      if (durationMatch) {
+        duration = durationMatch[1].trim();
+        line = line.replace(/-\s*\d+\s*(?:days|day)?/gi, '').trim();
+      } else {
+        const hyphenParts = line.split('-');
+        if (hyphenParts.length > 1 && /day/i.test(hyphenParts[1])) {
+          duration = hyphenParts[1].trim();
+          line = hyphenParts[0].trim();
+        }
+      }
+
+      // Remaining line is tablet name
+      const name = line.replace(/^\d+\.\s*/, '').replace(/;+/g, '').trim();
+
+      return { name, dosage, timing, duration };
+    };
+
     return (
       <div style={{ overflowX: 'auto', marginTop: '10px' }}>
-        <table className="medication-table" style={{ width: '100%', background: 'white', borderRadius: '10px', overflow: 'hidden', border: '1px solid #BFDBFE' }}>
+        <table className="medication-table-enhanced">
           <thead>
-            <tr style={{ background: '#DBEAFE', color: '#1E40AF', fontSize: '12px' }}>
-              <th style={{ padding: '10px 14px', width: '45px', textAlign: 'center' }}>#</th>
-              <th style={{ padding: '10px 14px', textAlign: 'left' }}>MEDICINE NAME</th>
-              <th style={{ padding: '10px 14px', textAlign: 'center' }}>DOSAGE / FREQUENCY</th>
-              <th style={{ padding: '10px 14px', textAlign: 'center' }}>TIMING</th>
-              <th style={{ padding: '10px 14px', textAlign: 'center' }}>DURATION</th>
+            <tr>
+              <th style={{ width: '40px', textAlign: 'center' }}>#</th>
+              <th style={{ textAlign: 'left' }}>MEDICINE NAME</th>
+              <th style={{ textAlign: 'center', width: '150px' }}>DOSAGE / FREQUENCY</th>
+              <th style={{ textAlign: 'center', width: '140px' }}>TIMING</th>
+              <th style={{ textAlign: 'center', width: '100px' }}>DURATION</th>
             </tr>
           </thead>
           <tbody>
-            {lines.map((line, index) => {
-              const parts = line.split(/-|—|:/).map(p => p.trim());
-              const name = parts[0] || line;
-              const dosage = parts[1] || '1 Tab / 5ml';
-              const timing = parts[2] || 'AF (After Food)';
-              const duration = parts[3] || '5 Days';
+            {lines.map((rawLine, index) => {
+              const med = parseMedLine(rawLine);
 
               return (
-                <tr key={index} style={{ borderBottom: '1px solid #E2E8F0', fontSize: '13px' }}>
-                  <td style={{ padding: '10px 14px', textAlign: 'center', fontWeight: 700, color: '#2563EB' }}>{index + 1}</td>
-                  <td style={{ padding: '10px 14px', fontWeight: 700, color: '#0F172A' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Pill size={15} color="#2563EB" />
-                      <span>{name.replace(/^\d+\.\s*/, '')}</span>
+                <tr key={index}>
+                  <td style={{ textAlign: 'center', fontWeight: 700, color: '#0284c7' }}>{index + 1}</td>
+                  <td>
+                    <div className="med-name-cell">
+                      <div className="med-icon-box"><Pill size={14} color="#0284c7" /></div>
+                      <span className="med-name-text">{med.name}</span>
                     </div>
                   </td>
-                  <td style={{ padding: '10px 14px', textAlign: 'center', color: '#334155', fontWeight: 600 }}>{dosage}</td>
-                  <td style={{ padding: '10px 14px', textAlign: 'center' }}>
-                    <span style={{ background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 700 }}>
-                      {timing}
-                    </span>
+                  <td style={{ textAlign: 'center' }}>
+                    <span className="med-dosage-tag">{med.dosage}</span>
                   </td>
-                  <td style={{ padding: '10px 14px', textAlign: 'center', fontWeight: 700, color: '#475569' }}>{duration}</td>
+                  <td style={{ textAlign: 'center' }}>
+                    {med.timing.includes('BF') ? (
+                      <span className="med-timing-badge bf">BF (Before Food)</span>
+                    ) : (
+                      <span className="med-timing-badge af">AF (After Food)</span>
+                    )}
+                  </td>
+                  <td style={{ textAlign: 'center' }}>
+                    <span className="med-duration-pill">{med.duration}</span>
+                  </td>
                 </tr>
               );
             })}

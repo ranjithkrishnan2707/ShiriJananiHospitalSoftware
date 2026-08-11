@@ -223,16 +223,8 @@ const IpdRegistration: React.FC = () => {
               }}
               onFocus={() => setShowNameDropdown(true)}
               placeholder="Full Patient Name"
-              list="ipd-patient-names-datalist"
               autoComplete="off"
             />
-            <datalist id="ipd-patient-names-datalist">
-              {patients.map((p, idx) => (
-                <option key={idx} value={p.name}>
-                  {p.uhid ? `UHID: ${p.uhid} | Phone: ${p.phone || 'N/A'}` : p.phone || ''}
-                </option>
-              ))}
-            </datalist>
 
             {showNameDropdown && filteredPreviousPatients.length > 0 && (
               <div className="patient-name-dropdown">
@@ -241,6 +233,11 @@ const IpdRegistration: React.FC = () => {
                   <div
                     key={idx}
                     className="dropdown-item"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      selectPatientFromModal(p);
+                      setShowNameDropdown(false);
+                    }}
                     onClick={() => {
                       selectPatientFromModal(p);
                       setShowNameDropdown(false);
