@@ -1,0 +1,254 @@
+.server-modal-container {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 520px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  animation: modalSlideIn 0.25s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.server-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: #1e293b;
+  color: #ffffff;
+}
+
+.server-modal-header .header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.server-modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.server-modal-header .close-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.server-modal-header .close-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.server-modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.status-badge-card {
+  border-radius: 8px;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.status-badge-card.online {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.status-badge-card.offline {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.status-badge-card.syncing {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+}
+
+.status-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.status-main .icon.online { color: #16a34a; }
+.status-main .icon.offline { color: #dc2626; }
+.status-main .icon.syncing { color: #0284c7; }
+
+.status-label {
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.status-sub {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.form-group-lan {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group-lan label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ip-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.ip-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+}
+
+.ip-input:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+}
+
+.btn-test {
+  background: #0284c7;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-test:hover {
+  background: #0369a1;
+}
+
+.help-text {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.notice-box {
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+  color: #92400e;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.sync-info-box {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sync-box-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #334155;
+  font-size: 13px;
+}
+
+.sync-info-box p {
+  margin: 0;
+  font-size: 13px;
+  color: #475569;
+}
+
+.last-sync {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.btn-sync-now {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.btn-sync-now:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.btn-sync-now:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.server-modal-footer {
+  padding: 12px 20px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-close-modal {
+  background: #475569;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-close-modal:hover {
+  background: #334155;
+}
+
+.spin {
+  animation: spinAnimation 1s linear infinite;
+}
+
+@keyframes spinAnimation {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

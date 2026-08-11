@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { apiFetch } from '../services/apiClient';
+import { queueMutation } from '../services/offlineSyncEngine';
 
 // --- Interfaces ---
 export type DepartmentType = 'Medical' | 'Lab' | 'Scan' | 'OPD' | 'IPD' | 'Admin' | 'Maintenance' | 'Other';
@@ -415,6 +417,16 @@ export const ExpenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
       };
       setVendors(v => [...v, newVend]);
     }
+
+    // Post to API / queue offline
+    apiFetch('/api/expenses', {
+      method: 'POST',
+      body: JSON.stringify(newExpense)
+    }).then(res => {
+      if (!res.ok || res.offline) {
+        queueMutation('/api/expenses', 'POST', newExpense);
+      }
+    });
 
     return newExpense;
   };

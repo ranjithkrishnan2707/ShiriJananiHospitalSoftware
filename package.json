@@ -3,9 +3,11 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
     "server": "node server/index.js",
+    "desktop": "electron .",
     "build": "tsc -b && vite build",
     "test": "tsc -b && vite build",
     "lint": "oxlint",

@@ -399,3 +399,57 @@
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* LAN Server Status Pill */
+.server-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  transition: all 0.2s ease;
+  margin-right: 8px;
+}
+
+.server-status-pill.online {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #15803d;
+}
+
+.server-status-pill.offline {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.server-status-pill.syncing {
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+  color: #0369a1;
+}
+
+.server-status-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.server-status-pill .status-icon.online { color: #16a34a; }
+.server-status-pill .status-icon.offline { color: #dc2626; }
+.server-status-pill .status-icon.syncing { color: #0284c7; }
+
+.server-status-pill .pending-badge {
+  background: #ef4444;
+  color: white;
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+

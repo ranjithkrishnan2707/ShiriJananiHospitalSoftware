@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { apiFetch } from '../services/apiClient';
+import { startOfflineSyncEngine, queueMutation } from '../services/offlineSyncEngine';
 
 // --- Types ---
 export interface PatientHistory {
@@ -59,6 +61,14 @@ export interface LabRequest {
   status: 'Pending' | 'Completed';
 }
 
+export interface DoctorItem {
+  id: string;
+  dname: string;
+  contact?: string;
+  email?: string;
+  city?: string;
+}
+
 export interface ScanRequest {
   id: string;
   patientName: string;
@@ -71,6 +81,7 @@ export interface ScanRequest {
   radiologist?: string;
   amount?: number;
 }
+
 
 const getTodayStr = () => new Date().toISOString().split('T')[0];
 const getDaysAgoStr = (daysAgo: number) => {
@@ -199,32 +210,39 @@ const DUMMY_PATIENTS: Patient[] = [
     weight: '60',
     pulseRate: '78',
     bloodPressure: '110/75',
-    phone: '8765432109',
-    preferredDoctor: 'DR.PRIYA DHARSHINI, MBBS...',
+    phone: '9876543211',
+    preferredDoctor: 'Dr. G. Srijaya',
+    aadharNumber: '8765 4321 0987',
     history: [
-      { id: 'P-03', date: getDaysAgoStr(10), time: '03:15 PM', visitType: 'Neurology Review', doctorName: 'DR.PRIYA DHARSHINI, MBBS...', complaints: 'Throbbing right-sided headache', diagnosis: 'Acute Migraine Exacerbation', prescription: 'Tab Sumatriptan 50mg PRN; Tab Naproxen 500mg BD - 3 days', labRequest: '', scanRequest: 'MRI Brain Scan', notes: 'MRI Brain normal. Stress reduction advised.', bp: '110/75', pulse: '78', temp: '98.6', weight: '60', fee: '500' },
-      { id: 'P-02', date: getDaysAgoStr(60), time: '10:45 AM', visitType: 'General Consultation', doctorName: 'DR.PRIYA DHARSHINI, MBBS...', complaints: 'Frequent tension headache', diagnosis: 'Tension Type Headache', prescription: 'Tab Amitriptyline 10mg HS - 30 days', labRequest: 'CBC, ESR', scanRequest: '', notes: 'Adequate hydration & sleep cycle emphasized.', bp: '112/74', pulse: '74', temp: '98.4', weight: '60.5', fee: '400' },
-      { id: 'P-01', date: getDaysAgoStr(120), time: '11:30 AM', visitType: 'Initial Visit', doctorName: 'DR.SARANYA MBBS., DCH.', complaints: 'Cervical stiffness', diagnosis: 'Cervical Spondylosis', prescription: 'Tab Thiocholchicoside 4mg BD - 5 days; Neck isometric exercises', labRequest: '', scanRequest: 'X-Ray Cervical Spine AP/Lat', notes: 'Soft cervical collar recommended during travel.', bp: '110/70', pulse: '76', temp: '98.6', weight: '61', fee: '450' }
+      {
+        id: 'VIS-002',
+        date: getTodayStr(),
+        time: '11:15 AM',
+        visitType: 'OPD Consultation',
+        doctorName: 'Dr. G. Srijaya',
+        complaints: 'Nausea and Mild Lower Abdomen Pain',
+        diagnosis: 'Early Pregnancy Checkup (10 Weeks)',
+        prescription: 'Tab. Doxinate 1-0-1, Tab. Folvite 5mg 1-0-0',
+        labRequest: 'Thyroid Profile (T3, T4, TSH), Blood Grouping',
+        scanRequest: 'Abdomen & Pelvis USG Scan',
+        notes: 'Advised bed rest & fluid intake.',
+        bp: '110/70',
+        pulse: '76',
+        temp: '98.4',
+        weight: '58',
+        fee: '500'
+      }
     ]
   }
 ];
 
-export interface DoctorItem {
-  id: string;
-  dname: string;
-  contact: string;
-  email: string;
-  city: string;
-}
-
 const INITIAL_DOCTORS: DoctorItem[] = [
-  { id: '1', dname: 'DR.SRI JANANI,MD.,OG.,', contact: '', email: '', city: '' },
-  { id: '2', dname: 'DR.G.PRASANNA BALAJ, MD...', contact: '', email: '', city: '' },
-  { id: '3', dname: 'DR.PRIYA DHARSHINI, MBBS...', contact: '', email: '', city: '' },
-  { id: '4', dname: 'DR. SARANYA MBBS., DCH.', contact: '9585822...', email: '', city: '' },
+  { id: '1', dname: 'DR.SRI JANANI,MD.,OG.,', contact: '9876543210', email: 'srijanani@hospital.com', city: 'Chennai' },
+  { id: '2', dname: 'DR.G.PRASANNA BALAJ, MD...', contact: '9876543211', email: 'prasanna@hospital.com', city: 'Chennai' },
+  { id: '3', dname: 'DR.PRIYA DHARSHINI, MBBS...', contact: '9876543212', email: 'priya@hospital.com', city: 'Chennai' },
+  { id: '4', dname: 'DR. SARANYA MBBS., DCH.', contact: '9585822111', email: 'saranya@hospital.com', city: 'Chennai' }
 ];
 
-// --- Context Definition ---
 interface HospitalContextType {
   patients: Patient[];
   prescriptions: Prescription[];
@@ -232,13 +250,12 @@ interface HospitalContextType {
   scanRequests: ScanRequest[];
   doctors: DoctorItem[];
   isDoctorListOpen: boolean;
-  
-  // Actions
+
   addConsultation: (
-    patientUhid: string, 
-    diagnosis: string, 
-    medicines: string, 
-    tests: string, 
+    patientUhid: string,
+    diagnosis: string,
+    medicines: string,
+    tests: string,
     scans: string,
     notes: string,
     fee: string
@@ -259,40 +276,69 @@ interface HospitalContextType {
 const HospitalContext = createContext<HospitalContextType | undefined>(undefined);
 
 export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-  const [patients, setPatients] = useState<Patient[]>(DUMMY_PATIENTS);
-  const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
-  const [labRequests, setLabRequests] = useState<LabRequest[]>([]);
-  const [scanRequests, setScanRequests] = useState<ScanRequest[]>(INITIAL_SCAN_REQUESTS);
-  const [doctors, setDoctors] = useState<DoctorItem[]>(INITIAL_DOCTORS);
+  const [patients, setPatients] = useState<Patient[]>(() => {
+    const cached = localStorage.getItem('sjh_cached_patients');
+    return cached ? JSON.parse(cached) : DUMMY_PATIENTS;
+  });
+  const [prescriptions, setPrescriptions] = useState<Prescription[]>(() => {
+    const cached = localStorage.getItem('sjh_cached_prescriptions');
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [labRequests, setLabRequests] = useState<LabRequest[]>(() => {
+    const cached = localStorage.getItem('sjh_cached_lab');
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [scanRequests, setScanRequests] = useState<ScanRequest[]>(() => {
+    const cached = localStorage.getItem('sjh_cached_scan');
+    return cached ? JSON.parse(cached) : INITIAL_SCAN_REQUESTS;
+  });
+  const [doctors, setDoctors] = useState<DoctorItem[]>(() => {
+    const cached = localStorage.getItem('sjh_cached_doctors');
+    return cached ? JSON.parse(cached) : INITIAL_DOCTORS;
+  });
   const [isDoctorListOpen, setIsDoctorListOpen] = useState(false);
 
   const openDoctorListModal = () => setIsDoctorListOpen(true);
   const closeDoctorListModal = () => setIsDoctorListOpen(false);
 
-  useEffect(() => {
-    const fetchApiData = async () => {
-      try {
-        const [patRes, docRes, scnRes, rxRes, labRes] = await Promise.allSettled([
-          fetch('http://localhost:5000/api/patients').then(r => r.ok ? r.json() : null),
-          fetch('http://localhost:5000/api/doctors').then(r => r.ok ? r.json() : null),
-          fetch('http://localhost:5000/api/scan').then(r => r.ok ? r.json() : null),
-          fetch('http://localhost:5000/api/prescriptions').then(r => r.ok ? r.json() : null),
-          fetch('http://localhost:5000/api/lab').then(r => r.ok ? r.json() : null)
-        ]);
+  useEffect(() => { localStorage.setItem('sjh_cached_patients', JSON.stringify(patients)); }, [patients]);
+  useEffect(() => { localStorage.setItem('sjh_cached_prescriptions', JSON.stringify(prescriptions)); }, [prescriptions]);
+  useEffect(() => { localStorage.setItem('sjh_cached_lab', JSON.stringify(labRequests)); }, [labRequests]);
+  useEffect(() => { localStorage.setItem('sjh_cached_scan', JSON.stringify(scanRequests)); }, [scanRequests]);
+  useEffect(() => { localStorage.setItem('sjh_cached_doctors', JSON.stringify(doctors)); }, [doctors]);
 
-        if (patRes.status === 'fulfilled' && patRes.value && patRes.value.length > 0) setPatients(patRes.value);
-        if (docRes.status === 'fulfilled' && docRes.value && docRes.value.length > 0) setDoctors(docRes.value);
-        if (scnRes.status === 'fulfilled' && scnRes.value && scnRes.value.length > 0) setScanRequests(scnRes.value);
-        if (rxRes.status === 'fulfilled' && rxRes.value && rxRes.value.length > 0) setPrescriptions(rxRes.value);
-        if (labRes.status === 'fulfilled' && labRes.value && labRes.value.length > 0) setLabRequests(labRes.value);
-      } catch (err) {
-        console.log('MySQL API fetch fallback:', err);
-      }
-    };
+  const fetchApiData = async () => {
+    try {
+      const [patRes, docRes, scnRes, rxRes, labRes] = await Promise.all([
+        apiFetch<Patient[]>('/api/patients'),
+        apiFetch<DoctorItem[]>('/api/doctors'),
+        apiFetch<ScanRequest[]>('/api/scan'),
+        apiFetch<Prescription[]>('/api/prescriptions'),
+        apiFetch<LabRequest[]>('/api/lab')
+      ]);
+
+      if (patRes.ok && patRes.data && patRes.data.length > 0) setPatients(patRes.data);
+      if (docRes.ok && docRes.data && docRes.data.length > 0) setDoctors(docRes.data);
+      if (scnRes.ok && scnRes.data && scnRes.data.length > 0) setScanRequests(scnRes.data);
+      if (rxRes.ok && rxRes.data && rxRes.data.length > 0) setPrescriptions(rxRes.data);
+      if (labRes.ok && labRes.data && labRes.data.length > 0) setLabRequests(labRes.data);
+    } catch (err) {
+      console.log('MySQL API fetch fallback:', err);
+    }
+  };
+
+  useEffect(() => {
+    startOfflineSyncEngine();
     fetchApiData();
+    const handleDataSynced = () => {
+      console.log('⚡ Refetching fresh MySQL database records...');
+      fetchApiData();
+    };
+    window.addEventListener('sjh_data_synced', handleDataSynced);
+    return () => window.removeEventListener('sjh_data_synced', handleDataSynced);
   }, []);
 
-  const addOrUpdateDoctor = (doc: DoctorItem) => {
+  const addOrUpdateDoctor = async (doc: DoctorItem) => {
     setDoctors(prev => {
       const idx = prev.findIndex(d => d.id === doc.id);
       if (idx >= 0) {
@@ -303,20 +349,24 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
       return [...prev, doc];
     });
 
-    fetch('http://localhost:5000/api/doctors', {
+    const res = await apiFetch('/api/doctors', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(doc)
-    }).catch(err => console.error('MySQL Save Doctor Error:', err));
+    });
+    if (!res.ok || res.offline) {
+      queueMutation('/api/doctors', 'POST', doc);
+    }
   };
 
-  const deleteDoctor = (id: string) => {
+  const deleteDoctor = async (id: string) => {
     setDoctors(prev => prev.filter(d => d.id !== id));
-    fetch(`http://localhost:5000/api/doctors/${id}`, { method: 'DELETE' })
-      .catch(err => console.error('MySQL Delete Doctor Error:', err));
+    const res = await apiFetch(`/api/doctors/${id}`, { method: 'DELETE' });
+    if (!res.ok || res.offline) {
+      queueMutation(`/api/doctors/${id}`, 'DELETE', { id });
+    }
   };
 
-  const addOrUpdatePatient = (patient: Patient) => {
+  const addOrUpdatePatient = async (patient: Patient) => {
     setPatients(prev => {
       const idx = prev.findIndex(p => p.uhid === patient.uhid || (patient.patientId && p.patientId === patient.patientId));
       if (idx >= 0) {
@@ -327,27 +377,31 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
       return [patient, ...prev];
     });
 
-    fetch('http://localhost:5000/api/patients', {
+    const res = await apiFetch('/api/patients', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patient)
-    }).catch(err => console.error('MySQL Save Patient Error:', err));
+    });
+    if (!res.ok || res.offline) {
+      queueMutation('/api/patients', 'POST', patient);
+    }
   };
 
-  const deletePatient = (uhid: string) => {
+  const deletePatient = async (uhid: string) => {
     setPatients(prev => prev.filter(p => p.uhid !== uhid));
-    fetch(`http://localhost:5000/api/patients/${uhid}`, { method: 'DELETE' })
-      .catch(err => console.error('MySQL Delete Patient Error:', err));
+    const res = await apiFetch(`/api/patients/${uhid}`, { method: 'DELETE' });
+    if (!res.ok || res.offline) {
+      queueMutation(`/api/patients/${uhid}`, 'DELETE', { uhid });
+    }
   };
 
-  const addConsultation = (
+  const addConsultation = async (
     patientUhid: string, 
     diagnosis: string, 
     medicines: string, 
     tests: string, 
     scans: string,
     notes: string,
-    _fee: string // unused in history, maybe goes to billing later
+    _fee: string
   ) => {
     const date = new Date().toISOString().split('T')[0];
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -356,7 +410,6 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
     if (patientIndex === -1) return;
     const patient = patients[patientIndex];
 
-    // 1. Update Patient History
     const newHistory: PatientHistory = {
       id: `VIS-${Date.now()}`,
       date,
@@ -383,63 +436,73 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
     };
     setPatients(updatedPatients);
 
-    // 2. Dispatch to Medical/Pharmacy
+    let newRx: Prescription | null = null;
     if (medicines.trim() !== '') {
-      setPrescriptions(prev => [
-        {
-          id: `RX-${Date.now()}`,
-          patientName: patient.name,
-          patientId: patient.patientId,
-          uhid: patient.uhid,
-          phone: patient.phone,
-          doctorName: patient.preferredDoctor || 'Dr. Assigned',
-          medicines,
-          diagnosis,
-          notes,
-          date,
-          time,
-          status: 'Pending'
-        },
-        ...prev
-      ]);
+      newRx = {
+        id: `RX-${Date.now()}`,
+        patientName: patient.name,
+        patientId: patient.patientId,
+        uhid: patient.uhid,
+        phone: patient.phone,
+        doctorName: patient.preferredDoctor || 'Dr. Assigned',
+        medicines,
+        diagnosis,
+        notes,
+        date,
+        time,
+        status: 'Pending'
+      };
+      setPrescriptions(prev => [newRx!, ...prev]);
     }
 
-    // 3. Dispatch to Lab
+    let newLab: LabRequest | null = null;
     if (tests.trim() !== '') {
-      setLabRequests(prev => [
-        {
-          id: `LAB-${Date.now()}`,
-          patientName: patient.name,
-          uhid: patient.uhid,
-          tests,
-          date,
-          status: 'Pending'
-        },
-        ...prev
-      ]);
+      newLab = {
+        id: `LAB-${Date.now()}`,
+        patientName: patient.name,
+        uhid: patient.uhid,
+        tests,
+        date,
+        status: 'Pending'
+      };
+      setLabRequests(prev => [newLab!, ...prev]);
     }
 
-    // 4. Dispatch to Scan
+    let newScan: ScanRequest | null = null;
     if (scans.trim() !== '') {
-      setScanRequests(prev => [
-        {
-          id: `SCN-${Date.now()}`,
-          patientName: patient.name,
-          uhid: patient.uhid,
-          scanType: scans,
-          date,
-          status: 'Pending'
-        },
-        ...prev
-      ]);
+      newScan = {
+        id: `SCN-${Date.now()}`,
+        patientName: patient.name,
+        uhid: patient.uhid,
+        scanType: scans,
+        date,
+        status: 'Pending',
+        radiologist: 'Dr. G. Srijaya',
+        amount: 2500
+      };
+      setScanRequests(prev => [newScan!, ...prev]);
+    }
+
+    const consultationPayload = {
+      patientUhid,
+      historyItem: newHistory,
+      prescription: newRx,
+      labRequest: newLab,
+      scanRequest: newScan
+    };
+
+    const res = await apiFetch('/api/patients/consultation', {
+      method: 'POST',
+      body: JSON.stringify(consultationPayload)
+    });
+    if (!res.ok || res.offline) {
+      queueMutation('/api/patients/consultation', 'POST', consultationPayload);
     }
   };
 
-  const markPrescriptionComplete = (id: string) => {
+  const markPrescriptionComplete = async (id: string) => {
     setPrescriptions(prev => {
       const updated = prev.map(p => p.id === id ? { ...p, status: 'Completed' as const } : p);
-      
-      // Also update patient history to mark as dispensed
       const targetPrescription = prev.find(p => p.id === id);
       if (targetPrescription) {
         setPatients(currentPatients => 
@@ -448,7 +511,6 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
               return {
                 ...patient,
                 history: patient.history.map(h => 
-                  // If history matches the date and prescription, append (Dispensed)
                   h.date === targetPrescription.date && h.prescription === targetPrescription.medicines
                     ? { ...h, prescription: `${h.prescription} (Dispensed)` }
                     : h
@@ -461,26 +523,37 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
       }
       return updated;
     });
+
+    const res = await apiFetch(`/api/prescriptions/${id}/complete`, { method: 'PUT' });
+    if (!res.ok || res.offline) {
+      queueMutation(`/api/prescriptions/${id}/complete`, 'PUT', { id });
+    }
   };
 
-  const markLabComplete = (id: string) => {
+  const markLabComplete = async (id: string) => {
     setLabRequests(prev => prev.map(l => l.id === id ? { ...l, status: 'Completed' } : l));
+    const res = await apiFetch(`/api/lab/${id}/complete`, { method: 'PUT' });
+    if (!res.ok || res.offline) {
+      queueMutation(`/api/lab/${id}/complete`, 'PUT', { id });
+    }
   };
 
-  const markScanComplete = (id: string) => {
+  const markScanComplete = async (id: string) => {
     setScanRequests(prev => prev.map(s => s.id === id ? { ...s, status: 'Completed' } : s));
   };
 
-  const addScanRequest = (scan: ScanRequest) => {
+  const addScanRequest = async (scan: ScanRequest) => {
     setScanRequests(prev => [scan, ...prev]);
-    fetch('http://localhost:5000/api/scan', {
+    const res = await apiFetch('/api/scan', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(scan)
-    }).catch(err => console.error('MySQL Add Scan Error:', err));
+    });
+    if (!res.ok || res.offline) {
+      queueMutation('/api/scan', 'POST', scan);
+    }
   };
 
-  const updateScanReport = (id: string, reportFile: string, findings: string, radiologist?: string) => {
+  const updateScanReport = async (id: string, reportFile: string, findings: string, radiologist?: string) => {
     setScanRequests(prev => prev.map(s => 
       s.id === id 
         ? { 
@@ -492,11 +565,14 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
           } 
         : s
     ));
-    fetch(`http://localhost:5000/api/scan/${id}`, {
+    const payload = { reportFile, findings, radiologist };
+    const res = await apiFetch(`/api/scan/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reportFile, findings, radiologist })
-    }).catch(err => console.error('MySQL Update Scan Report Error:', err));
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok || res.offline) {
+      queueMutation(`/api/scan/${id}`, 'PUT', { id, ...payload });
+    }
   };
 
   return (
