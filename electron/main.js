@@ -1,5 +1,4 @@
 import { app, BrowserWindow, shell } from 'electron';
-import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -7,20 +6,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let mainWindow = null;
-let backendProcess = null;
 
-function startBackendServer() {
-  const serverPath = path.join(__dirname, '..', 'server', 'index.js');
-  console.log('🚀 Launching Backend Express & MySQL Server:', serverPath);
-
-  backendProcess = spawn('node', [serverPath], {
-    stdio: 'inherit',
-    shell: true
-  });
-
-  backendProcess.on('error', (err) => {
-    console.error('Failed to start backend server:', err);
-  });
+async function startBackendServer() {
+  try {
+    // Import express server directly using embedded Electron Node.js engine
+    await import('../server/index.js');
+    console.log('🚀 Embedded Express backend started successfully');
+  } catch (err) {
+    console.error('Embedded server startup info/error:', err);
+  }
 }
 
 function createWindow() {
@@ -29,7 +23,7 @@ function createWindow() {
     height: 768,
     minWidth: 1024,
     minHeight: 600,
-    title: 'SHIRI JANANI HOSPITALS Desktop Software',
+    title: 'SHREE JANANI HOSPITAL SOFTWARE',
     icon: path.join(__dirname, '..', 'public', 'desktop-icon.png'),
     webPreferences: {
       nodeIntegration: false,
@@ -40,11 +34,16 @@ function createWindow() {
 
   mainWindow.maximize();
 
-  const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
-  const startUrl = isDev ? 'http://localhost:5173' : `file://${path.join(__dirname, '..', 'dist', 'index.html')}`;
+  const isDev = !app.isPackaged && process.env.NODE_ENV === 'development';
 
-  console.log('🖥️ Loading Desktop Window URL:', startUrl);
-  mainWindow.loadURL(startUrl);
+  if (isDev) {
+    console.log('🖥️ Loading Dev URL: http://localhost:5173');
+    mainWindow.loadURL('http://localhost:5173');
+  } else {
+    const distIndexPath = path.join(__dirname, '..', 'dist', 'index.html');
+    console.log('🖥️ Loading Packaged App File:', distIndexPath);
+    mainWindow.loadFile(distIndexPath);
+  }
 
   // Open external links in default browser
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
@@ -57,13 +56,9 @@ function createWindow() {
   });
 }
 
-app.whenReady().then(() => {
-  startBackendServer();
-
-  // Wait 1.5s for backend to initialize
-  setTimeout(() => {
-    createWindow();
-  }, 1500);
+app.whenReady().then(async () => {
+  await startBackendServer();
+  createWindow();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -71,10 +66,6 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
-  if (backendProcess) {
-    console.log('🛑 Stopping backend server process...');
-    backendProcess.kill();
-  }
   if (process.platform !== 'darwin') {
     app.quit();
   }
