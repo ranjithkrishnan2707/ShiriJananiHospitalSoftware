@@ -1,9 +1,9 @@
 @echo off
-title Shri Janani Hospital Software - Client Installer & Setup
+title SHIRI JANANI HOSPITALS Software - Client Installer & Setup
 color 0A
 
 echo ========================================================
-echo       SHRI JANANI HOSPITAL SOFTWARE - CLIENT SETUP
+echo       SHIRI JANANI HOSPITALS SOFTWARE - CLIENT SETUP
 echo ========================================================
 echo.
 
@@ -32,14 +32,15 @@ echo.
 echo 4. Creating Desktop Icon Shortcut on Client PC...
 set SCRIPT="%TEMP%\create_hospital_shortcut.vbs"
 set APP_PATH=%~dp0Start-Hospital-Desktop-App.bat
-set DESKTOP_PATH=%USERPROFILE%\Desktop\Shri Janani Hospital.lnk
+set DESKTOP_PATH=%USERPROFILE%\Desktop\SHIRI JANANI HOSPITALS.lnk
 
 echo Set oWS = WScript.CreateObject("WScript.Shell") > %SCRIPT%
 echo sLinkFile = "%DESKTOP_PATH%" >> %SCRIPT%
 echo Set oLink = oWS.CreateShortcut(sLinkFile) >> %SCRIPT%
 echo oLink.TargetPath = "%APP_PATH%" >> %SCRIPT%
 echo oLink.WorkingDirectory = "%~dp0" >> %SCRIPT%
-echo oLink.Description = "Shri Janani Hospital Desktop Software" >> %SCRIPT%
+echo oLink.Description = "SHIRI JANANI HOSPITALS Desktop Software" >> %SCRIPT%
+echo oLink.IconLocation = "%~dp0public\desktop-icon.png" >> %SCRIPT%
 echo oLink.Save >> %SCRIPT%
 
 cscript /nologo %SCRIPT%
@@ -49,10 +50,10 @@ echo.
 echo ========================================================
 echo  🎉 INSTALLATION COMPLETE!
 echo ========================================================
-echo  A Desktop Icon "Shri Janani Hospital" has been created
+echo  A Desktop Icon "SHIRI JANANI HOSPITALS" has been created
 echo  on your Windows Desktop!
 echo.
-echo  Double-click "Shri Janani Hospital" on your Desktop to run!
+echo  Double-click "SHIRI JANANI HOSPITALS" on your Desktop to run!
 echo ========================================================
 echo.
 pause

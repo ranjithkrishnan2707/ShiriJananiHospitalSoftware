@@ -21,11 +21,11 @@ interface BillItem {
 const getTodayStr = () => new Date().toISOString().split('T')[0];
 
 const INITIAL_BILLS: BillItem[] = [
-  { bNo: 'OPB-101', bDate: getTodayStr(), ophuid: '3490', pName: 'JAYA SUDHA', age: '29 Yrs', refDoc: 'Dr. G. Srijaya', gross: 500, discount: 0, total: 500, cashAmount: 500, gpayAmount: 0, paymentMode: 'Cash' },
-  { bNo: 'OPB-102', bDate: getTodayStr(), ophuid: '3491', pName: 'DEEPIKA', age: '26 Yrs', refDoc: 'Dr. G. Srijaya', gross: 750, discount: 50, total: 700, cashAmount: 0, gpayAmount: 700, paymentMode: 'GPay' },
+  { bNo: 'OPB-101', bDate: getTodayStr(), ophuid: '3490', pName: 'JAYA SUDHA', age: '29 Yrs', refDoc: 'Dr.Sri Janani', gross: 500, discount: 0, total: 500, cashAmount: 500, gpayAmount: 0, paymentMode: 'Cash' },
+  { bNo: 'OPB-102', bDate: getTodayStr(), ophuid: '3491', pName: 'DEEPIKA', age: '26 Yrs', refDoc: 'Dr.Sri Janani', gross: 750, discount: 50, total: 700, cashAmount: 0, gpayAmount: 700, paymentMode: 'GPay' },
   { bNo: 'OPB-103', bDate: getTodayStr(), ophuid: '3492', pName: 'MUNESHWARI', age: '21 Yrs', refDoc: 'Dr. Sarah Jenkins', gross: 600, discount: 0, total: 600, cashAmount: 600, gpayAmount: 0, paymentMode: 'Cash' },
   { bNo: 'OPB-104', bDate: getTodayStr(), ophuid: '3493', pName: 'KALAIVANI', age: '30 Yrs', refDoc: 'Dr. Rajiv Menon', gross: 1200, discount: 100, total: 1100, cashAmount: 0, gpayAmount: 1100, paymentMode: 'GPay' },
-  { bNo: 'OPB-105', bDate: getTodayStr(), ophuid: '3494', pName: 'KEERTHANA', age: '27 Yrs', refDoc: 'Dr. G. Srijaya', gross: 500, discount: 0, total: 500, cashAmount: 500, gpayAmount: 0, paymentMode: 'Cash' },
+  { bNo: 'OPB-105', bDate: getTodayStr(), ophuid: '3494', pName: 'KEERTHANA', age: '27 Yrs', refDoc: 'Dr.Sri Janani', gross: 500, discount: 0, total: 500, cashAmount: 500, gpayAmount: 0, paymentMode: 'Cash' },
 ];
 
 const OpBillReport: React.FC = () => {
@@ -34,7 +34,7 @@ const OpBillReport: React.FC = () => {
   const [fromDate, setFromDate] = useState(getTodayStr());
   const [toDate, setToDate] = useState(getTodayStr());
   const [selectedDoctor, setSelectedDoctor] = useState('');
-  
+
   const [bills] = useState<BillItem[]>(INITIAL_BILLS);
   const [filteredBills, setFilteredBills] = useState<BillItem[]>(INITIAL_BILLS);
   const [activeBillNo, setActiveBillNo] = useState<string>('OPB-101');
@@ -110,9 +110,9 @@ const OpBillReport: React.FC = () => {
     <div className="bill-report-container page-transition">
       <div className="bill-report-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <h2 style={{ margin: 0 }}>OP BILL REPORT</h2>
-        <button 
+        <button
           type="button"
-          className="btn-back-page" 
+          className="btn-back-page"
           onClick={() => navigate(-1)}
           style={{
             display: 'inline-flex',
@@ -135,12 +135,12 @@ const OpBillReport: React.FC = () => {
       <div className="card filter-bar-card">
         <div className="filter-left">
           <div className="radio-group">
-            <input 
-              type="radio" 
-              id="all" 
-              name="reportType" 
-              checked={reportType === 'ALL'} 
-              onChange={() => setReportType('ALL')} 
+            <input
+              type="radio"
+              id="all"
+              name="reportType"
+              checked={reportType === 'ALL'}
+              onChange={() => setReportType('ALL')}
             />
             <label htmlFor="all">ALL</label>
           </div>
@@ -148,20 +148,20 @@ const OpBillReport: React.FC = () => {
           <div className="date-filters">
             <div className="date-group">
               <label>From</label>
-              <input 
-                type="date" 
-                className="form-control" 
-                value={fromDate} 
-                onChange={(e) => setFromDate(e.target.value)} 
+              <input
+                type="date"
+                className="form-control"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
               />
             </div>
             <div className="date-group">
               <label>To</label>
-              <input 
-                type="date" 
-                className="form-control" 
-                value={toDate} 
-                onChange={(e) => setToDate(e.target.value)} 
+              <input
+                type="date"
+                className="form-control"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
               />
             </div>
             <button className="btn-ok" type="button" onClick={handleApplyFilter}>OK</button>
@@ -169,14 +169,14 @@ const OpBillReport: React.FC = () => {
 
           <div className="doctor-filter">
             <label>Doctor Wise Report</label>
-            <select 
-              className="form-control" 
+            <select
+              className="form-control"
               style={{ width: '220px' }}
               value={selectedDoctor}
               onChange={(e) => setSelectedDoctor(e.target.value)}
             >
               <option value="">All Doctors</option>
-              <option value="Dr. G. Srijaya">Dr. G. Srijaya</option>
+              <option value="Dr.Sri Janani">Dr.Sri Janani</option>
               <option value="Dr. Sarah Jenkins">Dr. Sarah Jenkins</option>
               <option value="Dr. Rajiv Menon">Dr. Rajiv Menon</option>
             </select>
@@ -224,8 +224,8 @@ const OpBillReport: React.FC = () => {
                     const gpayVal = b.gpayAmount !== undefined ? b.gpayAmount : (b.paymentMode === 'UPI' || b.paymentMode === 'Card' || b.paymentMode === 'GPay' ? b.total : 0);
 
                     return (
-                      <tr 
-                        key={b.bNo} 
+                      <tr
+                        key={b.bNo}
                         className={activeBillNo === b.bNo ? 'active-row' : ''}
                         onClick={() => setActiveBillNo(b.bNo)}
                         style={{ cursor: 'pointer' }}

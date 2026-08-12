@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
         <div className="welcome-content">
           <div>
             <h2 className="welcome-title" style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 8px 0' }}>Welcome, Admin!</h2>
-            <p className="welcome-subtitle">Here is what's happening at SHRI Janani Hospital today.</p>
+            <p className="welcome-subtitle">Here is what's happening at SHIRI JANANI HOSPITALS today.</p>
             <p className="welcome-date">{currentDate}</p>
             
             <div style={{ marginTop: '24px' }}>
@@ -55,7 +55,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
           <div className="welcome-graphic">
-             <div className="large-logo">SJH</div>
+             <img src="/logo.png" alt="SHIRI JANANI HOSPITALS Logo" className="dash-large-logo-img" />
           </div>
         </div>
       </div>

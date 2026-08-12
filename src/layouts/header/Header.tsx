@@ -96,15 +96,15 @@ const Header: React.FC = () => {
     <>
       <header className="hospital-header">
         <div className="header-left">
-          <div className="logo-placeholder" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-            <span className="logo-text">SJH</span>
+          <div className="logo-placeholder" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} title="SHIRI JANANI HOSPITALS">
+            <img src="/desktop-icon.png" alt="SHIRI JANANI HOSPITALS Logo" className="header-app-logo" />
           </div>
         </div>
         
         <div className="header-center">
           <div style={{ textAlign: 'center' }}>
             <h1 className="hospital-title" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-              SHRI JANANI HOSPITAL
+              SHIRI JANANI HOSPITALS
             </h1>
             <div className="top-menu-bar">
               <span className="top-menu-item" onClick={() => navigate('/')}>Company</span>

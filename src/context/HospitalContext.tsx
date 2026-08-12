@@ -98,7 +98,7 @@ const INITIAL_SCAN_REQUESTS: ScanRequest[] = [
     scanType: 'Obstetric Anomaly USG Scan',
     date: getTodayStr(),
     status: 'Pending',
-    radiologist: 'Dr. G. Srijaya',
+    radiologist: 'Dr.Sri Janani',
     amount: 2500
   },
   {
@@ -110,7 +110,7 @@ const INITIAL_SCAN_REQUESTS: ScanRequest[] = [
     status: 'Completed',
     reportFile: 'USG_Pelvis_Report_3491.pdf',
     findings: 'Single live intrauterine gestation of ~28 weeks. Normal fetal cardiac activity & liquor volume.',
-    radiologist: 'Dr. G. Srijaya',
+    radiologist: 'Dr.Sri Janani',
     amount: 1800
   },
   {
@@ -122,7 +122,7 @@ const INITIAL_SCAN_REQUESTS: ScanRequest[] = [
     status: 'Completed',
     reportFile: 'Fetal_Echo_Report_3492.pdf',
     findings: 'Normal 4-chamber cardiac view. No obvious congenital structural heart anomaly detected.',
-    radiologist: 'Dr. G. Srijaya',
+    radiologist: 'Dr.Sri Janani',
     amount: 3200
   },
   {
@@ -132,7 +132,7 @@ const INITIAL_SCAN_REQUESTS: ScanRequest[] = [
     scanType: 'Transvaginal Scan (TVS)',
     date: getDaysAgoStr(1),
     status: 'Pending',
-    radiologist: 'Dr. G. Srijaya',
+    radiologist: 'Dr.Sri Janani',
     amount: 1500
   }
 ];
@@ -211,7 +211,7 @@ const DUMMY_PATIENTS: Patient[] = [
     pulseRate: '78',
     bloodPressure: '110/75',
     phone: '9876543211',
-    preferredDoctor: 'Dr. G. Srijaya',
+    preferredDoctor: 'Dr.Sri Janani',
     aadharNumber: '8765 4321 0987',
     history: [
       {
@@ -219,7 +219,7 @@ const DUMMY_PATIENTS: Patient[] = [
         date: getTodayStr(),
         time: '11:15 AM',
         visitType: 'OPD Consultation',
-        doctorName: 'Dr. G. Srijaya',
+        doctorName: 'Dr.Sri Janani',
         complaints: 'Nausea and Mild Lower Abdomen Pain',
         diagnosis: 'Early Pregnancy Checkup (10 Weeks)',
         prescription: 'Tab. Doxinate 1-0-1, Tab. Folvite 5mg 1-0-0',
@@ -275,7 +275,7 @@ interface HospitalContextType {
 
 const HospitalContext = createContext<HospitalContextType | undefined>(undefined);
 
-export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+export const HospitalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [patients, setPatients] = useState<Patient[]>(() => {
     const cached = localStorage.getItem('sjh_cached_patients');
     return cached ? JSON.parse(cached) : DUMMY_PATIENTS;
@@ -395,10 +395,10 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
   };
 
   const addConsultation = async (
-    patientUhid: string, 
-    diagnosis: string, 
-    medicines: string, 
-    tests: string, 
+    patientUhid: string,
+    diagnosis: string,
+    medicines: string,
+    tests: string,
     scans: string,
     notes: string,
     _fee: string
@@ -406,7 +406,7 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
     const date = new Date().toISOString().split('T')[0];
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const patientIndex = patients.findIndex(p => p.uhid === patientUhid);
-    
+
     if (patientIndex === -1) return;
     const patient = patients[patientIndex];
 
@@ -477,7 +477,7 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
         scanType: scans,
         date,
         status: 'Pending',
-        radiologist: 'Dr. G. Srijaya',
+        radiologist: 'Dr.Sri Janani',
         amount: 2500
       };
       setScanRequests(prev => [newScan!, ...prev]);
@@ -505,12 +505,12 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
       const updated = prev.map(p => p.id === id ? { ...p, status: 'Completed' as const } : p);
       const targetPrescription = prev.find(p => p.id === id);
       if (targetPrescription) {
-        setPatients(currentPatients => 
+        setPatients(currentPatients =>
           currentPatients.map(patient => {
             if (patient.uhid === targetPrescription.uhid) {
               return {
                 ...patient,
-                history: patient.history.map(h => 
+                history: patient.history.map(h =>
                   h.date === targetPrescription.date && h.prescription === targetPrescription.medicines
                     ? { ...h, prescription: `${h.prescription} (Dispensed)` }
                     : h
@@ -554,15 +554,15 @@ export const HospitalProvider: React.FC<{children: React.ReactNode}> = ({ childr
   };
 
   const updateScanReport = async (id: string, reportFile: string, findings: string, radiologist?: string) => {
-    setScanRequests(prev => prev.map(s => 
-      s.id === id 
-        ? { 
-            ...s, 
-            status: 'Completed', 
-            reportFile: reportFile || s.reportFile || 'Scan_Report.pdf', 
-            findings: findings || s.findings || '', 
-            radiologist: radiologist || s.radiologist || 'Dr. G. Srijaya' 
-          } 
+    setScanRequests(prev => prev.map(s =>
+      s.id === id
+        ? {
+          ...s,
+          status: 'Completed',
+          reportFile: reportFile || s.reportFile || 'Scan_Report.pdf',
+          findings: findings || s.findings || '',
+          radiologist: radiologist || s.radiologist || 'Dr.Sri Janani'
+        }
         : s
     ));
     const payload = { reportFile, findings, radiologist };

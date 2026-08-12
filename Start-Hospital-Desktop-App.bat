@@ -1,9 +1,9 @@
 @echo off
-title Shri Janani Hospital Desktop Software
+title SHIRI JANANI HOSPITALS Desktop Software
 color 0B
 
 echo ========================================================
-echo       SHRI JANANI HOSPITAL - DESKTOP APPLICATION LAUNCHER
+echo       SHIRI JANANI HOSPITALS - DESKTOP APPLICATION LAUNCHER
 echo ========================================================
 echo.
 echo 1. Starting Express Backend Server & MySQL Connection...
@@ -16,7 +16,7 @@ start "Janani Hospital Frontend" /min cmd /c "npm run dev"
 
 timeout /t 3 /nobreak >nul
 
-echo 3. Launching Shri Janani Hospital Desktop Window App...
+echo 3. Launching SHIRI JANANI HOSPITALS Desktop Window App...
 
 :: Try launching in Chrome Standalone App Mode (No browser bars/tabs)
 if exist "C:\Program Files\Google\Chrome\Application\chrome.exe" (

@@ -79,7 +79,7 @@ const IpdRegistration: React.FC = () => {
       alert("Please enter patient name");
       return;
     }
-    
+
     addOrUpdatePatient({
       uhid: formData.patientUhid || `UHID-${Date.now().toString().slice(-4)}`,
       patientId: formData.patientIpid ? `PT-${formData.patientIpid}` : `PT-${Date.now().toString().slice(-3)}`,
@@ -139,9 +139,9 @@ const IpdRegistration: React.FC = () => {
     <div className="ipd-container page-transition">
       <div className="ipd-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <h2 style={{ margin: 0 }}>IP REGISTRATION</h2>
-        <button 
+        <button
           type="button"
-          className="btn-back-page" 
+          className="btn-back-page"
           onClick={() => navigate(-1)}
           style={{
             display: 'inline-flex',
@@ -165,11 +165,11 @@ const IpdRegistration: React.FC = () => {
         <div className="form-group">
           <label>Type</label>
           <div className="input-container">
-            <select 
-              className="form-control" 
-              name="type" 
-              value={formData.type} 
-              onChange={handleInputChange} 
+            <select
+              className="form-control"
+              name="type"
+              value={formData.type}
+              onChange={handleInputChange}
               style={{ maxWidth: '200px' }}
             >
               <option value="IP">IP (In-Patient)</option>
@@ -181,13 +181,13 @@ const IpdRegistration: React.FC = () => {
         <div className="form-group">
           <label>Patient IPID</label>
           <div className="input-container">
-            <input 
-              type="text" 
-              className="form-control" 
-              name="patientIpid" 
-              value={formData.patientIpid} 
-              onChange={handleInputChange} 
-              style={{ maxWidth: '200px' }} 
+            <input
+              type="text"
+              className="form-control"
+              name="patientIpid"
+              value={formData.patientIpid}
+              onChange={handleInputChange}
+              style={{ maxWidth: '200px' }}
             />
           </div>
         </div>
@@ -195,13 +195,13 @@ const IpdRegistration: React.FC = () => {
         <div className="form-group">
           <label>Patient UHID</label>
           <div className="input-container">
-            <input 
-              type="text" 
-              className="form-control" 
-              name="patientUhid" 
-              value={formData.patientUhid} 
-              onChange={handleInputChange} 
-              style={{ maxWidth: '300px' }} 
+            <input
+              type="text"
+              className="form-control"
+              name="patientUhid"
+              value={formData.patientUhid}
+              onChange={handleInputChange}
+              style={{ maxWidth: '300px' }}
               placeholder="e.g. UHID-1001"
             />
             <button className="btn-secondary" type="button" onClick={handleSearchUhid} title="Search Patient Database">...</button>
@@ -212,11 +212,11 @@ const IpdRegistration: React.FC = () => {
         <div className="form-group">
           <label>Patient Name</label>
           <div className="input-container" style={{ position: 'relative' }} ref={nameDropdownRef}>
-            <input 
-              type="text" 
-              className="form-control" 
-              name="patientName" 
-              value={formData.patientName} 
+            <input
+              type="text"
+              className="form-control"
+              name="patientName"
+              value={formData.patientName}
               onChange={(e) => {
                 handleInputChange(e);
                 setShowNameDropdown(true);
@@ -260,21 +260,21 @@ const IpdRegistration: React.FC = () => {
         <div className="form-group">
           <label>Age</label>
           <div className="input-container">
-            <input 
-              type="text" 
-              className="form-control" 
-              name="age" 
-              value={formData.age} 
-              onChange={handleInputChange} 
-              style={{ maxWidth: '150px' }} 
+            <input
+              type="text"
+              className="form-control"
+              name="age"
+              value={formData.age}
+              onChange={handleInputChange}
+              style={{ maxWidth: '150px' }}
               placeholder="e.g. 45"
             />
             <label style={{ width: 'auto', margin: '8px 12px 0' }}>Gender</label>
-            <select 
-              className="form-control" 
-              name="gender" 
-              value={formData.gender} 
-              onChange={handleInputChange} 
+            <select
+              className="form-control"
+              name="gender"
+              value={formData.gender}
+              onChange={handleInputChange}
               style={{ maxWidth: '150px' }}
             >
               <option value="">Select Gender</option>
@@ -287,10 +287,10 @@ const IpdRegistration: React.FC = () => {
         <div className="form-group">
           <label>Address</label>
           <div className="input-container">
-            <textarea 
-              className="form-control" 
-              name="address" 
-              value={formData.address} 
+            <textarea
+              className="form-control"
+              name="address"
+              value={formData.address}
               onChange={handleInputChange}
               placeholder="Residential address..."
             ></textarea>
@@ -300,12 +300,12 @@ const IpdRegistration: React.FC = () => {
         <div className="form-group">
           <label>City</label>
           <div className="input-container">
-            <input 
-              type="text" 
-              className="form-control" 
-              name="city" 
-              value={formData.city} 
-              onChange={handleInputChange} 
+            <input
+              type="text"
+              className="form-control"
+              name="city"
+              value={formData.city}
+              onChange={handleInputChange}
               placeholder="City"
             />
           </div>
@@ -314,20 +314,20 @@ const IpdRegistration: React.FC = () => {
         <div className="form-group">
           <label>Contact</label>
           <div className="input-container">
-            <input 
-              type="text" 
-              className="form-control" 
-              name="contact1" 
-              value={formData.contact1} 
-              onChange={handleInputChange} 
+            <input
+              type="text"
+              className="form-control"
+              name="contact1"
+              value={formData.contact1}
+              onChange={handleInputChange}
               placeholder="Primary Phone"
             />
-            <input 
-              type="text" 
-              className="form-control" 
-              name="contact2" 
-              value={formData.contact2} 
-              onChange={handleInputChange} 
+            <input
+              type="text"
+              className="form-control"
+              name="contact2"
+              value={formData.contact2}
+              onChange={handleInputChange}
               placeholder="Secondary Phone"
             />
           </div>
@@ -336,13 +336,13 @@ const IpdRegistration: React.FC = () => {
         <div className="form-group">
           <label>DOA</label>
           <div className="input-container">
-            <input 
-              type="date" 
-              className="form-control" 
-              name="doa" 
-              value={formData.doa} 
-              onChange={handleInputChange} 
-              style={{ maxWidth: '200px' }} 
+            <input
+              type="date"
+              className="form-control"
+              name="doa"
+              value={formData.doa}
+              onChange={handleInputChange}
+              style={{ maxWidth: '200px' }}
             />
           </div>
         </div>
@@ -350,16 +350,16 @@ const IpdRegistration: React.FC = () => {
         <div className="form-group">
           <label>Ref.Doctor</label>
           <div className="input-container">
-            <select 
-              className="form-control" 
-              name="refDoctor" 
-              value={formData.refDoctor} 
+            <select
+              className="form-control"
+              name="refDoctor"
+              value={formData.refDoctor}
               onChange={handleInputChange}
             >
               <option value="">Select Doctor</option>
               <option value="Dr. Sarah Jenkins">Dr. Sarah Jenkins</option>
               <option value="Dr. Rajiv Menon">Dr. Rajiv Menon</option>
-              <option value="Dr. G. Srijaya">Dr. G. Srijaya</option>
+              <option value="Dr.Sri Janani">Dr.Sri Janani</option>
             </select>
           </div>
         </div>
@@ -391,10 +391,10 @@ const IpdRegistration: React.FC = () => {
 
             <div style={{ position: 'relative', marginBottom: '16px' }}>
               <Search size={18} style={{ position: 'absolute', left: '12px', top: '10px', color: '#94a3b8' }} />
-              <input 
-                type="text" 
-                className="form-control" 
-                placeholder="Search patient name, UHID, or phone..." 
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search patient name, UHID, or phone..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{ paddingLeft: '38px' }}
@@ -407,8 +407,8 @@ const IpdRegistration: React.FC = () => {
                 <div style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>No matching patients found.</div>
               ) : (
                 filteredPatients.map(p => (
-                  <div 
-                    key={p.uhid} 
+                  <div
+                    key={p.uhid}
                     style={{
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                       padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0',

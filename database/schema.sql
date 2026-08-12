@@ -206,13 +206,13 @@ ON DUPLICATE KEY UPDATE dname=VALUES(dname);
 
 -- Initial Patients
 INSERT INTO patients (uhid, patient_id, name, age, sex, weight, pulse_rate, blood_pressure, phone, preferred_doctor, aadhar_number) VALUES
-('3490', '1210', 'JAYA SUDHA W/O RAMESH', '29', 'Female', '62', '72', '120/80', '9876543210', 'Dr. G. Srijaya', '9876 5432 1098'),
-('3491', '1211', 'DEEPIKA W/O KANAN', '26', 'Female', '58', '76', '110/70', '9876543211', 'Dr. G. Srijaya', '8765 4321 0987'),
-('3492', '1212', 'MUNESHWARI W/O SEKAR', '21', 'Female', '54', '74', '115/75', '9876543212', 'Dr. G. Srijaya', '7654 3210 9876')
+('3490', '1210', 'JAYA SUDHA W/O RAMESH', '29', 'Female', '62', '72', '120/80', '9876543210', 'Dr.Sri Janani', '9876 5432 1098'),
+('3491', '1211', 'DEEPIKA W/O KANAN', '26', 'Female', '58', '76', '110/70', '9876543211', 'Dr.Sri Janani', '8765 4321 0987'),
+('3492', '1212', 'MUNESHWARI W/O SEKAR', '21', 'Female', '54', '74', '115/75', '9876543212', 'Dr.Sri Janani', '7654 3210 9876')
 ON DUPLICATE KEY UPDATE name=VALUES(name);
 
 -- Initial Scan Requests
 INSERT INTO scan_requests (id, patient_name, uhid, scan_type, date, status, report_file, findings, radiologist, amount) VALUES
-('SCN-101', 'JAYA SUDHA W/O RAMESH', '3490', 'Obstetric Anomaly USG Scan', '2026-08-09', 'Pending', NULL, NULL, 'Dr. G. Srijaya', 2500.00),
-('SCN-102', 'DEEPIKA W/O KANAN', '3491', 'Abdomen & Pelvis USG Scan', '2026-08-09', 'Completed', 'USG_Pelvis_Report_3491.pdf', 'Single live intrauterine gestation of ~28 weeks. Normal fetal cardiac activity & liquor volume.', 'Dr. G. Srijaya', 1800.00)
+('SCN-101', 'JAYA SUDHA W/O RAMESH', '3490', 'Obstetric Anomaly USG Scan', '2026-08-09', 'Pending', NULL, NULL, 'Dr.Sri Janani', 2500.00),
+('SCN-102', 'DEEPIKA W/O KANAN', '3491', 'Abdomen & Pelvis USG Scan', '2026-08-09', 'Completed', 'USG_Pelvis_Report_3491.pdf', 'Single live intrauterine gestation of ~28 weeks. Normal fetal cardiac activity & liquor volume.', 'Dr.Sri Janani', 1800.00)
 ON DUPLICATE KEY UPDATE patient_name=VALUES(patient_name);

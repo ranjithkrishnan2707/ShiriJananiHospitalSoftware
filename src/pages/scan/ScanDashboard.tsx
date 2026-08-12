@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHospital, type ScanRequest } from '../../context/HospitalContext';
-import { 
-  Activity, Upload, Search, FileText, CheckCircle, Clock, 
-  Printer, X, Plus, ArrowLeft, Download, ShieldCheck, Eye 
+import {
+  Activity, Upload, Search, FileText, CheckCircle, Clock,
+  Printer, X, Plus, ArrowLeft, Download, ShieldCheck, Eye
 } from 'lucide-react';
 import './ScanDashboard.css';
 
@@ -28,7 +28,7 @@ const ScanDashboard: React.FC = () => {
   const [uploadUhid, setUploadUhid] = useState('');
   const [uploadPatientName, setUploadPatientName] = useState('');
   const [uploadScanType, setUploadScanType] = useState('Obstetric Anomaly USG Scan');
-  const [uploadRadiologist, setUploadRadiologist] = useState('Dr. G. Srijaya');
+  const [uploadRadiologist, setUploadRadiologist] = useState('Dr.Sri Janani');
   const [uploadFindings, setUploadFindings] = useState('');
   const [uploadFileName, setUploadFileName] = useState('');
   const [uploadAmount, setUploadAmount] = useState('2000');
@@ -37,7 +37,7 @@ const ScanDashboard: React.FC = () => {
   const [newUhid, setNewUhid] = useState('');
   const [newPatientName, setNewPatientName] = useState('');
   const [newScanType, setNewScanType] = useState('NT SCAN');
-  const [newRadiologist, setNewRadiologist] = useState('Dr. G. Srijaya');
+  const [newRadiologist, setNewRadiologist] = useState('Dr.Sri Janani');
   const [newAmount, setNewAmount] = useState('2500');
 
   // Filtered Scans List
@@ -76,7 +76,7 @@ const ScanDashboard: React.FC = () => {
       setUploadUhid(scan.uhid);
       setUploadPatientName(scan.patientName);
       setUploadScanType(scan.scanType);
-      setUploadRadiologist(scan.radiologist || 'Dr. G. Srijaya');
+      setUploadRadiologist(scan.radiologist || 'Dr.Sri Janani');
       setUploadFindings(scan.findings || '');
       setUploadFileName(scan.reportFile || `${scan.scanType.replace(/\s+/g, '_')}_Report.pdf`);
       setUploadAmount((scan.amount || 2000).toString());
@@ -86,7 +86,7 @@ const ScanDashboard: React.FC = () => {
       setUploadUhid('');
       setUploadPatientName('');
       setUploadScanType('Obstetric Anomaly USG Scan');
-      setUploadRadiologist('Dr. G. Srijaya');
+      setUploadRadiologist('Dr.Sri Janani');
       setUploadFindings('');
       setUploadFileName('');
       setUploadAmount('');
@@ -176,7 +176,7 @@ const ScanDashboard: React.FC = () => {
 
   return (
     <div className="scan-container page-transition">
-      
+
       {/* Header Banner */}
       <div className="scan-header">
         <div>
@@ -184,8 +184,8 @@ const ScanDashboard: React.FC = () => {
           <p>Scan Orders, Digital Imaging Report Uploads, and Diagnostic Results Management</p>
         </div>
         <div className="scan-header-actions">
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="btn-view"
             style={{ backgroundColor: '#0284c7', color: 'white', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             onClick={() => navigate('/scan/upload')}
@@ -193,8 +193,8 @@ const ScanDashboard: React.FC = () => {
             <Upload size={16} /> Upload Scan Report
           </button>
 
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="btn-view"
             style={{ backgroundColor: '#10b981', color: 'white', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             onClick={() => setShowNewScanModal(true)}
@@ -202,18 +202,18 @@ const ScanDashboard: React.FC = () => {
             <Plus size={16} /> New Scan Entry
           </button>
 
-          <button 
-            type="button" 
-            className="btn-view" 
+          <button
+            type="button"
+            className="btn-view"
             onClick={() => navigate('/admin/expenses/add?dept=Scan&from=scan')}
             style={{ background: 'linear-gradient(135deg, #be185d 0%, #db2777 100%)', color: 'white', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           >
             <Plus size={16} /> Add Expense
           </button>
 
-          <button 
-            type="button" 
-            className="btn-back-page" 
+          <button
+            type="button"
+            className="btn-back-page"
             onClick={() => navigate(-1)}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',
@@ -265,19 +265,19 @@ const ScanDashboard: React.FC = () => {
       <div className="scan-main-card">
         <div className="scan-controls-bar">
           <div className="scan-tabs">
-            <button 
+            <button
               className={`scan-tab-btn ${activeTab === 'all' ? 'active' : ''}`}
               onClick={() => setActiveTab('all')}
             >
               All Scans ({totalScans})
             </button>
-            <button 
+            <button
               className={`scan-tab-btn ${activeTab === 'pending' ? 'active' : ''}`}
               onClick={() => setActiveTab('pending')}
             >
               Pending Uploads ({pendingScansCount})
             </button>
-            <button 
+            <button
               className={`scan-tab-btn ${activeTab === 'completed' ? 'active' : ''}`}
               onClick={() => setActiveTab('completed')}
             >
@@ -287,9 +287,9 @@ const ScanDashboard: React.FC = () => {
 
           <div className="scan-search-wrapper">
             <Search className="scan-search-icon" size={16} />
-            <input 
-              type="text" 
-              placeholder="Search patient, UHID, or scan type..." 
+            <input
+              type="text"
+              placeholder="Search patient, UHID, or scan type..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -327,7 +327,7 @@ const ScanDashboard: React.FC = () => {
                     <td style={{ fontWeight: 600 }}>{row.patientName}</td>
                     <td>{row.scanType}</td>
                     <td>{row.date}</td>
-                    <td>{row.radiologist || 'Dr. G. Srijaya'}</td>
+                    <td>{row.radiologist || 'Dr.Sri Janani'}</td>
                     <td style={{ fontWeight: 600 }}>₹{(row.amount || 2000).toLocaleString()}</td>
                     <td>
                       {row.status === 'Completed' ? (
@@ -343,7 +343,7 @@ const ScanDashboard: React.FC = () => {
                     <td style={{ textAlign: 'right' }}>
                       <div style={{ display: 'inline-flex', gap: '6px' }}>
                         {row.status === 'Pending' ? (
-                          <button 
+                          <button
                             className="tbl-btn tbl-btn-upload"
                             onClick={() => navigate('/scan/upload', { state: { scanId: row.id } })}
                             title="Upload Scan Report File"
@@ -351,7 +351,7 @@ const ScanDashboard: React.FC = () => {
                             <Upload size={14} /> Upload Report
                           </button>
                         ) : (
-                          <button 
+                          <button
                             className="tbl-btn tbl-btn-view"
                             onClick={() => handleOpenViewModal(row)}
                             title="View Attached Scan Report"
@@ -359,7 +359,7 @@ const ScanDashboard: React.FC = () => {
                             <Eye size={14} /> View Report
                           </button>
                         )}
-                        <button 
+                        <button
                           className="tbl-btn tbl-btn-print"
                           onClick={() => handleOpenViewModal(row)}
                           title="Print Scan Slip"
@@ -395,7 +395,7 @@ const ScanDashboard: React.FC = () => {
             <form onSubmit={handleSaveUploadReport}>
               <div className="modal-form-group">
                 <label>Select Registered Patient (Optional)</label>
-                <select 
+                <select
                   className="form-control"
                   value=""
                   onChange={(e) => {
@@ -415,22 +415,22 @@ const ScanDashboard: React.FC = () => {
               <div className="modal-grid-2">
                 <div className="modal-form-group">
                   <label>Patient UHID</label>
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    value={uploadUhid} 
-                    onChange={(e) => setUploadUhid(e.target.value)} 
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={uploadUhid}
+                    onChange={(e) => setUploadUhid(e.target.value)}
                     placeholder="e.g. 3490"
                   />
                 </div>
 
                 <div className="modal-form-group">
                   <label>Patient Name</label>
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    value={uploadPatientName} 
-                    onChange={(e) => setUploadPatientName(e.target.value)} 
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={uploadPatientName}
+                    onChange={(e) => setUploadPatientName(e.target.value)}
                     placeholder="Enter patient full name"
                   />
                   {patients.length > 0 && uploadPatientName && (
@@ -456,7 +456,7 @@ const ScanDashboard: React.FC = () => {
               <div className="modal-grid-2">
                 <div className="modal-form-group">
                   <label>Scan Modality / Type</label>
-                  <select 
+                  <select
                     className="form-control"
                     value={uploadScanType}
                     onChange={(e) => setUploadScanType(e.target.value)}
@@ -475,12 +475,12 @@ const ScanDashboard: React.FC = () => {
 
                 <div className="modal-form-group">
                   <label>Consulting Radiologist</label>
-                  <select 
+                  <select
                     className="form-control"
                     value={uploadRadiologist}
                     onChange={(e) => setUploadRadiologist(e.target.value)}
                   >
-                    <option value="Dr. G. Srijaya">Dr. G. Srijaya, MD (OG)</option>
+                    <option value="Dr.Sri Janani">Dr.Sri Janani, MD (OG)</option>
                     <option value="Dr. S. Raman">Dr. S. Raman, MD (Radiology)</option>
                     <option value="Dr. Consulting Radiologist">Dr. Consulting Radiologist</option>
                   </select>
@@ -489,8 +489,8 @@ const ScanDashboard: React.FC = () => {
 
               <div className="modal-form-group">
                 <label>Radiological Findings / Clinical Impression</label>
-                <textarea 
-                  className="form-control" 
+                <textarea
+                  className="form-control"
                   rows={3}
                   value={uploadFindings}
                   onChange={(e) => setUploadFindings(e.target.value)}
@@ -506,11 +506,11 @@ const ScanDashboard: React.FC = () => {
                     {uploadFileName ? `Attached: ${uploadFileName}` : 'Click to select or drag & drop Scan Report file'}
                   </p>
                   <span style={{ fontSize: '11px', color: '#64748b' }}>Supports PDF, PNG, JPG, DICOM files</span>
-                  <input 
-                    type="file" 
-                    id="scan-file-input" 
-                    style={{ display: 'none' }} 
-                    onChange={handleFileChange} 
+                  <input
+                    type="file"
+                    id="scan-file-input"
+                    style={{ display: 'none' }}
+                    onChange={handleFileChange}
                   />
                 </div>
               </div>
@@ -518,21 +518,21 @@ const ScanDashboard: React.FC = () => {
               <div className="modal-grid-2">
                 <div className="modal-form-group">
                   <label>Scan Charges (₹)</label>
-                  <input 
-                    type="number" 
-                    className="form-control" 
+                  <input
+                    type="number"
+                    className="form-control"
                     value={uploadAmount}
-                    onChange={(e) => setUploadAmount(e.target.value)} 
+                    onChange={(e) => setUploadAmount(e.target.value)}
                   />
                 </div>
 
                 <div className="modal-form-group">
                   <label>Status</label>
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    value="Completed & Report Ready" 
-                    disabled 
+                  <input
+                    type="text"
+                    className="form-control"
+                    value="Completed & Report Ready"
+                    disabled
                     style={{ backgroundColor: '#f1f5f9' }}
                   />
                 </div>
@@ -568,7 +568,7 @@ const ScanDashboard: React.FC = () => {
             <form onSubmit={handleCreateNewScan}>
               <div className="modal-form-group">
                 <label>Select Registered Patient</label>
-                <select 
+                <select
                   className="form-control"
                   onChange={(e) => {
                     const found = patients.find(p => p.name === e.target.value);
@@ -587,22 +587,22 @@ const ScanDashboard: React.FC = () => {
               <div className="modal-grid-2">
                 <div className="modal-form-group">
                   <label>Patient UHID</label>
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    value={newUhid} 
-                    onChange={(e) => setNewUhid(e.target.value)} 
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={newUhid}
+                    onChange={(e) => setNewUhid(e.target.value)}
                     placeholder="e.g. 3490"
                   />
                 </div>
 
                 <div className="modal-form-group">
                   <label>Patient Name</label>
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    value={newPatientName} 
-                    onChange={(e) => setNewPatientName(e.target.value)} 
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={newPatientName}
+                    onChange={(e) => setNewPatientName(e.target.value)}
                     placeholder="Patient Name"
                   />
                 </div>
@@ -610,7 +610,7 @@ const ScanDashboard: React.FC = () => {
 
               <div className="modal-form-group">
                 <label>Scan Modality / Test Type</label>
-                <select 
+                <select
                   className="form-control"
                   value={newScanType}
                   onChange={(e) => setNewScanType(e.target.value)}
@@ -627,21 +627,21 @@ const ScanDashboard: React.FC = () => {
               <div className="modal-grid-2">
                 <div className="modal-form-group">
                   <label>Radiologist</label>
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    value={newRadiologist} 
-                    onChange={(e) => setNewRadiologist(e.target.value)} 
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={newRadiologist}
+                    onChange={(e) => setNewRadiologist(e.target.value)}
                   />
                 </div>
 
                 <div className="modal-form-group">
                   <label>Scan Fee (₹)</label>
-                  <input 
-                    type="number" 
-                    className="form-control" 
-                    value={newAmount} 
-                    onChange={(e) => setNewAmount(e.target.value)} 
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={newAmount}
+                    onChange={(e) => setNewAmount(e.target.value)}
                   />
                 </div>
               </div>
@@ -680,7 +680,7 @@ const ScanDashboard: React.FC = () => {
               <div><strong>Patient Name:</strong> {selectedScan.patientName}</div>
               <div><strong>Patient UHID:</strong> {selectedScan.uhid}</div>
               <div><strong>Scan Modality:</strong> {selectedScan.scanType}</div>
-              <div><strong>Radiologist:</strong> {selectedScan.radiologist || 'Dr. G. Srijaya'}</div>
+              <div><strong>Radiologist:</strong> {selectedScan.radiologist || 'Dr.Sri Janani'}</div>
             </div>
 
             <div style={{ border: '1px solid #e2e8f0', padding: '16px', borderRadius: '8px', marginBottom: '20px', background: 'white' }}>
@@ -700,7 +700,7 @@ const ScanDashboard: React.FC = () => {
                   <div style={{ fontSize: '11px', color: '#64748b' }}>Digital Medical Image & Report Document</div>
                 </div>
               </div>
-              <button 
+              <button
                 className="tbl-btn tbl-btn-upload"
                 onClick={() => alert(`Downloading file "${selectedScan.reportFile || 'Scan_Report.pdf'}"...`)}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}
@@ -715,9 +715,9 @@ const ScanDashboard: React.FC = () => {
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button className="action-btn" onClick={() => setShowViewModal(false)}>Close</button>
-                <button 
-                  className="btn-view" 
-                  style={{ backgroundColor: '#1e293b', color: 'white', display: 'inline-flex', alignItems: 'center', gap: '8px' }} 
+                <button
+                  className="btn-view"
+                  style={{ backgroundColor: '#1e293b', color: 'white', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                   onClick={() => window.print()}
                 >
                   <Printer size={16} /> Print Report Slip

@@ -98,7 +98,7 @@ app.post('/api/patients', async (req, res) => {
 app.post('/api/patients/consultation', async (req, res) => {
   try {
     const { patientUhid, historyItem, prescription, labRequest, scanRequest } = req.body;
-    
+
     // Save history item if provided
     if (historyItem && patientUhid) {
       const sqlHist = `
@@ -165,7 +165,7 @@ app.post('/api/patients/consultation', async (req, res) => {
       await pool.query(sqlScan, [
         scanRequest.id, scanRequest.patientName || '', scanRequest.uhid || patientUhid,
         scanRequest.scanType || '', scanRequest.date || '', scanRequest.status || 'Pending',
-        scanRequest.radiologist || 'Dr. G. Srijaya', scanRequest.amount || 0
+        scanRequest.radiologist || 'Dr.Sri Janani', scanRequest.amount || 0
       ]);
     }
 
@@ -458,7 +458,7 @@ app.post('/api/scan', async (req, res) => {
     await pool.query(sql, [
       s.id, s.patientName, s.uhid, s.scanType, s.date,
       s.status || 'Pending', s.reportFile || null, s.findings || null,
-      s.radiologist || 'Dr. G. Srijaya', s.amount || 0
+      s.radiologist || 'Dr.Sri Janani', s.amount || 0
     ]);
     res.json({ success: true, message: 'Scan request saved to MySQL' });
   } catch (err) {
@@ -475,7 +475,7 @@ app.put('/api/scan/:id', async (req, res) => {
       SET status = "Completed", report_file = ?, findings = ?, radiologist = ? 
       WHERE id = ?
     `;
-    await pool.query(sql, [reportFile, findings, radiologist || 'Dr. G. Srijaya', id]);
+    await pool.query(sql, [reportFile, findings, radiologist || 'Dr.Sri Janani', id]);
     res.json({ success: true, message: 'Scan report uploaded in MySQL' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -704,7 +704,7 @@ app.post('/api/sync/batch', async (req, res) => {
         await pool.query(sql, [
           s.id, s.patientName, s.uhid, s.scanType, s.date,
           s.status || 'Pending', s.reportFile || null, s.findings || null,
-          s.radiologist || 'Dr. G. Srijaya', s.amount || 0
+          s.radiologist || 'Dr.Sri Janani', s.amount || 0
         ]);
         syncedCount++;
       } else if (endpoint === '/api/prescriptions' && method === 'POST') {

@@ -42,16 +42,22 @@
 }
 
 .logo-placeholder {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, var(--color-primary), #486899);
-  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-weight: bold;
-  box-shadow: 0 2px 4px rgba(96, 130, 182, 0.3);
+}
+
+.header-app-logo {
+  height: 42px;
+  width: 42px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.header-app-logo:hover {
+  transform: scale(1.08);
 }
 
 .header-center {

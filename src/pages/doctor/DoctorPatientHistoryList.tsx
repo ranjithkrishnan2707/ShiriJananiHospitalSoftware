@@ -58,7 +58,7 @@ const DoctorPatientHistoryList: React.FC = () => {
 
   return (
     <div className="history-page-container page-transition">
-      
+
       {/* Top Header Banner */}
       <div className="history-page-header">
         <div className="history-header-title">
@@ -235,7 +235,7 @@ const DoctorPatientHistoryList: React.FC = () => {
                     </td>
                     <td>
                       <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '13px' }}>
-                        {patient.preferredDoctor || 'Dr. G. Srijaya'}
+                        {patient.preferredDoctor || 'Dr.Sri Janani'}
                       </div>
                     </td>
                     <td>

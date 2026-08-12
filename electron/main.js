@@ -29,8 +29,8 @@ function createWindow() {
     height: 768,
     minWidth: 1024,
     minHeight: 600,
-    title: 'Shri Janani Hospital Software',
-    icon: path.join(__dirname, '..', 'public', 'favicon.ico'),
+    title: 'SHIRI JANANI HOSPITALS Desktop Software',
+    icon: path.join(__dirname, '..', 'public', 'desktop-icon.png'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true

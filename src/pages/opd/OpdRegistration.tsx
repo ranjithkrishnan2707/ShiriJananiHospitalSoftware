@@ -32,11 +32,11 @@ export interface OpdRecord {
 const getTodayStr = () => new Date().toISOString().split('T')[0];
 
 const INITIAL_OPD_RECORDS: OpdRecord[] = [
-  { uhid: '3490', patientId: '1210', rchId: 'RCH-001', aadharNumber: '9876 5432 1098', date: getTodayStr(), name: 'JAYA SUDHA W/O RAMESH', age: '29 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543210', address: '12 Main St', city: 'Chennai', session: 'morning', bp: '120/80', temp: '98.6', pulse: '72', spo2: '99', complaints: 'Routine ANC checkup' },
-  { uhid: '3491', patientId: '1211', rchId: 'RCH-002', aadharNumber: '8765 4321 0987', date: getTodayStr(), name: 'DEEPIKA W/O KANAN', age: '26 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '', address: '45 Cross Rd', city: 'Chennai', session: 'morning', bp: '110/70', temp: '98.4', pulse: '76', spo2: '98', complaints: 'Nausea & fever' },
-  { uhid: '3492', patientId: '1212', rchId: 'RCH-003', aadharNumber: '7654 3210 9876', date: getTodayStr(), name: 'MUNESHWARI W/O SEKAR', age: '21 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543212', address: '8 Gandhi St', city: 'Chennai', session: 'morning', bp: '115/75', temp: '98.6', pulse: '74', spo2: '99', complaints: 'Headache' },
-  { uhid: '3493', patientId: '1213', rchId: 'RCH-004', aadharNumber: '6543 2109 8765', date: getTodayStr(), name: 'KALAIVANI W/O MANI', age: '30 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543213', address: '99 North Ave', city: 'Chennai', session: 'evening', bp: '122/82', temp: '99.0', pulse: '80', spo2: '97', complaints: 'Back ache' },
-  { uhid: '3494', patientId: '1214', rchId: 'RCH-005', aadharNumber: '5432 1098 7654', date: getTodayStr(), name: 'KEERTHANA W/O SURYA', age: '27 Yrs', gender: 'Female', doc: 'Dr. G. Srijaya', phone: '9876543214', address: '14 Park St', city: 'Chennai', session: 'evening', bp: '118/78', temp: '98.6', pulse: '72', spo2: '99', complaints: 'General weakness' },
+  { uhid: '3490', patientId: '1210', rchId: 'RCH-001', aadharNumber: '9876 5432 1098', date: getTodayStr(), name: 'JAYA SUDHA W/O RAMESH', age: '29 Yrs', gender: 'Female', doc: 'Dr.Sri Janani', phone: '9876543210', address: '12 Main St', city: 'Chennai', session: 'morning', bp: '120/80', temp: '98.6', pulse: '72', spo2: '99', complaints: 'Routine ANC checkup' },
+  { uhid: '3491', patientId: '1211', rchId: 'RCH-002', aadharNumber: '8765 4321 0987', date: getTodayStr(), name: 'DEEPIKA W/O KANAN', age: '26 Yrs', gender: 'Female', doc: 'Dr.Sri Janani', phone: '', address: '45 Cross Rd', city: 'Chennai', session: 'morning', bp: '110/70', temp: '98.4', pulse: '76', spo2: '98', complaints: 'Nausea & fever' },
+  { uhid: '3492', patientId: '1212', rchId: 'RCH-003', aadharNumber: '7654 3210 9876', date: getTodayStr(), name: 'MUNESHWARI W/O SEKAR', age: '21 Yrs', gender: 'Female', doc: 'Dr.Sri Janani', phone: '9876543212', address: '8 Gandhi St', city: 'Chennai', session: 'morning', bp: '115/75', temp: '98.6', pulse: '74', spo2: '99', complaints: 'Headache' },
+  { uhid: '3493', patientId: '1213', rchId: 'RCH-004', aadharNumber: '6543 2109 8765', date: getTodayStr(), name: 'KALAIVANI W/O MANI', age: '30 Yrs', gender: 'Female', doc: 'Dr.Sri Janani', phone: '9876543213', address: '99 North Ave', city: 'Chennai', session: 'evening', bp: '122/82', temp: '99.0', pulse: '80', spo2: '97', complaints: 'Back ache' },
+  { uhid: '3494', patientId: '1214', rchId: 'RCH-005', aadharNumber: '5432 1098 7654', date: getTodayStr(), name: 'KEERTHANA W/O SURYA', age: '27 Yrs', gender: 'Female', doc: 'Dr.Sri Janani', phone: '9876543214', address: '14 Park St', city: 'Chennai', session: 'evening', bp: '118/78', temp: '98.6', pulse: '72', spo2: '99', complaints: 'General weakness' },
 ];
 
 const OpdRegistration: React.FC = () => {
@@ -61,7 +61,7 @@ const OpdRegistration: React.FC = () => {
   const [city, setCity] = useState('');
   const [contact1, setContact1] = useState('');
   const [contact2, setContact2] = useState('');
-  const [doctorName, setDoctorName] = useState('Dr. G. Srijaya');
+  const [doctorName, setDoctorName] = useState('Dr.Sri Janani');
 
   // Vitals & History State
   const [height, setHeight] = useState('');
@@ -187,8 +187,8 @@ const OpdRegistration: React.FC = () => {
       alert('Please enter an Aadhar Number to search.');
       return;
     }
-    const found = patients.find(p => p.aadharNumber && p.aadharNumber.replace(/\s+/g, '').toLowerCase().includes(cleanTerm)) || 
-                  opdList.find(o => o.aadharNumber && o.aadharNumber.replace(/\s+/g, '').toLowerCase().includes(cleanTerm));
+    const found = patients.find(p => p.aadharNumber && p.aadharNumber.replace(/\s+/g, '').toLowerCase().includes(cleanTerm)) ||
+      opdList.find(o => o.aadharNumber && o.aadharNumber.replace(/\s+/g, '').toLowerCase().includes(cleanTerm));
     if (found) {
       populateFormFromRecord(found);
       alert(`Patient found: ${found.name}`);
@@ -230,7 +230,7 @@ const OpdRegistration: React.FC = () => {
     setAddress(rec.address || '');
     setCity(rec.city || '');
     setContact1(rec.phone || rec.contact1 || '');
-    setDoctorName(rec.doc || rec.preferredDoctor || 'Dr. G. Srijaya');
+    setDoctorName(rec.doc || rec.preferredDoctor || 'Dr.Sri Janani');
     setBp(rec.bp || rec.bloodPressure || '120/80');
     setTemperature(rec.temp || '98.6');
     setPulse(rec.pulse || rec.pulseRate || '72');
@@ -380,13 +380,13 @@ const OpdRegistration: React.FC = () => {
         <h2>OP REGISTRATION</h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
-            <input type="checkbox" checked={isNewPatient} onChange={(e) => setIsNewPatient(e.target.checked)} style={{ width: '18px', height: '18px' }}/>
+            <input type="checkbox" checked={isNewPatient} onChange={(e) => setIsNewPatient(e.target.checked)} style={{ width: '18px', height: '18px' }} />
             New Patient Detailed Assessment
           </label>
           <span className="opd-id">OPUHID: {uhid}</span>
-          <button 
+          <button
             type="button"
-            className="btn-back-page" 
+            className="btn-back-page"
             onClick={() => navigate(-1)}
             style={{
               display: 'inline-flex',
@@ -441,13 +441,13 @@ const OpdRegistration: React.FC = () => {
           <div className="form-group">
             <label>Aadhar No</label>
             <div className="input-container">
-              <input 
-                type="text" 
-                className="form-control" 
-                placeholder="Enter 12-digit Aadhar No" 
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Enter 12-digit Aadhar No"
                 maxLength={14}
-                value={aadharNumber} 
-                onChange={(e) => setAadharNumber(e.target.value)} 
+                value={aadharNumber}
+                onChange={(e) => setAadharNumber(e.target.value)}
               />
               <button className="search-btn" type="button" onClick={handleSearchAadhar}>Search</button>
             </div>
@@ -462,11 +462,11 @@ const OpdRegistration: React.FC = () => {
                 <option value="mrs">Mrs.</option>
               </select>
               <div style={{ flex: 1, position: 'relative' }} ref={nameDropdownRef}>
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  placeholder="Full Patient Name" 
-                  value={patientName} 
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Full Patient Name"
+                  value={patientName}
                   onChange={(e) => {
                     setPatientName(e.target.value);
                     setShowNameDropdown(true);
@@ -586,8 +586,8 @@ const OpdRegistration: React.FC = () => {
               </thead>
               <tbody>
                 {filteredOpdList.map((row) => (
-                  <tr 
-                    key={row.uhid} 
+                  <tr
+                    key={row.uhid}
                     className={selectedRecordUhid === row.uhid ? 'active-row' : ''}
                     onClick={() => {
                       setSelectedRecordUhid(row.uhid);
@@ -614,18 +614,18 @@ const OpdRegistration: React.FC = () => {
       {isNewPatient && (
         <div className="card section-card new-patient-section">
           <div className="np-header" style={{ fontWeight: 'bold', color: 'var(--color-primary)', marginBottom: '12px' }}>New Patient Detailed Assessment</div>
-          
-          <div className="section-header" style={{marginBottom: '12px'}}>Personal Details</div>
+
+          <div className="section-header" style={{ marginBottom: '12px' }}>Personal Details</div>
           <div className="new-patient-grid">
             <div className="np-group">
               <label>Aadhar Number</label>
-              <input 
-                type="text" 
-                className="form-control" 
-                placeholder="12-digit Aadhar No" 
+              <input
+                type="text"
+                className="form-control"
+                placeholder="12-digit Aadhar No"
                 maxLength={14}
-                value={aadharNumber} 
-                onChange={(e) => setAadharNumber(e.target.value)} 
+                value={aadharNumber}
+                onChange={(e) => setAadharNumber(e.target.value)}
               />
             </div>
             <div className="np-group"><label>Husband/Father's Name</label><input type="text" className="form-control" /></div>
@@ -722,9 +722,9 @@ const OpdRegistration: React.FC = () => {
 
         <div className="card section-card">
           <div className="section-header">Present Complaints</div>
-          <textarea 
-            className="form-control complaints-textarea" 
-            value={complaints} 
+          <textarea
+            className="form-control complaints-textarea"
+            value={complaints}
             onChange={(e) => setComplaints(e.target.value)}
             placeholder="Enter patient complaints & clinical observations..."
           ></textarea>
