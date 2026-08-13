@@ -29,12 +29,15 @@
     ],
     "win": {
       "target": [
-        "portable"
-      ],
-      "forceCodeSigning": false
+        "nsis"
+      ]
     },
-    "portable": {
-      "artifactName": "${productName}.exe"
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
   },
   "dependencies": {

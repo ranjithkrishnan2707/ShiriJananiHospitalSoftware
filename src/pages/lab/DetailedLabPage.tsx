@@ -347,7 +347,7 @@ const DEFAULT_TEST_NAME_RECORDS: TestNameEntryRecord[] = [
   }
 ];
 
-const LabDashboard: React.FC = () => {
+const DetailedLabPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
@@ -4771,4 +4771,4 @@ const LabDashboard: React.FC = () => {
   );
 };
 
-export default LabDashboard;
+export default DetailedLabPage;

@@ -1,0 +1,345 @@
+.phs-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 8px;
+}
+
+.phs-window {
+  width: 98%;
+  max-width: 1500px;
+  height: 94vh;
+  background: #ffffff;
+  border: 2px solid #5a5a5a;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* TOP WOODEN HEADER BANNER */
+.phs-header-banner {
+  background: linear-gradient(180deg, #70622d 0%, #a4924b 40%, #70622d 100%);
+  color: white;
+  border-bottom: 2px solid #3d3518;
+  text-align: center;
+  position: relative;
+}
+
+.phs-header-doctor {
+  font-size: 21px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  padding: 6px 0 2px 0;
+  color: #ffffff;
+  text-shadow: 2px 2px 3px #000000;
+  font-family: Arial, sans-serif;
+}
+
+.phs-header-titlebar {
+  background: #9fb93b;
+  color: #ffff00;
+  font-size: 19px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 4px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #c5da64;
+  border-bottom: 1px solid #758a20;
+  text-shadow: 1px 1px 2px #000000;
+}
+
+.phs-top-close {
+  background: #e53935;
+  border: 1px solid #b71c1c;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-size: 12px;
+}
+.phs-top-close:hover {
+  background: #c62828;
+}
+
+/* MAIN BODY AREA */
+.phs-main-body {
+  display: grid;
+  grid-template-columns: 500px 1fr;
+  flex: 1;
+  gap: 8px;
+  padding: 8px;
+  overflow-y: auto;
+  background: #ffffff;
+}
+
+/* LEFT PANEL: DETAILS OF PRODUCT FORM */
+.phs-left-panel {
+  background: #ffffff;
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+}
+
+.phs-section-title {
+  font-size: 15px;
+  font-weight: bold;
+  color: #000080;
+  text-decoration: underline;
+  margin: 4px 0 8px 0;
+  font-family: Arial, sans-serif;
+}
+
+.phs-form-row {
+  display: grid;
+  grid-template-columns: 125px 1fr;
+  align-items: center;
+  gap: 6px;
+}
+
+.phs-form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.phs-form-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.phs-label {
+  font-size: 13px;
+  font-weight: bold;
+  color: #000000;
+  font-family: Arial, sans-serif;
+}
+
+.phs-label.red {
+  color: #c00000;
+}
+
+.phs-input {
+  width: 100%;
+  padding: 3px 6px;
+  border: 1px solid #7f9db9;
+  background: #e3e3e3;
+  font-size: 13px;
+  font-weight: normal;
+  color: #000000;
+  outline: none;
+  box-sizing: border-box;
+  height: 24px;
+}
+
+.phs-input:focus {
+  background: #ffffff;
+  border-color: #000080;
+}
+
+.phs-input.readonly {
+  background: #d8d8d8;
+  color: #333;
+}
+
+.phs-select {
+  width: 100%;
+  padding: 2px 4px;
+  border: 1px solid #7f9db9;
+  background: #e3e3e3;
+  font-size: 13px;
+  font-weight: normal;
+  color: #000000;
+  outline: none;
+  box-sizing: border-box;
+  height: 24px;
+}
+
+/* SUB SECTIONS (LEVEL'S & PACKING TYPE) */
+.phs-sub-sections-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.phs-sub-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.phs-sub-title {
+  font-size: 15px;
+  font-weight: bold;
+  color: #000080;
+  text-decoration: underline;
+  margin: 0 0 4px 0;
+  font-family: Arial, sans-serif;
+}
+
+.phs-sub-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+}
+
+.phs-sub-row label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #000000;
+}
+
+.phs-sub-row label.red {
+  color: #c00000;
+}
+
+.phs-input-sm {
+  width: 85px;
+  padding: 2px 4px;
+  border: 1px solid #7f9db9;
+  background: #e3e3e3;
+  font-size: 12px;
+  color: #000000;
+  height: 22px;
+  box-sizing: border-box;
+}
+
+.phs-select-sm {
+  width: 85px;
+  padding: 2px 4px;
+  border: 1px solid #7f9db9;
+  background: #e3e3e3;
+  font-size: 12px;
+  color: #000000;
+  height: 22px;
+  box-sizing: border-box;
+}
+
+.phs-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+/* RIGHT PANEL: TRANSACTION HISTORY GRID */
+.phs-right-panel {
+  background: #e9e9e9;
+  border: 1px solid #7f9db9;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.phs-table-container {
+  flex: 1;
+  overflow: auto;
+  background: #f0f0f0;
+}
+
+.phs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-family: Arial, sans-serif;
+}
+
+.phs-table th {
+  background: #d8d8d8;
+  border: 1px solid #a0a0a0;
+  padding: 4px 6px;
+  text-align: left;
+  font-weight: bold;
+  color: #000000;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.phs-table td {
+  border: 1px solid #c0c0c0;
+  padding: 4px 6px;
+  color: #000000;
+  background: #ffffff;
+}
+
+.phs-table tbody tr:hover td {
+  background: #e2f0d9;
+}
+
+.phs-badge {
+  font-weight: bold;
+}
+.phs-badge.purchase { color: #0000aa; }
+.phs-badge.sale { color: #008000; }
+.phs-badge.return { color: #c00000; }
+
+/* BOTTOM ACTION TOOLBAR BUTTONS */
+.phs-bottom-toolbar {
+  background: #9fb93b;
+  border-top: 2px solid #758a20;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.phs-btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.phs-action-btn {
+  flex: 1;
+  min-width: 75px;
+  padding: 4px 8px;
+  background: linear-gradient(180deg, #d8e698 0%, #a6b756 100%);
+  border: 1px solid #5d6d1b;
+  color: #000000;
+  font-weight: bold;
+  font-size: 13px;
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+}
+
+.phs-action-btn:hover {
+  background: linear-gradient(180deg, #edf5c4 0%, #bece6e 100%);
+}
+
+.phs-action-btn:active {
+  background: #8e9e3f;
+}
+
+.phs-shortcuts-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #c00000;
+  padding-left: 2px;
+  font-family: Arial, sans-serif;
+}
+
+.phs-shortcuts-legend .red {
+  color: #c00000;
+}

@@ -17,6 +17,7 @@ import DoctorPatientHistoryList from './pages/doctor/DoctorPatientHistoryList';
 import DoctorPatientDetailHistory from './pages/doctor/DoctorPatientDetailHistory';
 import MedicalDashboard from './pages/medical/MedicalDashboard';
 import LabDashboard from './pages/lab/LabDashboard';
+import LabDashboardOverview from './pages/lab/LabDashboardOverview';
 import ScanDashboard from './pages/scan/ScanDashboard';
 import UploadScanReportPage from './pages/scan/UploadScanReportPage';
 import StaffAttendance from './pages/attendance/StaffAttendance';
@@ -84,6 +85,12 @@ const App: React.FC = () => {
               } />
               
               <Route path="lab" element={
+                <ProtectedModule moduleKey="lab" moduleName="Lab Module">
+                  <LabDashboardOverview />
+                </ProtectedModule>
+              } />
+
+              <Route path="lab/detailed" element={
                 <ProtectedModule moduleKey="lab" moduleName="Lab Module">
                   <LabDashboard />
                 </ProtectedModule>

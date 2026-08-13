@@ -143,7 +143,51 @@ const INITIAL_ROSTER: ShiftRosterItem[] = [
 
 const ShiftAllocation: React.FC = () => {
   const navigate = useNavigate();
-  const [rosterList, setRosterList] = useState<ShiftRosterItem[]>(INITIAL_ROSTER);
+  const [rosterList, setRosterList] = useState<ShiftRosterItem[]>(() => {
+    const cachedRoster = localStorage.getItem('sjh_cached_roster');
+    if (cachedRoster) {
+      try {
+        const parsed = JSON.parse(cachedRoster);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {}
+    }
+    return INITIAL_ROSTER;
+  });
+
+  // Available staff from ManageStaff
+  const [allStaffOptions, setAllStaffOptions] = useState<{ id: string; name: string; dept: string; role: string }[]>([]);
+
+  React.useEffect(() => {
+    const loadStaff = () => {
+      const cachedStaff = localStorage.getItem('sjh_cached_staff');
+      const list: { id: string; name: string; dept: string; role: string }[] = [];
+      
+      // First add roster items
+      rosterList.forEach(r => {
+        list.push({ id: r.empId, name: r.staffName, dept: r.department, role: r.role });
+      });
+
+      if (cachedStaff) {
+        try {
+          const parsed = JSON.parse(cachedStaff);
+          if (Array.isArray(parsed)) {
+            parsed.forEach((s: any) => {
+              if (!list.some(existing => existing.id === s.id || existing.name.toLowerCase() === s.name.toLowerCase())) {
+                list.push({ id: s.id, name: s.name, dept: s.department || 'General', role: s.role || 'Staff' });
+              }
+            });
+          }
+        } catch (e) {}
+      }
+
+      setAllStaffOptions(list);
+    };
+
+    loadStaff();
+    window.addEventListener('storage', loadStaff);
+    return () => window.removeEventListener('storage', loadStaff);
+  }, [rosterList]);
+
   const [search, setSearch] = useState('');
   const [filterShift, setFilterShift] = useState('All');
   const [filterDept, setFilterDept] = useState('All');
@@ -190,10 +234,11 @@ const ShiftAllocation: React.FC = () => {
       return;
     }
 
+    const matchedOption = allStaffOptions.find(o => o.id === selectedEmpId);
     const matchedStaff = rosterList.find(r => r.empId === selectedEmpId);
-    const staffName = matchedStaff ? matchedStaff.staffName : `Staff (${selectedEmpId})`;
-    const role = matchedStaff ? matchedStaff.role : 'Staff';
-    const department = matchedStaff ? matchedStaff.department : 'General';
+    const staffName = matchedOption ? matchedOption.name : matchedStaff ? matchedStaff.staffName : `Staff (${selectedEmpId})`;
+    const role = matchedOption ? matchedOption.role : matchedStaff ? matchedStaff.role : 'Staff';
+    const department = matchedOption ? matchedOption.dept : matchedStaff ? matchedStaff.department : 'General';
 
     let timing = '08:00 AM - 04:00 PM';
     if (shiftType === 'Evening') timing = '02:00 PM - 10:00 PM';
@@ -216,17 +261,19 @@ const ShiftAllocation: React.FC = () => {
     };
 
     const existingIndex = rosterList.findIndex(r => r.empId === selectedEmpId || r.id === isEditingId);
+    let updatedRoster: ShiftRosterItem[];
 
     if (existingIndex >= 0) {
-      const updated = [...rosterList];
-      updated[existingIndex] = newItem;
-      setRosterList(updated);
+      updatedRoster = [...rosterList];
+      updatedRoster[existingIndex] = newItem;
       alert(`Shift for ${staffName} updated to ${shiftType} (${timing}) successfully!`);
     } else {
-      setRosterList([newItem, ...rosterList]);
+      updatedRoster = [newItem, ...rosterList];
       alert(`Shift '${shiftType}' allocated to ${staffName} successfully!`);
     }
 
+    setRosterList(updatedRoster);
+    localStorage.setItem('sjh_cached_roster', JSON.stringify(updatedRoster));
     handleClearForm();
   };
 
@@ -368,9 +415,9 @@ const ShiftAllocation: React.FC = () => {
                 onChange={e => setSelectedEmpId(e.target.value)}
               >
                 <option value="">-- Choose Staff Member --</option>
-                {rosterList.map(r => (
-                  <option key={r.empId} value={r.empId}>
-                    {r.staffName} ({r.empId} - {r.department})
+                {allStaffOptions.map(opt => (
+                  <option key={opt.id} value={opt.id}>
+                    {opt.name} ({opt.id} - {opt.dept})
                   </option>
                 ))}
               </select>

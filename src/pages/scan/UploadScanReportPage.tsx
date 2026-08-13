@@ -633,7 +633,18 @@ ${anomalyFmfId}`;
               )}
             </div>
 
-            <div className="form-grid-3">
+            <div className="form-grid-4">
+              <div className="form-group">
+                <label>Scan ID </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={scanId}
+                  onChange={(e) => setScanId(e.target.value)}
+                  placeholder="e.g. SCN-101"
+                />
+              </div>
+
               <div className="form-group">
                 <label>Patient UHID <span className="required">*</span></label>
                 <input

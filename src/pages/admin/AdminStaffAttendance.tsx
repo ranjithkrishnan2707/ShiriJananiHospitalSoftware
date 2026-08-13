@@ -121,8 +121,47 @@ const generateStaffHistory = (staff: StaffMember): AttendanceHistoryEntry[] => {
   return history;
 };
 
+const getCombinedStaffList = (): StaffMember[] => {
+  const cached = localStorage.getItem('sjh_cached_staff');
+  let result = [...INITIAL_STAFF_LIST];
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const mapped: StaffMember[] = parsed.map((s: any, idx: number) => ({
+          id: s.id || `EMP-00${idx + 1}`,
+          name: s.name,
+          department: s.department || 'General',
+          role: s.role || 'Staff',
+          shift: s.shift || 'Morning',
+          photoColor: s.photoColor || ['#2563eb', '#ec4899', '#8b5cf6', '#06b6d4', '#f97316'][idx % 5]
+        }));
+        
+        mapped.forEach(item => {
+          const existingIdx = result.findIndex(r => r.id === item.id || r.name.toLowerCase() === item.name.toLowerCase());
+          if (existingIdx >= 0) {
+            result[existingIdx] = item;
+          } else {
+            result.push(item);
+          }
+        });
+      }
+    } catch (e) {
+      console.error('Error loading cached staff', e);
+    }
+  }
+  return result;
+};
+
 const AdminStaffAttendance: React.FC = () => {
   const navigate = useNavigate();
+  const [staffList, setStaffList] = useState<StaffMember[]>(getCombinedStaffList);
+
+  React.useEffect(() => {
+    const handleSync = () => setStaffList(getCombinedStaffList());
+    window.addEventListener('storage', handleSync);
+    return () => window.removeEventListener('storage', handleSync);
+  }, []);
 
   // State
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
@@ -178,7 +217,7 @@ const AdminStaffAttendance: React.FC = () => {
       };
     });
 
-    const staffObj = INITIAL_STAFF_LIST.find(s => s.id === staffId);
+    const staffObj = staffList.find(s => s.id === staffId);
     showToast(`Marked ${staffObj?.name || staffId} as ${newStatus}`);
   };
 
@@ -267,17 +306,17 @@ const AdminStaffAttendance: React.FC = () => {
   };
 
   // Metrics Calculations
-  const totalStaffCount = INITIAL_STAFF_LIST.length;
+  const totalStaffCount = staffList.length;
   const presentCount = Object.values(attendanceData).filter(r => r.status === 'Present' || r.status === 'Late').length;
   const absentCount = Object.values(attendanceData).filter(r => r.status === 'Absent').length;
   const leaveCount = Object.values(attendanceData).filter(r => r.status === 'Leave').length;
-  const presentRate = Math.round((presentCount / totalStaffCount) * 100);
+  const presentRate = totalStaffCount > 0 ? Math.round((presentCount / totalStaffCount) * 100) : 0;
 
   // Filter Departments List
-  const departments = ['All', ...Array.from(new Set(INITIAL_STAFF_LIST.map(s => s.department)))];
+  const departments = ['All', ...Array.from(new Set(staffList.map(s => s.department)))];
 
   // Filtered Staff List
-  const filteredStaff = INITIAL_STAFF_LIST.filter(staff => {
+  const filteredStaff = staffList.filter(staff => {
     const matchesSearch = staff.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           staff.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           staff.department.toLowerCase().includes(searchQuery.toLowerCase());

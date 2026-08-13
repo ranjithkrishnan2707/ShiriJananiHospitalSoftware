@@ -34,6 +34,7 @@ const ScanDashboard: React.FC = () => {
   const [uploadAmount, setUploadAmount] = useState('2000');
 
   // New Scan Entry Modal Form State
+  const [newScanId, setNewScanId] = useState('');
   const [newUhid, setNewUhid] = useState('');
   const [newPatientName, setNewPatientName] = useState('');
   const [newScanType, setNewScanType] = useState('NT SCAN');
@@ -140,7 +141,7 @@ const ScanDashboard: React.FC = () => {
     }
 
     const newScan: ScanRequest = {
-      id: `SCN-${Math.floor(100 + Math.random() * 900)}`,
+      id: newScanId.trim() || `SCN-${Math.floor(100 + Math.random() * 900)}`,
       patientName: newPatientName,
       uhid: newUhid || `OP-${Math.floor(1000 + Math.random() * 9000)}`,
       scanType: newScanType,
@@ -155,6 +156,7 @@ const ScanDashboard: React.FC = () => {
     setShowNewScanModal(false);
 
     // Reset Form
+    setNewScanId('');
     setNewUhid('');
     setNewPatientName('');
   };
@@ -412,7 +414,18 @@ const ScanDashboard: React.FC = () => {
                 </select>
               </div>
 
-              <div className="modal-grid-2">
+              <div className="modal-grid-3">
+                <div className="modal-form-group">
+                  <label>Scan ID (Manual / Auto)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={uploadScanId}
+                    onChange={(e) => setUploadScanId(e.target.value)}
+                    placeholder="e.g. SCN-101"
+                  />
+                </div>
+
                 <div className="modal-form-group">
                   <label>Patient UHID</label>
                   <input
@@ -584,7 +597,18 @@ const ScanDashboard: React.FC = () => {
                 </select>
               </div>
 
-              <div className="modal-grid-2">
+              <div className="modal-grid-3">
+                <div className="modal-form-group">
+                  <label>Scan ID (Manual / Auto)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={newScanId}
+                    onChange={(e) => setNewScanId(e.target.value)}
+                    placeholder="e.g. SCN-105"
+                  />
+                </div>
+
                 <div className="modal-form-group">
                   <label>Patient UHID</label>
                   <input

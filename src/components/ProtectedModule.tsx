@@ -9,21 +9,22 @@ interface ProtectedModuleProps {
 }
 
 const ProtectedModule: React.FC<ProtectedModuleProps> = ({ moduleKey, moduleName, children }) => {
-  const [isLocked, setIsLocked] = useState<boolean>(false);
+  const [isLocked, setIsLocked] = useState<boolean>(() => {
+    const savedPassword = localStorage.getItem(`${moduleKey}_password`);
+    return !!savedPassword;
+  });
   const [passwordInput, setPasswordInput] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    // Check if a password is set for this module in localStorage
+    // Clear any obsolete session unlocks so every navigation requires password entry
+    sessionStorage.removeItem(`${moduleKey}_unlocked`);
     const savedPassword = localStorage.getItem(`${moduleKey}_password`);
-    
     if (savedPassword) {
-      // Check if user has already unlocked it in this session
-      const isUnlocked = sessionStorage.getItem(`${moduleKey}_unlocked`);
-      if (isUnlocked !== 'true') {
-        setIsLocked(true);
-      }
+      setIsLocked(true);
+    } else {
+      setIsLocked(false);
     }
   }, [moduleKey]);
 
@@ -32,10 +33,10 @@ const ProtectedModule: React.FC<ProtectedModuleProps> = ({ moduleKey, moduleName
     const savedPassword = localStorage.getItem(`${moduleKey}_password`);
     
     if (passwordInput === savedPassword) {
-      // Success: Unlock the module for this session
-      sessionStorage.setItem(`${moduleKey}_unlocked`, 'true');
+      // Success: Unlock for current page view
       setIsLocked(false);
       setError('');
+      setPasswordInput('');
     } else {
       // Error
       setError('Incorrect password. Please try again.');

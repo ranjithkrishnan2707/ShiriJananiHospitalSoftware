@@ -278,9 +278,17 @@
   background: #f0f9ff;
 }
 
-/* ==========================================
-   PRINT ENGINE FIX - PREVENTS BLANK PRINT PAGE
-   ========================================== */
+.modal-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.modal-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
 @media print {
   body * {
     visibility: hidden !important;

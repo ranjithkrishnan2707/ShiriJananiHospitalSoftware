@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Edit, Trash2, ExternalLink } from 'lucide-react';
 import { useHospital } from '../../context/HospitalContext';
 import './ManageStaff.css';
@@ -23,7 +23,23 @@ const initialStaff: Staff[] = [
 
 const ManageStaff: React.FC = () => {
   const { openDoctorListModal } = useHospital();
-  const [staffList, setStaffList] = useState<Staff[]>(initialStaff);
+  const [staffList, setStaffList] = useState<Staff[]>(() => {
+    const cached = localStorage.getItem('sjh_cached_staff');
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {
+        console.error('Failed to parse cached staff list', e);
+      }
+    }
+    return initialStaff;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sjh_cached_staff', JSON.stringify(staffList));
+  }, [staffList]);
+
   const [search, setSearch] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   
@@ -80,32 +96,37 @@ const ManageStaff: React.FC = () => {
     e.preventDefault();
     if (!name || !role) return;
 
-    const targetId = empId || `EMP-00${staffList.length + 1}`;
+    const targetId = empId.trim() ? empId.trim() : `EMP-${Math.floor(100 + Math.random() * 900)}`;
     const newStaff: Staff = {
       id: targetId,
       name,
       role,
       specialization,
       phone,
-      department,
+      department: department || 'General',
       shift,
       joinDate: joinDate || new Date().toISOString().split('T')[0]
     };
 
+    let updatedList: Staff[];
     if (isEditing || staffList.some(s => s.id === targetId)) {
-      setStaffList(prev => prev.map(s => s.id === targetId ? newStaff : s));
+      updatedList = staffList.map(s => s.id === targetId ? newStaff : s);
       alert(`Staff profile for ${name} updated successfully!`);
     } else {
-      setStaffList([newStaff, ...staffList]);
+      updatedList = [newStaff, ...staffList];
       alert(`Staff member ${name} registered successfully!`);
     }
 
+    setStaffList(updatedList);
+    localStorage.setItem('sjh_cached_staff', JSON.stringify(updatedList));
     handleClear();
   };
 
   const handleDelete = (id: string) => {
     if (window.confirm('Are you sure you want to remove this staff member?')) {
-      setStaffList(staffList.filter(s => s.id !== id));
+      const updatedList = staffList.filter(s => s.id !== id);
+      setStaffList(updatedList);
+      localStorage.setItem('sjh_cached_staff', JSON.stringify(updatedList));
       if (empId === id) handleClear();
     }
   };

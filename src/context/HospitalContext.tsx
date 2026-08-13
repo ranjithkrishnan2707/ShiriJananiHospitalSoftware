@@ -59,6 +59,10 @@ export interface LabRequest {
   tests: string;
   date: string;
   status: 'Pending' | 'Completed';
+  amount?: number;
+  refDoctor?: string;
+  sampleType?: string;
+  findings?: string;
 }
 
 export interface DoctorItem {
@@ -134,6 +138,67 @@ const INITIAL_SCAN_REQUESTS: ScanRequest[] = [
     status: 'Pending',
     radiologist: 'Dr.Sri Janani',
     amount: 1500
+  }
+];
+
+const INITIAL_LAB_REQUESTS: LabRequest[] = [
+  {
+    id: 'LAB-3643',
+    patientName: 'MISS.DURGA D/O MR. SAMINATHAN',
+    uhid: '3643',
+    tests: 'Complete Blood Count (CBC), Urine Routine',
+    date: getTodayStr(),
+    status: 'Completed',
+    amount: 410,
+    refDoctor: 'DR.SRI JANANI,MD.,OG.,',
+    sampleType: 'Whole Blood / EDTA, Urine',
+    findings: 'Hemoglobin: 12.5 g/dL, WBC: 7,800 /cumm, Platelets: 2.8 Lakhs/cumm'
+  },
+  {
+    id: 'LAB-3644',
+    patientName: 'MRS.DHARSHINI W/O GOKUL',
+    uhid: '3644',
+    tests: 'Serum Creatinine, Blood Urea, FBS & PPBS',
+    date: getTodayStr(),
+    status: 'Completed',
+    amount: 500,
+    refDoctor: 'DR.SRI JANANI,MD.,OG.,',
+    sampleType: 'Serum, Fluoride Plasma',
+    findings: 'FBS: 94 mg/dL, PPBS: 132 mg/dL, Serum Creatinine: 0.8 mg/dL'
+  },
+  {
+    id: 'LAB-3645',
+    patientName: 'MR.YASAR ARAFATH H/O AYESHA',
+    uhid: '3645',
+    tests: 'Thyroid Profile (T3, T4, TSH)',
+    date: getTodayStr(),
+    status: 'Pending',
+    amount: 475,
+    refDoctor: 'DR.SRI JANANI,MD.,OG.,',
+    sampleType: 'Serum'
+  },
+  {
+    id: 'LAB-3646',
+    patientName: 'MRS.YOGALAXMI W/O MANI',
+    uhid: '3646',
+    tests: 'Lipid Profile, Liver Function Test (LFT)',
+    date: getDaysAgoStr(1),
+    status: 'Completed',
+    amount: 735,
+    refDoctor: 'DR.SRI JANANI,MD.,OG.,',
+    sampleType: 'SST Serum',
+    findings: 'Total Cholesterol: 185 mg/dL, Triglycerides: 140 mg/dL, SGOT: 24 U/L'
+  },
+  {
+    id: 'LAB-3647',
+    patientName: 'MRS.SARULATHA W/O VIJAY',
+    uhid: '3647',
+    tests: 'Hemoglobin (Hb%), Blood Grouping & Rh',
+    date: getDaysAgoStr(1),
+    status: 'Pending',
+    amount: 100,
+    refDoctor: 'DR.SRI JANANI,MD.,OG.,',
+    sampleType: 'EDTA Blood'
   }
 ];
 
@@ -286,7 +351,15 @@ export const HospitalProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   });
   const [labRequests, setLabRequests] = useState<LabRequest[]>(() => {
     const cached = localStorage.getItem('sjh_cached_lab');
-    return cached ? JSON.parse(cached) : [];
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {
+        console.error('Failed to parse cached lab data', e);
+      }
+    }
+    return INITIAL_LAB_REQUESTS;
   });
   const [scanRequests, setScanRequests] = useState<ScanRequest[]>(() => {
     const cached = localStorage.getItem('sjh_cached_scan');

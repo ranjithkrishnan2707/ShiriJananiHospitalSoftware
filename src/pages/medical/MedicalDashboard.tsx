@@ -8,6 +8,7 @@ import {
   MessageSquare, Bed, RefreshCw, ChevronRight, Search, SlidersHorizontal
 } from 'lucide-react';
 import { useHospital } from '../../context/HospitalContext';
+import ProductHistoryScreen from './ProductHistoryScreen';
 import './MedicalDashboard.css';
 
 const MedicalDashboard: React.FC = () => {
@@ -930,8 +931,13 @@ const MedicalDashboard: React.FC = () => {
         </div>
       )}
 
+      {/* Product History Screen Full View */}
+      {activeModal === 'product' && (
+        <ProductHistoryScreen onClose={() => setActiveModal(null)} />
+      )}
+
       {/* Active ERP Modal Dialog Overlay */}
-      {activeModal && (
+      {activeModal && activeModal !== 'product' && (
         <div className="erp-modal-overlay" onClick={() => setActiveModal(null)}>
           <div className="erp-modal-card" onClick={e => e.stopPropagation()}>
             <div className="erp-modal-header">
