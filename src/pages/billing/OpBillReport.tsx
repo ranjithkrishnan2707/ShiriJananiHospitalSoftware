@@ -15,17 +15,19 @@ interface BillItem {
   total: number;
   cashAmount?: number;
   gpayAmount?: number;
-  paymentMode: 'Cash' | 'Card' | 'UPI' | 'GPay';
+  futureAmount?: number;
+  paymentMode: 'Cash' | 'Card' | 'UPI' | 'GPay' | 'Future Payment';
 }
 
 const getTodayStr = () => new Date().toISOString().split('T')[0];
 
 const INITIAL_BILLS: BillItem[] = [
-  { bNo: 'OPB-101', bDate: getTodayStr(), ophuid: '3490', pName: 'JAYA SUDHA', age: '29 Yrs', refDoc: 'Dr.Sri Janani', gross: 500, discount: 0, total: 500, cashAmount: 500, gpayAmount: 0, paymentMode: 'Cash' },
-  { bNo: 'OPB-102', bDate: getTodayStr(), ophuid: '3491', pName: 'DEEPIKA', age: '26 Yrs', refDoc: 'Dr.Sri Janani', gross: 750, discount: 50, total: 700, cashAmount: 0, gpayAmount: 700, paymentMode: 'GPay' },
-  { bNo: 'OPB-103', bDate: getTodayStr(), ophuid: '3492', pName: 'MUNESHWARI', age: '21 Yrs', refDoc: 'Dr. Sarah Jenkins', gross: 600, discount: 0, total: 600, cashAmount: 600, gpayAmount: 0, paymentMode: 'Cash' },
-  { bNo: 'OPB-104', bDate: getTodayStr(), ophuid: '3493', pName: 'KALAIVANI', age: '30 Yrs', refDoc: 'Dr. Rajiv Menon', gross: 1200, discount: 100, total: 1100, cashAmount: 0, gpayAmount: 1100, paymentMode: 'GPay' },
-  { bNo: 'OPB-105', bDate: getTodayStr(), ophuid: '3494', pName: 'KEERTHANA', age: '27 Yrs', refDoc: 'Dr.Sri Janani', gross: 500, discount: 0, total: 500, cashAmount: 500, gpayAmount: 0, paymentMode: 'Cash' },
+  { bNo: 'OPB-101', bDate: getTodayStr(), ophuid: '3490', pName: 'JAYA SUDHA', age: '29 Yrs', refDoc: 'Dr.Sri Janani', gross: 500, discount: 0, total: 500, cashAmount: 500, gpayAmount: 0, futureAmount: 0, paymentMode: 'Cash' },
+  { bNo: 'OPB-102', bDate: getTodayStr(), ophuid: '3491', pName: 'DEEPIKA', age: '26 Yrs', refDoc: 'Dr.Sri Janani', gross: 750, discount: 50, total: 700, cashAmount: 0, gpayAmount: 700, futureAmount: 0, paymentMode: 'GPay' },
+  { bNo: 'OPB-103', bDate: getTodayStr(), ophuid: '3492', pName: 'MUNESHWARI', age: '21 Yrs', refDoc: 'Dr. Sarah Jenkins', gross: 600, discount: 0, total: 600, cashAmount: 600, gpayAmount: 0, futureAmount: 0, paymentMode: 'Cash' },
+  { bNo: 'OPB-104', bDate: getTodayStr(), ophuid: '3493', pName: 'KALAIVANI', age: '30 Yrs', refDoc: 'Dr. Rajiv Menon', gross: 1200, discount: 100, total: 1100, cashAmount: 0, gpayAmount: 1100, futureAmount: 0, paymentMode: 'GPay' },
+  { bNo: 'OPB-105', bDate: getTodayStr(), ophuid: '3494', pName: 'KEERTHANA', age: '27 Yrs', refDoc: 'Dr.Sri Janani', gross: 500, discount: 0, total: 500, cashAmount: 500, gpayAmount: 0, futureAmount: 0, paymentMode: 'Cash' },
+  { bNo: 'OPB-106', bDate: getTodayStr(), ophuid: '3495', pName: 'PRIYA SWAMINATHAN', age: '32 Yrs', refDoc: 'Dr.Sri Janani', gross: 1500, discount: 100, total: 1400, cashAmount: 0, gpayAmount: 0, futureAmount: 1400, paymentMode: 'Future Payment' },
 ];
 
 const OpBillReport: React.FC = () => {
@@ -60,10 +62,11 @@ const OpBillReport: React.FC = () => {
   // Export CSV
   const handleExportExcel = () => {
     const csvRows = [
-      ['Bill No', 'Date', 'OP OPHUID', 'Patient Name', 'Age', 'Ref Doctor', 'Gross Amount', 'Discount', 'Cash Amount', 'GPay Amount', 'Total Amount', 'Payment Mode'],
+      ['Bill No', 'Date', 'OP OPHUID', 'Patient Name', 'Age', 'Ref Doctor', 'Gross Amount', 'Discount', 'Cash Amount', 'GPay Amount', 'Future Payment Amount', 'Total Amount', 'Payment Mode'],
       ...filteredBills.map(b => {
         const cashVal = b.cashAmount !== undefined ? b.cashAmount : (b.paymentMode === 'Cash' ? b.total : 0);
         const gpayVal = b.gpayAmount !== undefined ? b.gpayAmount : (b.paymentMode === 'UPI' || b.paymentMode === 'Card' || b.paymentMode === 'GPay' ? b.total : 0);
+        const futureVal = b.futureAmount !== undefined ? b.futureAmount : (b.paymentMode === 'Future Payment' ? b.total : 0);
         return [
           b.bNo,
           b.bDate,
@@ -75,6 +78,7 @@ const OpBillReport: React.FC = () => {
           b.discount,
           cashVal,
           gpayVal,
+          futureVal,
           b.total,
           b.paymentMode
         ];
@@ -104,6 +108,11 @@ const OpBillReport: React.FC = () => {
   const totalGPaySum = filteredBills.reduce((sum, b) => {
     const gpayVal = b.gpayAmount !== undefined ? b.gpayAmount : (b.paymentMode === 'UPI' || b.paymentMode === 'Card' || b.paymentMode === 'GPay' ? b.total : 0);
     return sum + gpayVal;
+  }, 0);
+
+  const totalFutureSum = filteredBills.reduce((sum, b) => {
+    const futureVal = b.futureAmount !== undefined ? b.futureAmount : (b.paymentMode === 'Future Payment' ? b.total : 0);
+    return sum + futureVal;
   }, 0);
 
   return (
@@ -207,6 +216,7 @@ const OpBillReport: React.FC = () => {
                   <th>Discount</th>
                   <th>Cash</th>
                   <th>GPay</th>
+                  <th>Future</th>
                   <th>Total</th>
                   <th>Mode</th>
                 </tr>
@@ -214,7 +224,7 @@ const OpBillReport: React.FC = () => {
               <tbody>
                 {filteredBills.length === 0 ? (
                   <tr>
-                    <td colSpan={13} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
+                    <td colSpan={14} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
                       No bills found matching the selected filters.
                     </td>
                   </tr>
@@ -222,6 +232,7 @@ const OpBillReport: React.FC = () => {
                   filteredBills.map((b) => {
                     const cashVal = b.cashAmount !== undefined ? b.cashAmount : (b.paymentMode === 'Cash' ? b.total : 0);
                     const gpayVal = b.gpayAmount !== undefined ? b.gpayAmount : (b.paymentMode === 'UPI' || b.paymentMode === 'Card' || b.paymentMode === 'GPay' ? b.total : 0);
+                    const futureVal = b.futureAmount !== undefined ? b.futureAmount : (b.paymentMode === 'Future Payment' ? b.total : 0);
 
                     return (
                       <tr
@@ -267,6 +278,9 @@ const OpBillReport: React.FC = () => {
                         <td style={{ color: gpayVal > 0 ? '#0284c7' : '#94a3b8', fontWeight: gpayVal > 0 ? 600 : 400 }}>
                           {gpayVal > 0 ? `₹${gpayVal.toFixed(2)}` : '-'}
                         </td>
+                        <td style={{ color: futureVal > 0 ? '#7c3aed' : '#94a3b8', fontWeight: futureVal > 0 ? 600 : 400 }}>
+                          {futureVal > 0 ? `₹${futureVal.toFixed(2)}` : '-'}
+                        </td>
                         <td style={{ textAlign: 'right', fontWeight: 700 }}>₹{b.total.toFixed(2)}</td>
                         <td>
                           <span style={{
@@ -274,8 +288,8 @@ const OpBillReport: React.FC = () => {
                             borderRadius: '4px',
                             fontSize: '11px',
                             fontWeight: 700,
-                            backgroundColor: b.paymentMode === 'Cash' ? '#dcfce7' : '#e0f2fe',
-                            color: b.paymentMode === 'Cash' ? '#166534' : '#0369a1'
+                            backgroundColor: b.paymentMode === 'Cash' ? '#dcfce7' : b.paymentMode === 'Future Payment' ? '#f3e8ff' : '#e0f2fe',
+                            color: b.paymentMode === 'Cash' ? '#166534' : b.paymentMode === 'Future Payment' ? '#6b21a8' : '#0369a1'
                           }}>
                             {b.paymentMode}
                           </span>
@@ -293,6 +307,7 @@ const OpBillReport: React.FC = () => {
                     <td style={{ color: 'var(--color-error)' }}>-₹{totalDiscount.toFixed(2)}</td>
                     <td style={{ color: '#16a34a' }}>₹{totalCashSum.toFixed(2)}</td>
                     <td style={{ color: '#0284c7' }}>₹{totalGPaySum.toFixed(2)}</td>
+                    <td style={{ color: '#7c3aed' }}>₹{totalFutureSum.toFixed(2)}</td>
                     <td style={{ textAlign: 'right', color: '#0f172a', fontSize: '15px' }}>₹{totalNet.toFixed(2)}</td>
                     <td></td>
                   </tr>

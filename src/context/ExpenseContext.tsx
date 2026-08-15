@@ -5,7 +5,7 @@ import { queueMutation } from '../services/offlineSyncEngine';
 // --- Interfaces ---
 export type DepartmentType = 'Medical' | 'Lab' | 'Scan' | 'OPD' | 'IPD' | 'Admin' | 'Maintenance' | 'Other';
 
-export type PaymentModeType = 'Cash' | 'UPI' | 'Bank Transfer' | 'Card' | 'Other';
+export type PaymentModeType = 'Cash' | 'UPI' | 'Bank Transfer' | 'Card' | 'Future Payment' | 'Other';
 
 export type PaymentStatusType = 'Paid' | 'Advance Paid' | 'Pending';
 

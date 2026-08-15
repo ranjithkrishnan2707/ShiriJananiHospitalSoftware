@@ -80,7 +80,7 @@ export interface BillRecord {
   balanceAmount: number; // billedAmount - paidAmount
   refundedAmount: number;
   
-  paymentMode: 'Cash' | 'UPI' | 'Bank Transfer' | 'Card' | 'Credit';
+  paymentMode: 'Cash' | 'UPI' | 'Bank Transfer' | 'Card' | 'Credit' | 'Future Payment';
   cashPaid: number;
   upiPaid: number;
   status: 'Paid' | 'Partial' | 'Pending' | 'Cancelled' | 'Refunded';
@@ -317,6 +317,46 @@ const INITIAL_BILLS: BillRecord[] = [
     paymentHistory: [
       { id: 'TXN-4', date: '2026-08-06 09:00 AM', amount: 6500, mode: 'Card', refNo: 'CARD/POS-9912', type: 'Collection', collectedBy: 'Cashier Priya' }
     ]
+  },
+  {
+    id: 'BILL-2026-084',
+    uhid: 'UHID-1006',
+    patientName: 'Anitha R.',
+    mobile: '9840667788',
+    department: 'OPD',
+    date: '2026-08-05',
+    time: '03:15 PM',
+
+    doctorFee: 600,
+    labFee: 1200,
+    scanFee: 0,
+    pharmacyFee: 800,
+    discount: 0,
+
+    subtotalAmount: 2600,
+    billedAmount: 2600,
+    paidAmount: 0,
+    balanceAmount: 2600,
+    refundedAmount: 0,
+
+    paymentMode: 'Future Payment',
+    cashPaid: 0,
+    upiPaid: 0,
+    status: 'Pending',
+    receivedBy: 'Dr. Admin',
+    txnRef: 'FUTURE-PAY-01',
+
+    doctorDetails: { doctorName: 'Dr. Sri Janani', fee: 600 },
+    tablets: [
+      { name: 'Tab Calcium D3', qty: 2, rate: 200, total: 400 },
+      { name: 'Tab Iron Supplement', qty: 2, rate: 200, total: 400 }
+    ],
+    labTests: [
+      { name: 'Hemoglobin & CBC Test', rate: 1200 }
+    ],
+    scanTests: [],
+
+    paymentHistory: []
   }
 ];
 
@@ -364,7 +404,7 @@ const MonitorBilling: React.FC = () => {
 
   // Form State for Collect Payment Modal
   const [collectAmount, setCollectAmount] = useState('');
-  const [collectMode, setCollectMode] = useState<'Cash' | 'UPI' | 'Bank Transfer' | 'Card'>('Cash');
+  const [collectMode, setCollectMode] = useState<'Cash' | 'UPI' | 'Bank Transfer' | 'Card' | 'Future Payment'>('Cash');
   const [collectRef, setCollectRef] = useState('');
 
   // Form State for Refund / Cancel Modal
@@ -976,6 +1016,7 @@ const MonitorBilling: React.FC = () => {
                   <option value="Bank Transfer">Bank Transfer</option>
                   <option value="Card">Card</option>
                   <option value="Credit">Credit</option>
+                  <option value="Future Payment">Future Payment</option>
                 </select>
               </div>
 
@@ -1113,8 +1154,8 @@ const MonitorBilling: React.FC = () => {
                             borderRadius: '4px',
                             fontSize: '11px',
                             fontWeight: 700,
-                            backgroundColor: bill.paymentMode === 'Cash' ? '#fef3c7' : '#e0f2fe',
-                            color: bill.paymentMode === 'Cash' ? '#b45309' : '#0369a1'
+                            backgroundColor: bill.paymentMode === 'Cash' ? '#fef3c7' : bill.paymentMode === 'Future Payment' ? '#e0e7ff' : '#e0f2fe',
+                            color: bill.paymentMode === 'Cash' ? '#b45309' : bill.paymentMode === 'Future Payment' ? '#4338ca' : '#0369a1'
                           }}>
                             {bill.paymentMode}
                           </span>
@@ -1497,6 +1538,7 @@ const MonitorBilling: React.FC = () => {
                   <option value="UPI">UPI (GPay/PhonePe)</option>
                   <option value="Bank Transfer">Bank Transfer (NEFT/RTGS)</option>
                   <option value="Card">Card (POS Swiped)</option>
+                  <option value="Future Payment">Future Payment</option>
                 </select>
               </div>
 

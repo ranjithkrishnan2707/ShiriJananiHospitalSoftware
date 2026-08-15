@@ -9,6 +9,9 @@ import {
 } from 'lucide-react';
 import { useHospital } from '../../context/HospitalContext';
 import ProductHistoryScreen from './ProductHistoryScreen';
+import PurchaseBillEntryScreen from './PurchaseBillEntryScreen';
+import PurchasePaymentEntryScreen from './PurchasePaymentEntryScreen';
+import MedicalSalesBillingScreen from './MedicalSalesBillingScreen';
 import './MedicalDashboard.css';
 
 const MedicalDashboard: React.FC = () => {
@@ -936,8 +939,23 @@ const MedicalDashboard: React.FC = () => {
         <ProductHistoryScreen onClose={() => setActiveModal(null)} />
       )}
 
+      {/* Purchase Bill Entry Screen Full View */}
+      {activeModal === 'purchase' && (
+        <PurchaseBillEntryScreen onClose={() => setActiveModal(null)} />
+      )}
+
+      {/* Purchase Payment Entry Screen Full View */}
+      {activeModal === 'payment' && (
+        <PurchasePaymentEntryScreen onClose={() => setActiveModal(null)} />
+      )}
+
+      {/* Medicine Sales Billing Screen - I Full View */}
+      {activeModal === 'billing' && (
+        <MedicalSalesBillingScreen onClose={() => setActiveModal(null)} />
+      )}
+
       {/* Active ERP Modal Dialog Overlay */}
-      {activeModal && activeModal !== 'product' && (
+      {activeModal && activeModal !== 'product' && activeModal !== 'purchase' && activeModal !== 'billing' && activeModal !== 'payment' && (
         <div className="erp-modal-overlay" onClick={() => setActiveModal(null)}>
           <div className="erp-modal-card" onClick={e => e.stopPropagation()}>
             <div className="erp-modal-header">

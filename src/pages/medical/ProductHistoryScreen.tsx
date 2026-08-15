@@ -1,4 +1,10 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
+import { 
+  Package, Printer, Save, Trash2, X, Plus, RotateCcw, Tag, 
+  Receipt, Building2, Database, LogOut, Sliders, ShieldCheck, 
+  FileText, CheckCircle, Boxes, Layers, Clock, AlertTriangle 
+} from 'lucide-react';
 import './ProductHistoryScreen.css';
 
 interface ProductHistoryScreenProps {
@@ -128,32 +134,51 @@ const INITIAL_HISTORY: Record<string, HistoryRow[]> = {
 
 const ProductHistoryScreen: React.FC<ProductHistoryScreenProps> = ({ onClose }) => {
   const [productList] = useState<ProductItem[]>(SAMPLE_PRODUCTS);
-  const [selectedCode, setSelectedCode] = useState<string>('PROD-1001');
+  const [selectedCode, setSelectedCode] = useState<string>('');
 
-  // Form Fields State
-  const activeProduct = productList.find(p => p.code === selectedCode) || SAMPLE_PRODUCTS[0];
+  // Form Fields State (Empty by default)
+  const [code, setCode] = useState('');
+  const [name, setName] = useState('');
+  const [generic, setGeneric] = useState('');
+  const [category, setCategory] = useState('');
+  const [manufacturer, setManufacturer] = useState('');
+  const [rack, setRack] = useState('');
+  const [hsn, setHsn] = useState('');
+  const [schedule, setSchedule] = useState('Scheduled');
+  const [productType, setProductType] = useState('COMPANY');
 
-  const [code, setCode] = useState(activeProduct.code);
-  const [name, setName] = useState(activeProduct.name);
-  const [generic, setGeneric] = useState(activeProduct.generic);
-  const [category, setCategory] = useState(activeProduct.category);
-  const [manufacturer, setManufacturer] = useState(activeProduct.manufacturer);
-  const [rack, setRack] = useState(activeProduct.rack);
-  const [hsn, setHsn] = useState(activeProduct.hsn);
-  const [schedule, setSchedule] = useState(activeProduct.schedule);
-  const [productType, setProductType] = useState(activeProduct.type);
+  const [minStock, setMinStock] = useState('');
+  const [maxStock, setMaxStock] = useState('');
+  const [reorderLevel, setReorderLevel] = useState('');
+  const [hideProduct, setHideProduct] = useState(false);
 
-  const [minStock, setMinStock] = useState(activeProduct.minStock);
-  const [maxStock, setMaxStock] = useState(activeProduct.maxStock);
-  const [reorderLevel, setReorderLevel] = useState(activeProduct.reorderLevel);
-  const [hideProduct, setHideProduct] = useState(activeProduct.hide);
-
-  const [packingType, setPackingType] = useState(activeProduct.packingType);
-  const [maxDiscount, setMaxDiscount] = useState(activeProduct.maxDiscount);
-  const [defaultDiscount, setDefaultDiscount] = useState(activeProduct.defaultDiscount);
+  const [packingType, setPackingType] = useState('10');
+  const [maxDiscount, setMaxDiscount] = useState('');
+  const [defaultDiscount, setDefaultDiscount] = useState('');
 
   // Load product details when selection changes
-  const handleSelectProduct = (selected: ProductItem) => {
+  const handleSelectProduct = (selected: ProductItem | null) => {
+    if (!selected) {
+      setSelectedCode('');
+      setCode('');
+      setName('');
+      setGeneric('');
+      setCategory('');
+      setManufacturer('');
+      setRack('');
+      setHsn('');
+      setSchedule('Scheduled');
+      setProductType('COMPANY');
+      setMinStock('');
+      setMaxStock('');
+      setReorderLevel('');
+      setHideProduct(false);
+      setPackingType('10');
+      setMaxDiscount('');
+      setDefaultDiscount('');
+      return;
+    }
+
     setSelectedCode(selected.code);
     setCode(selected.code);
     setName(selected.name);
@@ -179,108 +204,89 @@ const ProductHistoryScreen: React.FC<ProductHistoryScreenProps> = ({ onClose }) 
   };
 
   const handleDelete = () => {
+    if (!name.trim()) return alert('No product selected to delete.');
     if (window.confirm(`Are you sure you want to delete product "${name}"?`)) {
       alert(`Product "${name}" deleted.`);
+      handleSelectProduct(null);
     }
   };
 
   const handleContinue = () => {
-    setCode(`PROD-${Math.floor(1000 + Math.random() * 9000)}`);
-    setName('');
-    setGeneric('');
-    setCategory('');
-    setManufacturer('');
-    setRack('');
-    setHsn('');
-    setSchedule('Scheduled');
-    setProductType('COMPANY');
-    setMinStock('10');
-    setMaxStock('100');
-    setReorderLevel('20');
-    setHideProduct(false);
-    setPackingType('10');
-    setMaxDiscount('0');
-    setDefaultDiscount('0');
+    handleSelectProduct(null);
   };
 
   const historyRows = INITIAL_HISTORY[selectedCode] || [
     { date: new Date().toISOString().split('T')[0], type: 'Purchase', refNo: 'INV-NEW', partyName: 'Initial Opening Stock', batchNo: 'BATCH-01', expiry: '2028-12', inQty: 100, outQty: 0, balance: 100, rate: 50, mrp: 75 }
   ];
 
-  return (
+  return ReactDOM.createPortal(
     <div className="phs-overlay">
       <div className="phs-window">
 
-        {/* --- TOP WOODEN HEADER BANNER --- */}
+        {/* --- MODERN HEADER BANNER --- */}
         <div className="phs-header-banner">
-          <div className="phs-header-doctor">DR.G.SRI JANANI,MD(OG).,</div>
-          <div className="phs-header-titlebar">
-            <span>Product History Screen</span>
-            <button className="phs-top-close" onClick={onClose} title="Close Window">X</button>
+          <div className="phs-header-left">
+            <div className="phs-header-icon-box">
+              <Package size={24} />
+            </div>
+            <div className="phs-header-titles">
+              <h2>
+                Product History Master
+                <span className="phs-doctor-chip">DR. G. SRI JANANI, MD (OG)</span>
+              </h2>
+              <p>Comprehensive medication master, stock movement tracking & batch ledger</p>
+            </div>
+          </div>
+
+          <div className="phs-header-actions">
+            <button className="phs-top-close" onClick={onClose} title="Close Window">
+              <X size={20} />
+            </button>
           </div>
         </div>
 
-        {/* --- MAIN CONTENT: LEFT FORM + RIGHT GRID --- */}
+        {/* --- MAIN CONTENT: LEFT FORM CARD + RIGHT HISTORY GRID --- */}
         <div className="phs-main-body">
 
-          {/* LEFT SIDE: DETAILS OF PRODUCT FORM */}
+          {/* LEFT SIDE: DETAILS OF PRODUCT FORM CARD */}
           <div className="phs-left-panel">
-            <h3 className="phs-section-title">Details of Product</h3>
-
-            {/* Product Quick Selector Dropdown */}
-            <div className="phs-form-row" style={{ marginBottom: '4px' }}>
-              <label className="phs-label" style={{ color: '#0000aa' }}>Quick Select</label>
-              <select
-                className="phs-select"
-                value={selectedCode}
-                onChange={(e) => {
-                  const found = productList.find(p => p.code === e.target.value);
-                  if (found) handleSelectProduct(found);
-                }}
-              >
-                {productList.map(p => (
-                  <option key={p.code} value={p.code}>
-                    {p.name} ({p.code})
-                  </option>
-                ))}
-              </select>
-            </div>
+            <h3 className="phs-section-title">
+              <Package size={18} color="#0284c7" /> Details of Product
+            </h3>
 
             <div className="phs-form-row">
               <label className="phs-label">Product Code</label>
-              <input type="text" className="phs-input readonly" value={code} onChange={e => setCode(e.target.value)} />
+              <input type="text" className="phs-input" value={code} onChange={e => setCode(e.target.value)} placeholder="e.g. PROD-1001" />
             </div>
 
             <div className="phs-form-row">
-              <label className="phs-label red">Product Name</label>
-              <input type="text" className="phs-input" value={name} onChange={e => setName(e.target.value)} />
+              <label className="phs-label red">Product Name<span className="phs-req">*</span></label>
+              <input type="text" className="phs-input" value={name} onChange={e => setName(e.target.value)} placeholder="Product Name" />
             </div>
 
             <div className="phs-form-row">
               <label className="phs-label">Generic Name</label>
-              <input type="text" className="phs-input" value={generic} onChange={e => setGeneric(e.target.value)} />
+              <input type="text" className="phs-input" value={generic} onChange={e => setGeneric(e.target.value)} placeholder="Generic Composition" />
             </div>
 
             <div className="phs-form-row">
-              <label className="phs-label red">Category</label>
-              <input type="text" className="phs-input" value={category} onChange={e => setCategory(e.target.value)} />
+              <label className="phs-label red">Category<span className="phs-req">*</span></label>
+              <input type="text" className="phs-input" value={category} onChange={e => setCategory(e.target.value)} placeholder="Therapeutic Category" />
             </div>
 
             <div className="phs-form-row">
               <label className="phs-label">Manufacturer</label>
-              <input type="text" className="phs-input" value={manufacturer} onChange={e => setManufacturer(e.target.value)} />
+              <input type="text" className="phs-input" value={manufacturer} onChange={e => setManufacturer(e.target.value)} placeholder="Manufacturer Company" />
             </div>
 
             <div className="phs-form-grid-2">
               <div className="phs-form-col">
                 <label className="phs-label">Rack Position</label>
-                <input type="text" className="phs-input" value={rack} onChange={e => setRack(e.target.value)} />
+                <input type="text" className="phs-input" value={rack} onChange={e => setRack(e.target.value)} placeholder="Rack No" />
               </div>
               <div className="phs-form-col">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <label className="phs-label" style={{ whiteSpace: 'nowrap', background: '#fff', padding: '2px 4px', border: '1px solid #7f9db9' }}>HSN Code</label>
-                  <input type="text" className="phs-input" value={hsn} onChange={e => setHsn(e.target.value)} />
-                </div>
+                <label className="phs-label">HSN Code</label>
+                <input type="text" className="phs-input" value={hsn} onChange={e => setHsn(e.target.value)} placeholder="HSN Code" />
               </div>
             </div>
 
@@ -289,8 +295,8 @@ const ProductHistoryScreen: React.FC<ProductHistoryScreenProps> = ({ onClose }) 
               <select className="phs-select" value={schedule} onChange={e => setSchedule(e.target.value)}>
                 <option value="Scheduled">Scheduled</option>
                 <option value="Non-Scheduled">Non-Scheduled</option>
-                <option value="H1">H1</option>
-                <option value="X">X</option>
+                <option value="H1">Schedule H1</option>
+                <option value="X">Schedule X</option>
                 <option value="Narcotic">Narcotic</option>
               </select>
             </div>
@@ -305,12 +311,14 @@ const ProductHistoryScreen: React.FC<ProductHistoryScreenProps> = ({ onClose }) 
               </select>
             </div>
 
-            {/* LEVEL'S & PACKING TYPE SUB-SECTIONS */}
+            {/* SUB SECTIONS (LEVEL'S & PACKING TYPE) */}
             <div className="phs-sub-sections-grid">
 
               {/* LEVEL'S */}
               <div className="phs-sub-card">
-                <h4 className="phs-sub-title">Level's</h4>
+                <h4 className="phs-sub-title">
+                  <Boxes size={14} /> Level's
+                </h4>
 
                 <div className="phs-sub-row">
                   <label>Min. Stock Level</label>
@@ -323,22 +331,24 @@ const ProductHistoryScreen: React.FC<ProductHistoryScreenProps> = ({ onClose }) 
                 </div>
 
                 <div className="phs-sub-row">
-                  <label className="red">Reorder Level</label>
+                  <label className="red">Reorder Level<span className="phs-req">*</span></label>
                   <input type="text" className="phs-input-sm" value={reorderLevel} onChange={e => setReorderLevel(e.target.value)} />
                 </div>
 
                 <div className="phs-checkbox-row">
-                  <label className="red" style={{ fontSize: '12px' }}>If u want Hide this Product</label>
+                  <label className="red" style={{ fontSize: '11px', fontWeight: 600 }}>If u want Hide this Product</label>
                   <input type="checkbox" checked={hideProduct} onChange={e => setHideProduct(e.target.checked)} />
                 </div>
               </div>
 
               {/* PACKING TYPE */}
               <div className="phs-sub-card">
-                <h4 className="phs-sub-title">Packing Type</h4>
+                <h4 className="phs-sub-title">
+                  <Layers size={14} /> Packing Type
+                </h4>
 
                 <div className="phs-sub-row">
-                  <label className="red">Packing Type</label>
+                  <label className="red">Packing Type<span className="phs-req">*</span></label>
                   <select className="phs-select-sm" value={packingType} onChange={e => setPackingType(e.target.value)}>
                     <option value="10">10</option>
                     <option value="1">1</option>
@@ -346,6 +356,7 @@ const ProductHistoryScreen: React.FC<ProductHistoryScreenProps> = ({ onClose }) 
                     <option value="100">100</option>
                     <option value="Bottles">Bottles</option>
                     <option value="Strips">Strips</option>
+                    <option value="Vials">Vials</option>
                   </select>
                 </div>
 
@@ -364,8 +375,15 @@ const ProductHistoryScreen: React.FC<ProductHistoryScreenProps> = ({ onClose }) 
 
           </div>
 
-          {/* RIGHT SIDE: PRODUCT HISTORY STOCK TRANSACTION GRID TABLE */}
+          {/* RIGHT SIDE: PRODUCT HISTORY STOCK TRANSACTION GRID */}
           <div className="phs-right-panel">
+            <div className="phs-grid-header">
+              <h4>
+                <FileText size={18} color="#0284c7" />
+                Stock Movement & Transaction History ({name || 'Selected Product'})
+              </h4>
+            </div>
+
             <div className="phs-table-container">
               <table className="phs-table">
                 <thead>
@@ -390,13 +408,13 @@ const ProductHistoryScreen: React.FC<ProductHistoryScreenProps> = ({ onClose }) 
                       <td>
                         <span className={`phs-badge ${row.type.toLowerCase()}`}>{row.type}</span>
                       </td>
-                      <td style={{ fontWeight: 'bold', color: '#0000aa' }}>{row.refNo}</td>
+                      <td style={{ fontWeight: 700, color: '#0284c7' }}>{row.refNo}</td>
                       <td>{row.partyName}</td>
-                      <td style={{ fontWeight: 'bold' }}>{row.batchNo}</td>
+                      <td style={{ fontWeight: 600 }}>{row.batchNo}</td>
                       <td>{row.expiry}</td>
-                      <td style={{ color: '#008000', fontWeight: 'bold' }}>{row.inQty > 0 ? row.inQty : '-'}</td>
-                      <td style={{ color: '#c00000', fontWeight: 'bold' }}>{row.outQty > 0 ? row.outQty : '-'}</td>
-                      <td style={{ fontWeight: 'bold' }}>{row.balance}</td>
+                      <td style={{ color: '#16a34a', fontWeight: 700 }}>{row.inQty > 0 ? row.inQty : '-'}</td>
+                      <td style={{ color: '#dc2626', fontWeight: 700 }}>{row.outQty > 0 ? row.outQty : '-'}</td>
+                      <td style={{ fontWeight: 700 }}>{row.balance}</td>
                       <td>₹{row.rate.toFixed(2)}</td>
                       <td>₹{row.mrp.toFixed(2)}</td>
                     </tr>
@@ -408,29 +426,50 @@ const ProductHistoryScreen: React.FC<ProductHistoryScreenProps> = ({ onClose }) 
 
         </div>
 
-        {/* --- BOTTOM ACTION TOOLBAR BUTTONS & SHORTCUT LEGENDS --- */}
+        {/* --- BOTTOM ACTION TOOLBAR --- */}
         <div className="phs-bottom-toolbar">
           <div className="phs-btn-group">
-            <button className="phs-action-btn" onClick={handleSave}><u>S</u>ave</button>
-            <button className="phs-action-btn" onClick={handleDelete}><u>D</u>elete</button>
-            <button className="phs-action-btn" onClick={handleContinue}><u>C</u>ontinue</button>
-            <button className="phs-action-btn" onClick={() => window.print()}><u>P</u>rint</button>
-            <button className="phs-action-btn" onClick={() => alert('Packing Master Dialog')}>Packing</button>
-            <button className="phs-action-btn" onClick={() => alert('Category Master Dialog')}>Category</button>
-            <button className="phs-action-btn" onClick={() => alert('Tax Master Dialog')}>Tax</button>
-            <button className="phs-action-btn" onClick={() => alert('Manufacturer Master Dialog')}>Mfr</button>
-            <button className="phs-action-btn" onClick={() => alert('Generic Master Dialog')}>Gen.Master</button>
-            <button className="phs-action-btn" onClick={onClose}><u>E</u>xit</button>
+            <button className="phs-action-btn primary" onClick={handleSave}>
+              <Save size={15} /> Save
+            </button>
+            <button className="phs-action-btn" onClick={handleDelete}>
+              <Trash2 size={15} /> Delete
+            </button>
+            <button className="phs-action-btn" onClick={handleContinue}>
+              <RotateCcw size={15} /> Continue
+            </button>
+            <button className="phs-action-btn" onClick={() => window.print()}>
+              <Printer size={15} /> Print
+            </button>
+            <button className="phs-action-btn" onClick={() => alert('Packing Master Dialog')}>
+              <Package size={15} /> Packing
+            </button>
+            <button className="phs-action-btn" onClick={() => alert('Category Master Dialog')}>
+              <Tag size={15} /> Category
+            </button>
+            <button className="phs-action-btn" onClick={() => alert('Tax Master Dialog')}>
+              <Receipt size={15} /> Tax
+            </button>
+            <button className="phs-action-btn" onClick={() => alert('Manufacturer Master Dialog')}>
+              <Building2 size={15} /> Mfr
+            </button>
+            <button className="phs-action-btn" onClick={() => alert('Generic Master Dialog')}>
+              <Database size={15} /> Gen.Master
+            </button>
+            <button className="phs-action-btn exit-btn" onClick={onClose}>
+              <LogOut size={15} /> Exit
+            </button>
           </div>
 
           <div className="phs-shortcuts-legend">
-            <div><span className="red">F1</span> - Product Type Master</div>
-            <div><span className="red">F5</span> - Schedule Master</div>
+            <span className="phs-shortcut-chip"><strong>F1</strong> - Product Type Master</span>
+            <span className="phs-shortcut-chip"><strong>F5</strong> - Schedule Master</span>
           </div>
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

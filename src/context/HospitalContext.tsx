@@ -329,6 +329,7 @@ interface HospitalContextType {
   deletePatient: (uhid: string) => void;
   markPrescriptionComplete: (id: string) => void;
   markLabComplete: (id: string) => void;
+  addLabRequest: (lab: LabRequest) => void;
   markScanComplete: (id: string) => void;
   addScanRequest: (scan: ScanRequest) => void;
   updateScanReport: (id: string, reportFile: string, findings: string, radiologist?: string) => void;
@@ -611,6 +612,17 @@ export const HospitalProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
+  const addLabRequest = async (lab: LabRequest) => {
+    setLabRequests(prev => [lab, ...prev]);
+    const res = await apiFetch('/api/lab', {
+      method: 'POST',
+      body: JSON.stringify(lab)
+    });
+    if (!res.ok || res.offline) {
+      queueMutation('/api/lab', 'POST', lab);
+    }
+  };
+
   const markScanComplete = async (id: string) => {
     setScanRequests(prev => prev.map(s => s.id === id ? { ...s, status: 'Completed' } : s));
   };
@@ -661,6 +673,7 @@ export const HospitalProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       deletePatient,
       markPrescriptionComplete,
       markLabComplete,
+      addLabRequest,
       markScanComplete,
       addScanRequest,
       updateScanReport,
