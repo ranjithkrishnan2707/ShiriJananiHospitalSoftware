@@ -118,6 +118,11 @@ const Sidebar: React.FC = () => {
           </li>
         </ul>
       </nav>
+
+      <div className="sidebar-version-footer">
+        <span className="version-text">Janani Hospital ERP</span>
+        <span className="version-badge">v2.0.0</span>
+      </div>
     </aside>
   );
 };
